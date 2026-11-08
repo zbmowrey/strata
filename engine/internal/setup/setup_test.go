@@ -171,3 +171,46 @@ func exists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil
 }
+
+// The security profile's sast gate passes .strata/semgrep/ to semgrep, which
+// exits with a config error when the directory is missing: init creates the
+// starter rules, and upgrade restores them.
+func TestSemgrepRulesStarter(t *testing.T) {
+	t.Parallel()
+	dir := gitRepo(t)
+	res, err := Init(context.Background(), dir, Options{Now: now, DryRun: true})
+	if err != nil || !slices.Contains(res.Changed(), ".strata/semgrep/rules.yml") {
+		t.Fatalf("dry init: %v %v", err, res.Changed())
+	}
+	if _, err := Init(context.Background(), dir, Options{Now: now}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(read(t, dir, ".strata/semgrep/rules.yml"), "rules: []") {
+		t.Fatal("starter rules not written")
+	}
+	if err := os.RemoveAll(filepath.Join(dir, ".strata", "semgrep")); err != nil {
+		t.Fatal(err)
+	}
+	inst, err := config.Open(dir, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Upgrade(context.Background(), inst, Options{}); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(read(t, dir, ".strata/semgrep/rules.yml"), "rules: []") {
+		t.Fatal("upgrade did not restore the starter rules")
+	}
+	testutil.WriteFile(t, dir, ".strata/semgrep/mine.yml", "rules: []\n")
+	if err := os.Remove(filepath.Join(dir, ".strata", "semgrep", "rules.yml")); err != nil {
+		t.Fatal(err)
+	}
+	if res, err := Upgrade(context.Background(), inst, Options{}); err != nil || slices.Contains(res.Changed(), ".strata/semgrep/rules.yml") {
+		t.Fatalf("an existing rules directory is the user's: %v %v", err, res.Changed())
+	}
+	other := gitRepo(t)
+	testutil.WriteFile(t, other, ".strata/gates.toml", "")
+	if res, err := Init(context.Background(), other, Options{Now: now}); err != nil || slices.Contains(res.Changed(), ".strata/semgrep/rules.yml") {
+		t.Fatalf("no sast gate, no rules: %v %v", err, res.Changed())
+	}
+}

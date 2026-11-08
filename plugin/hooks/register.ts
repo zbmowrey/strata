@@ -54,7 +54,6 @@ export const COMMANDS = [
     description: 'Run the Strata retrieval bench or protocol evals',
     argumentHint: '[retrieval|protocol]',
   },
-  { name: 'resume', description: 'Where active Strata projects stand', argumentHint: '[slug]' },
   {
     name: 'project',
     description: 'Strata project lifecycle',
@@ -62,8 +61,9 @@ export const COMMANDS = [
   },
   {
     name: 'strata',
-    description: 'Open the Strata pane; /strata doctor checks health',
-    argumentHint: '[doctor]',
+    description:
+      'Open the Strata pane; /strata doctor checks health; /strata resume shows projects',
+    argumentHint: '[doctor | resume [slug]]',
   },
 ] as const
 
@@ -216,8 +216,6 @@ async function command($: $, name: string, args: string): Promise<string> {
       return promote($, args)
     case 'bench':
       return runPlan($, benchArgv(args), renderBench)
-    case 'resume':
-      return runPlan($, resumeArgv(args))
     case 'project': {
       const plan = projectArgv(args)
       return runPlan($, plan, plan.kind === 'engine' && plan.json ? renderProjects : undefined)
@@ -228,6 +226,11 @@ async function command($: $, name: string, args: string): Promise<string> {
 }
 
 async function strata($: $, args: string): Promise<string> {
+  const [sub, ...rest] = args.trim().split(/\s+/)
+  if (sub === 'resume') {
+    // /resume is a Claude Code built-in, so resume lives under /strata.
+    return runPlan($, resumeArgv(rest.join(' ')))
+  }
   if (args.trim() === 'doctor') {
     const res = await call<unknown>($, ['doctor'], { accept: [EXIT.blocking], timeoutMs: 120_000 })
     return res.ok ? renderDoctor(res.data) : describe(res)
@@ -239,15 +242,21 @@ async function strata($: $, args: string): Promise<string> {
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
+    // Each registration stands alone: a refused name (e.g. one Claude Code
+    // later makes a built-in) must not take the status line and tools with it.
+    const refused: string[] = []
     for (const c of COMMANDS) {
-      await $.command.register({
-        name: c.name,
-        description: c.description,
-        argumentHint: c.argumentHint,
-      })
+      await $.command
+        .register({ name: c.name, description: c.description, argumentHint: c.argumentHint })
+        .catch(() => refused.push(`/${c.name}`))
     }
     for (const t of TOOLS) {
-      await $.tool.register({ ...t, inputSchema: { ...t.inputSchema } })
+      await $.tool
+        .register({ ...t, inputSchema: { ...t.inputSchema } })
+        .catch(() => refused.push(t.name))
+    }
+    if (refused.length > 0) {
+      $.ui.log(`strata: not registered: ${refused.join(', ')} (see claude --debug)`)
     }
     const engine = await checkEngine($)
     await update($, engineAtom, () => engine)

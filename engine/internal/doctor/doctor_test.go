@@ -12,6 +12,7 @@ import (
 	"github.com/zbmowrey/strata/engine/internal/config"
 	"github.com/zbmowrey/strata/engine/internal/setup"
 	"github.com/zbmowrey/strata/engine/internal/testutil"
+	"github.com/zbmowrey/strata/engine/internal/version"
 )
 
 var now = func() time.Time { return time.Date(2026, 11, 7, 12, 0, 0, 0, time.UTC) }
@@ -140,5 +141,47 @@ func TestResolveArgs(t *testing.T) {
 	}
 	if got := resolveArgs([]string{"go", "version", "-m", "no-such-tool-xyz"}); got[3] != "no-such-tool-xyz" {
 		t.Fatalf("unknown tool changed: %v", got)
+	}
+}
+
+func TestPluginCheck(t *testing.T) {
+	t.Parallel()
+	inst := instance(t)
+	dir := t.TempDir()
+	check := func(content string) Check {
+		t.Helper()
+		p := filepath.Join(dir, "installed_plugins.json")
+		_ = os.Remove(p)
+		if content != "" {
+			testutil.WriteFile(t, dir, "installed_plugins.json", content)
+		}
+		return byName(Run(context.Background(), inst, Options{Now: now, ToolsRun: fakeTools(nil), PluginsFile: p}))[checkPlugin]
+	}
+	release := strings.TrimSuffix(version.Current(), "-dev")
+	if c := check(`{"version":2,"plugins":{"strata@strata":[{"scope":"user","version":"` + release + `"}]}}`); c.Status != OK {
+		t.Errorf("matching plugin: %+v", c)
+	}
+	if c := check(`{"version":2,"plugins":{"strata@strata":[{"version":"0.0.1"}]}}`); c.Status != Warn || !strings.Contains(c.Message, "0.0.1") {
+		t.Errorf("old plugin: %+v", c)
+	}
+	if c := check(`{"version":2,"plugins":{"other@x":[{"version":"1.0.0"}]}}`); c.Status != Warn || c.Fix != pluginInstall {
+		t.Errorf("not installed: %+v", c)
+	}
+	if c := check(""); c.Status != Warn || c.Fix != pluginInstall {
+		t.Errorf("no plugins file: %+v", c)
+	}
+	if c := check("not json"); c.Status != Warn {
+		t.Errorf("unreadable: %+v", c)
+	}
+	if _, ok := byName(Run(context.Background(), inst, Options{Now: now, ToolsRun: fakeTools(nil)}))[checkPlugin]; ok {
+		t.Error("empty PluginsFile must skip the check")
+	}
+}
+
+func TestDefaultPluginsFile(t *testing.T) { //nolint:paralleltest // t.Setenv cannot run in a parallel test
+	dir := t.TempDir()
+	t.Setenv("CLAUDE_CONFIG_DIR", dir)
+	if got := DefaultPluginsFile(); got != filepath.Join(dir, "plugins", "installed_plugins.json") {
+		t.Fatalf("got %q", got)
 	}
 }

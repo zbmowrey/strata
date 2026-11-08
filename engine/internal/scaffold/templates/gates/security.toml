@@ -24,6 +24,7 @@ exclude = ["**/testdata/**", "**/node_modules/**"]
 stages = ["stop", "commit", "ci"]
 scope = "file"
 cmd = ["semgrep", "scan", "--quiet", "--metrics=off", "--sarif", "--config", "p/default", "--config", ".strata/semgrep/", "{targets}"]
+config_files = [".strata/semgrep/"]
 parser = "semgrep-sarif"
 timeout = "300s"
 

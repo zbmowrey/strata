@@ -13,6 +13,7 @@ import {
 import { argv, decode, describe as describeFail, firstJSON, sameRelease } from '../hooks/engine'
 import { gardenerPrompt, digestPath } from '../hooks/garden'
 import { paneSections } from '../hooks/pane'
+import { COMMANDS } from '../hooks/register'
 import {
   parseGardenStart,
   renderDoctor,
@@ -263,4 +264,22 @@ test('renderers', () => {
   expect(gardenerPrompt(start)).toContain('3 tasks: fix-orphan 3')
   expect(digestPath('/r/w/')).toBe('/r/w/.strata/garden/digest.md')
   expect(paneSections(null, null, null)[0]?.lines).toEqual(['Loading…'])
+})
+
+test('no slash command shadows a Claude Code built-in (registration would be refused)', () => {
+  const builtins = [
+    'resume',
+    'help',
+    'clear',
+    'compact',
+    'config',
+    'plugin',
+    'review',
+    'status',
+    'init',
+    'doctor',
+  ]
+  for (const c of COMMANDS) {
+    expect(builtins).not.toContain(c.name)
+  }
 })

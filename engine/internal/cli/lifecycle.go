@@ -41,7 +41,7 @@ func newInitCmd(a *app) *cobra.Command {
 			if profiles != "" {
 				opt.Profiles = strings.Split(profiles, ",")
 			}
-			opt.Now, opt.Version = a.now, version.Version
+			opt.Now, opt.Version = a.now, version.Current()
 			res, err := setup.Init(cmd.Context(), root, opt)
 			if res != nil {
 				if perr := a.printSetup(res, format, opt.DryRun); perr != nil && err == nil {
@@ -75,7 +75,7 @@ func newUpgradeCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			res, err := setup.Upgrade(cmd.Context(), inst, setup.Options{Now: a.now, Version: version.Version, DryRun: dry})
+			res, err := setup.Upgrade(cmd.Context(), inst, setup.Options{Now: a.now, Version: version.Current(), DryRun: dry})
 			if res != nil {
 				if perr := a.printSetup(res, format, dry); perr != nil && err == nil {
 					err = perr

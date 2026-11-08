@@ -278,9 +278,12 @@ func (r *Runner) invoke(ctx context.Context, g *Gate, argv []string) (string, []
 		return StatusError, []finding.Finding{{Rule: ruleCrashed, Severity: finding.Error, Message: err.Error()}}
 	}
 	fs, perr := ParseOutput(g.Parser, out, g)
-	if perr != nil && out.Exit != 0 {
+	// A non-zero exit that explains itself with no finding is a tool failure
+	// (e.g. semgrep's exit 7 on a bad --config still prints valid, empty
+	// SARIF): fail closed rather than report a pass.
+	if out.Exit != 0 && (perr != nil || (len(fs) == 0 && g.Parser != ParserExitcode)) {
 		o, _ := parseExitcode(out, g)
-		o[0].Rule = ruleCrashed
+		o[0].Rule, o[0].Severity = ruleCrashed, finding.Error
 		return StatusError, o
 	}
 	return StatusPass, fs

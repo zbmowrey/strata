@@ -27,7 +27,7 @@ func newDoctorCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			checks := doctor.Run(cmd.Context(), inst, doctor.Options{Now: a.now, Fix: fix})
+			checks := doctor.Run(cmd.Context(), inst, doctor.Options{Now: a.now, Fix: fix, PluginsFile: doctor.DefaultPluginsFile()})
 			if err := a.printDoctor(checks, format); err != nil {
 				return err
 			}

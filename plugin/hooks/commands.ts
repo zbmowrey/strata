@@ -30,11 +30,11 @@ export function captureArgv(args: string, project: string | null): Plan {
   return text(project === null ? ['capture', t] : ['capture', t, '--project', project])
 }
 
-/** /resume [slug] */
+/** /strata resume [slug] (/resume is a Claude Code built-in) */
 export function resumeArgv(args: string): Plan {
   const [slug, ...rest] = tokenize(args)
   if (rest.length > 0) {
-    return usage('Usage: /resume [slug]')
+    return usage('Usage: /strata resume [slug]')
   }
   return text(slug === undefined ? ['resume'] : ['resume', slug])
 }

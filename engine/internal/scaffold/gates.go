@@ -169,3 +169,13 @@ func quoteList(xs []string) string {
 	}
 	return strings.Join(q, ", ")
 }
+
+//go:embed templates/semgrep/rules.yml
+var semgrepRules []byte
+
+// SemgrepRulesFile is the starter custom-rules file the security profile's
+// sast gate reads (via --config .strata/semgrep/).
+const SemgrepRulesFile = ".strata/semgrep/rules.yml"
+
+// SemgrepRules returns the starter custom-rules file.
+func SemgrepRules() []byte { return slices.Clone(semgrepRules) }

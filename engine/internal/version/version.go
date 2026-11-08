@@ -51,6 +51,11 @@ func Get() Info {
 	return info
 }
 
+// Current is the engine's release version: the linker-set Version, or, for a
+// `go install …@vX.Y.Z` build (no ldflags), the module version. Use it, not
+// Version, wherever the version is shown or compared.
+func Current() string { return Get().Version }
+
 // Semver is a parsed MAJOR.MINOR.PATCH[-pre] version.
 type Semver struct {
 	Pre                 string

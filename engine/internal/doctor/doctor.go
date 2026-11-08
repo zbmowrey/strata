@@ -36,6 +36,9 @@ type Options struct {
 	Now      func() time.Time
 	ToolsRun func(ctx context.Context, argv []string) (string, error) // runs a tool's version command
 	Fix      bool
+	// PluginsFile is Claude Code's installed_plugins.json (DefaultPluginsFile);
+	// empty skips the plugin check.
+	PluginsFile string
 }
 
 // Check names referenced more than once.
@@ -58,7 +61,7 @@ func Run(ctx context.Context, inst *config.Instance, opt Options) []Check {
 	d := &doctor{ctx: ctx, inst: inst, opt: opt}
 	out := make([]Check, 0, 16)
 	for _, f := range []func() []Check{
-		d.engine, d.managed, d.gitHook, d.indexHealth, d.gatesConfig, d.tools, d.lintSummary, d.questions, d.gardenLock,
+		d.engine, d.plugin, d.managed, d.gitHook, d.indexHealth, d.gatesConfig, d.tools, d.lintSummary, d.questions, d.gardenLock,
 	} {
 		out = append(out, f()...)
 	}
@@ -91,14 +94,14 @@ type doctor struct {
 func (d *doctor) engine() []Check {
 	want := d.inst.Config.Engine.MinVersion
 	// A development build counts as its release for this check.
-	ok, err := version.AtLeast(strings.TrimSuffix(version.Version, "-dev"), want)
+	ok, err := version.AtLeast(strings.TrimSuffix(version.Current(), "-dev"), want)
 	switch {
 	case err != nil:
-		return []Check{{Name: "engine", Status: Warn, Message: fmt.Sprintf("cannot compare %s with min_version %q: %v", version.Version, want, err)}}
+		return []Check{{Name: "engine", Status: Warn, Message: fmt.Sprintf("cannot compare %s with min_version %q: %v", version.Current(), want, err)}}
 	case !ok:
-		return []Check{{Name: "engine", Status: Fail, Message: fmt.Sprintf("strata %s < min_version %s", version.Version, want), Fix: "go install github.com/zbmowrey/strata/engine/cmd/strata@latest"}}
+		return []Check{{Name: "engine", Status: Fail, Message: fmt.Sprintf("strata %s < min_version %s", version.Current(), want), Fix: "go install github.com/zbmowrey/strata/engine/cmd/strata@latest"}}
 	}
-	return []Check{{Name: "engine", Status: OK, Message: "strata " + version.Version + " ≥ min_version " + want}}
+	return []Check{{Name: "engine", Status: OK, Message: "strata " + version.Current() + " ≥ min_version " + want}}
 }
 
 func (d *doctor) gardenLock() []Check {
