@@ -131,7 +131,7 @@ The plugin is a Claude Code mod (function-hooks module in TypeScript) plus markd
 - `plugin/.claude-plugin/plugin.json`: `{ "name": "strata", "version": <engine version>, "description": "…", "types": "./types/index.d.ts" }`.
 - `plugin/hooks/hooks.json`: `{ "modules": ["./register.ts"] }`.
 - Repo root `.claude-plugin/marketplace.json` lists `strata` with `source: "./plugin"`.
-- Install: `/plugin install strata --marketplace zbmowrey/strata`.
+- Install: `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata`.
 - Version of plugin and engine move together; the plugin checks `strata version --format json` at `session.start` and shows a status warning on mismatch.
 
 ### 5.2 Slash commands

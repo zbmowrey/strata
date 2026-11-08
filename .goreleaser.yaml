@@ -1,0 +1,40 @@
+# goreleaser v2 — `just release VERSION` (run only with the owner's go-ahead).
+version: 2
+project_name: strata
+before:
+  hooks:
+    - just check
+    - just test
+builds:
+  - id: strata
+    dir: engine
+    main: ./cmd/strata
+    binary: strata
+    env: [CGO_ENABLED=0]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/zbmowrey/strata/engine/internal/version.Version={{ .Version }}
+      - -X github.com/zbmowrey/strata/engine/internal/version.Commit={{ .FullCommit }}
+      - -X github.com/zbmowrey/strata/engine/internal/version.Date={{ .CommitDate }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "strata_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files: [LICENSE, README.md, CHANGELOG.md]
+checksum:
+  name_template: checksums.txt
+changelog:
+  disable: true # CHANGELOG.md is the source of release notes
+release:
+  github:
+    owner: zbmowrey
+    name: strata
+  draft: true
+  footer: |
+    Install: `go install github.com/zbmowrey/strata/engine/cmd/strata@v{{ .Version }}` · plugin: `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata`

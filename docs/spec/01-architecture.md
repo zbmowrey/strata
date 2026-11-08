@@ -210,7 +210,7 @@ members = [
 | `just release VERSION` | tag, goreleaser (darwin/linux × arm64/amd64), checksums, GitHub release |
 | `just doctor` | run `strata doctor` against this repo |
 
-End users install with `go install github.com/zbmowrey/strata/engine/cmd/strata@latest` (or a release binary / Homebrew tap later) and add the plugin with `/plugin install strata --marketplace zbmowrey/strata`.
+End users install with `go install github.com/zbmowrey/strata/engine/cmd/strata@latest` (or a release binary / Homebrew tap later) and add the plugin with `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata`.
 
 ## 12. Dependencies (engine)
 

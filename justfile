@@ -99,5 +99,23 @@ hooks:
     printf '#!/bin/sh\nexec just check-staged\n' > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit && echo .git/hooks/pre-commit
 
 # Tag and publish a release (asks nothing — run only with the owner's go-ahead).
+# Tags vX.Y.Z (release + plugin) and engine/vX.Y.Z (Go module in engine/), then
+# goreleaser builds binaries into a DRAFT GitHub release. Run on main after merging.
 release VERSION:
-    @echo "release {{VERSION}}: not yet implemented (Phase 12)" && exit 1
+    #!/usr/bin/env bash
+    set -euo pipefail
+    v="{{VERSION}}"
+    [[ "$v" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "release: VERSION must look like v0.1.0" >&2; exit 4; }
+    [[ "$(git rev-parse --abbrev-ref HEAD)" == "main" ]] || { echo "release: run on main" >&2; exit 4; }
+    git diff --quiet && git diff --cached --quiet || { echo "release: working tree not clean" >&2; exit 1; }
+    pv="v$(python3 -c 'import json;print(json.load(open("plugin/.claude-plugin/plugin.json"))["version"])')"
+    [[ "$pv" == "$v" ]] || { echo "release: plugin.json version $pv != $v" >&2; exit 1; }
+    grep -q "^## \[${v#v}\]" CHANGELOG.md || { echo "release: CHANGELOG.md has no [${v#v}] section" >&2; exit 1; }
+    git tag -a "$v" -m "Strata $v"
+    git tag -a "engine/$v" -m "Strata engine $v (Go module)"
+    git push origin "$v" "engine/$v"
+    GORELEASER_CURRENT_TAG="$v" goreleaser release --clean
+
+# Local release dry run: cross-compiled archives in dist/, nothing published.
+release-snapshot:
+    goreleaser release --snapshot --clean --skip=before,publish

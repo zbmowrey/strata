@@ -7,15 +7,16 @@
 *Knowledge settles in layers — and hardens into code.*
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Status](https://img.shields.io/badge/status-spec%20complete%20·%20engine%20in%20construction-orange)
+[![CI](https://github.com/zbmowrey/strata/actions/workflows/ci.yml/badge.svg)](https://github.com/zbmowrey/strata/actions/workflows/ci.yml)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![Go](https://img.shields.io/badge/engine-Go-00ADD8?logo=go&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-D97757)
 
 </div>
 
-> [!IMPORTANT]
-> **Strata is pre-alpha.** The full design is in [`docs/spec/`](docs/spec/) and the build is under way.
-> Commands below describe the v0.1.0 target; the README will be updated with real output as each piece ships.
+> [!NOTE]
+> **Strata 0.1.0** implements the full v1 design in [`docs/spec/`](docs/spec/). The output below is real,
+> captured from the release build; numbers are from the release benchmarks.
 
 ---
 
@@ -71,38 +72,99 @@ Recurrence, telemetry, and gate-failure patterns drive each promotion. A mistake
 - **Capture:** record what was learned, at near-zero friction.
 - **Consolidate and harden:** the gardener's job.
 
-## A taste (v0.1.0 target)
+## A taste
 
 ```console
 $ strata search 'tests hang at exit'
-pytest-fixture-teardown   shard/gotcha   0.94  DB fixtures need explicit teardown — Session-scoped DB fixtures leak…
-find-leaked-fixtures      script/ro      0.81  Detect pytest fixtures without teardown across tests/
-debug-hanging-tests       playbook       0.66  Procedure for diagnosing a test suite that hangs at exit
-ci-flake:log#2026-11-07   project        0.52  tried: pytest -x --timeout … failed: hang persists at teardown
+debug-hanging-tests            playbook      1.00  Procedure for diagnosing a test suite that hangs at exit —…
+pytest-fixture-teardown        shard/gotcha  0.96  DB fixtures need explicit teardown — Session-scoped DB fix…
+hanging-test-diagnosis         shard/howto   0.30  Find which fixture keeps the process alive — Dump thread s…
+ci-flake:plan                  project       0.26  ci-flake plan — 1. Find the hang at session teardown. 2. W…
+ci-flake:log#2026-10-21-10-00  project       0.24  ci-flake log 2026-10-21 10:00 — tried: `pytest -x --timeou…
 
-$ strata show pytest-fixture-teardown find-leaked-fixtures --links 1 --budget 4000
-$ strata run find-leaked-fixtures -- --path tests/
-$ strata capture "pg pool must be closed in the session fixture finalizer" --type gotcha
+$ strata show pytest-fixture-teardown
+═══ pytest-fixture-teardown · shard/gotcha · knowledge/testing/pytest/pytest-fixture-teardown.md
+trust: observed · updated 2026-10-01 · links: 3 out / 4 in
+Session-scoped database fixtures that open a connection without a `yield` teardown leak it; pytest then hangs after the last test.
+
+## Symptom
+The suite prints its summary and never exits. `--timeout` does not fire because no test is running.
+…
+
+$ strata scripts list
+check-deploy-config   read-only     go      Validate Helm values files for required resources and image tags.
+find-leaked-fixtures  read-only     python  Detect pytest fixtures that acquire resources without teardown.
+render-release-notes  writes-local  go      Render release notes from conventional commits since the last tag.
+…
+
+$ strata resume
+ci-flake — Eliminate CI flakiness in the integration suite (active, last activity 2026-10-22, 15d ago)
+  Next:
+    1. Finish find-leaked-fixtures (strata run find-leaked-fixtures -- --path tests/).
 ```
 
-## Quickstart (v0.1.0 target)
+(From the repository's test fixture, `engine/testdata/instance-basic`.)
+
+## Quickstart
 
 ```bash
-# 1. Install the engine
-go install github.com/zbmowrey/strata/engine/cmd/strata@latest
+# 1. Install the engine (Go 1.26+; the module pins its toolchain)
+go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.0
+#    …or download a binary for macOS / Linux / Windows from the GitHub release.
 
 # 2. Drop Strata into a repository
 cd your-repo
-strata init            # knowledge/, scripts/, projects/, .strata/, hooks, CLAUDE.md block
-strata doctor          # verifies tools, hooks, index, managed blocks
+strata init        # idempotent; --dry-run shows every change first
+strata doctor      # tools, hooks, index, managed blocks
 ```
+
+```console
+$ strata init
+.strata/config.toml
+.strata/synonyms.txt
+.strata/bench/retrieval.yaml
+knowledge/_inbox/.gitkeep
+knowledge/_questions/.gitkeep
+scripts/.gitkeep
+.strata/gates.toml
+.strata/tools.toml
+CLAUDE.md
+.gitignore
+.claude/settings.json
+knowledge/_hubs/index.md
+scripts/CATALOG.md
+.git/hooks/pre-commit
+
+$ strata doctor
+✓ engine             strata 0.1.0 ≥ min_version 0.1.0
+✓ managed            CLAUDE.md block, .gitignore blocks, hooks and allowlist current
+✓ git-hook           pre-commit runs strata check --staged
+✓ index              1 file indexed
+✓ gates              11 gates configured
+✓ tool:golangci-lint golangci-lint 2.15.0
+…
+✓ lint               1 file checked: 0 errors, 0 warnings
+
+$ strata capture --type gotcha "The staging DB rejects connections without sslmode=require; local defaults to disable"
+knowledge/_inbox/20261108-010459-the-staging-db-rejects-connections-witho.md
+
+$ strata search 'staging database ssl'
+20261108-010459-the-staging-db-rejects-…  inbox/gotcha  0.48  The staging DB rejects connections without sslm…
+```
+
+`init` detects your languages and writes gates for them (Go, Python, TypeScript, Rust, shell, docs,
+security); `doctor` prints the install command for any missing tool.
 
 ```text
 # 3. Install the Claude Code plugin (inside Claude Code)
-/plugin install strata --marketplace zbmowrey/strata
+/plugin marketplace add zbmowrey/strata
+/plugin install strata@strata
 ```
 
-Start a session. Claude now searches before it acts, reuses and writes scripts, captures what it learns, and can't leave a lint error behind. Run `/garden` whenever you like, or ask Claude to schedule it.
+Start a session. The hooks `strata init` wrote into `.claude/settings.json` make Claude search
+before it acts, block it on failing gates as it edits, and ask once per session for a knowledge
+checkpoint. Run `/garden` whenever you like: it works in a separate worktree and opens a pull
+request for you to review — it never merges.
 
 ## Design principles
 
@@ -134,17 +196,29 @@ Start a session. Claude now searches before it acts, reuses and writes scripts, 
 | [Evals](docs/spec/10-evals.md) · [Security](docs/spec/11-security.md) | Bench and protocol evals · trust and safety |
 | [Build plan](docs/spec/12-build-plan.md) · [Decisions](docs/spec/13-decisions.md) | Phases · decision log |
 
-## Status and roadmap
+## Measured (v0.1.0)
 
-- [x] Design and full specification
-- [ ] Engine: documents, schema, lint
-- [ ] Index and search (performance budgets met)
-- [ ] Knowledge write paths, Scriptorium, Projects
-- [ ] Gates, hooks, `init` / `doctor`
-- [ ] Gardener and forge integration
-- [ ] Claude Code plugin
-- [ ] Dogfooding, retrieval bench, protocol evals
-- [ ] v0.1.0 release
+| | |
+|---|---|
+| Performance, 10k-document corpus (p95) | search 19 ms · show ×10 17 ms · freshness check 11 ms · refresh after 10 edits 35 ms · full rebuild 1.6 s · post-edit hook 8 ms · session-start hook 25 ms · `garden --plan` 2.2 s — all within the [budgets](docs/spec/01-architecture.md) |
+| Retrieval bench (this repository, 34 queries) | MRR 0.944 · recall@5 0.956 · nDCG@10 0.947 |
+| Protocol evals (claude-opus-5-5, 3 headless runs each) | 12 / 12 scenarios pass — searches before reading code, batches `show`, reuses scripts, captures gotchas and corrections, fixes gate failures instead of suppressing them, resumes projects from the handoff, respects user-stated knowledge |
+
+Strata is built inside a Strata instance: this repository's own `CLAUDE.md`, hooks, gates and
+knowledge base are the dogfood.
+
+## Development
+
+```bash
+just build          # bin/strata
+just check          # every gate (gofumpt, golangci-lint strict, govulncheck, semgrep, gitleaks, typos, shellcheck, plugin lint, strata lint)
+just test           # go test -race, coverage ≥ 80% per internal package
+just bench          # performance budgets on the synthetic corpus
+just plugin-check   # claude plugin validate + tests
+strata bench retrieval / strata bench protocol   # retrieval bench and protocol evals
+```
+
+See [CHANGELOG.md](CHANGELOG.md) for what shipped.
 
 ## License
 
