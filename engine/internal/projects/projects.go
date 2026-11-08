@@ -318,37 +318,16 @@ func (s *Store) editFrontmatter(p *Project, kv map[string]string) error {
 	return fsutil.WriteAtomic(path, raw, 0o644)
 }
 
-// SetKey replaces (or adds before the closing ---) a top-level frontmatter
-// key with `key: value`, dropping the old value's block continuation lines.
-// Everything else is preserved verbatim; input without frontmatter is
-// returned unchanged.
+// projectKeys is the canonical project.md key order (docs/spec/05-projects.md §3.1).
+var projectKeys = []string{"id", "title", "status", "goal", "created", "updated", "tags", "shards", "track"}
+
+// SetKey sets a top-level frontmatter key (canonical project key order),
+// preserving everything else; input without valid frontmatter is returned
+// unchanged.
 func SetKey(raw []byte, key, value string) []byte {
-	lines := strings.SplitAfter(string(raw), "\n")
-	if len(lines) == 0 || strings.TrimRight(lines[0], "\r\n") != "---" {
+	out, err := doc.SetKey(raw, key, value, projectKeys)
+	if err != nil {
 		return raw
 	}
-	end := -1
-	for i := 1; i < len(lines); i++ {
-		if strings.TrimRight(lines[i], "\r\n") == "---" {
-			end = i
-			break
-		}
-	}
-	if end < 0 {
-		return raw
-	}
-	newLine := key + ": " + value + "\n"
-	for i := 1; i < end; i++ {
-		if !strings.HasPrefix(lines[i], key+":") {
-			continue
-		}
-		j := i + 1
-		for j < end && (strings.HasPrefix(lines[j], " ") || strings.HasPrefix(lines[j], "\t") || strings.HasPrefix(lines[j], "- ")) {
-			j++
-		}
-		out := append(append(slices.Clone(lines[:i]), newLine), lines[j:]...)
-		return []byte(strings.Join(out, ""))
-	}
-	out := append(append(slices.Clone(lines[:end]), newLine), lines[end:]...)
-	return []byte(strings.Join(out, ""))
+	return out
 }

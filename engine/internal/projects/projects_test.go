@@ -212,7 +212,8 @@ func TestStatusTrackAndSetKey(t *testing.T) {
 		t.Fatalf("%+v", p)
 	}
 	for in, want := range map[string]string{
-		"---\na: 1\nk:\n  - x\n- y\nb: 2\n---\nbody\n": "---\na: 1\nk: v\nb: 2\n---\nbody\n",
+		"---\na: 1\nk:\n  - x\n  - y\nb: 2\n---\nbody\n": "---\na: 1\nk: v\nb: 2\n---\nbody\n",
+		"---\nk: [\n---\n":    "---\nk: [\n---\n", // invalid YAML is left alone
 		"---\na: 1\n---\n":    "---\na: 1\nk: v\n---\n",
 		"no frontmatter\n":    "no frontmatter\n",
 		"---\nunterminated\n": "---\nunterminated\n",

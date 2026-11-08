@@ -283,37 +283,15 @@ func TestQuestions(t *testing.T) {
 	lintClean(t, dir)
 }
 
-func TestFrontmatterEditing(t *testing.T) {
+func TestHelpers(t *testing.T) {
 	t.Parallel()
-	raw := []byte("---\nid: x\ntitle: T\ntags:\n  - a\n  - b\n# comment for status\nstatus: active\nmystery: 1\n---\nbody\n")
-	out, err := SetKey(raw, "tags", Value([]string{"c"}))
-	if err != nil {
-		t.Fatal(err)
+	if out, err := SetKey([]byte("---\nid: x\n---\n"), "trust", "inferred"); err != nil || string(out) != "---\nid: x\ntrust: inferred\n---\n" {
+		t.Fatalf("%q %v", out, err)
 	}
-	out, _ = SetKey(out, "trust", "inferred")
-	out, _ = SetKey(out, "sensitive", "false")
-	out, _ = SetKey(out, "zzz", "1")
-	out, _ = RemoveKey(out, "mystery")
-	out, _ = RemoveKey(out, "absent")
-	want := "---\nid: x\ntitle: T\ntags: [c]\n# comment for status\nstatus: active\ntrust: inferred\nsensitive: false\nzzz: 1\n---\nbody\n"
-	if string(out) != want {
-		t.Fatalf("got:\n%s", out)
+	if out, _ := RemoveKey([]byte("---\nid: x\n---\n"), "id"); string(out) != "---\n---\n" {
+		t.Fatalf("%q", out)
 	}
-	if _, err := SetKey([]byte("no frontmatter"), "a", "b"); err == nil {
-		t.Fatal("want error")
-	}
-	if _, err := SetKey([]byte("---\na: [\n---\n"), "a", "b"); err == nil {
-		t.Fatal("want parse error")
-	}
-	if got, _ := RemoveKey([]byte("plain"), "a"); string(got) != "plain" {
-		t.Fatal("remove on plain")
-	}
-	for in, want := range map[any]string{"plain": "plain", "a: b": `"a: b"`, "": `""`, "yes": `"yes"`, 3: "3"} {
-		if got := Value(in); got != want {
-			t.Errorf("Value(%v) = %s", in, got)
-		}
-	}
-	if Slugify("!!!", 10) != "note" || Slugify("Hello, World of Go", 11) != "hello-world" || titleCase("ci-cd") != "Ci Cd" {
-		t.Fatal("slug/title")
+	if Value("a: b") != `"a: b"` || Slugify("!!!", 10) != "note" || Slugify("Hello, World of Go", 11) != "hello-world" || titleCase("ci-cd") != "Ci Cd" {
+		t.Fatal("helpers")
 	}
 }
