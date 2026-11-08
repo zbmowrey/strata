@@ -1,0 +1,26 @@
+// Command {{.ID}} — TODO: one-line description (keep in sync with script.yaml).
+package main
+
+import (
+	"os"
+
+	"{{.Module}}/lib/go/cli"
+	"{{.Module}}/lib/go/out"
+)
+
+func main() {
+	os.Exit(run(os.Args[1:]))
+}
+
+// run is the testable entry point: it returns the process exit code.
+func run(args []string) int {
+	opts, err := cli.Parse("{{.ID}}", "{{.ID}} [--format text|json]", args)
+	if err != nil {
+		return cli.Usage(err)
+	}
+	result := map[string]any{"status": "TODO: implement {{.ID}}"}
+	if err := out.Write(os.Stdout, opts.Format, result); err != nil {
+		return cli.Fail(err)
+	}
+	return cli.OK
+}

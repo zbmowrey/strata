@@ -1,0 +1,51 @@
+// Package out writes stable machine (json) and human (text) output.
+package out
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"sort"
+)
+
+// Write renders v as indented JSON (format "json") or as stable text: maps
+// as sorted `key: value` lines, slices one element per line.
+func Write(w io.Writer, format string, v any) error {
+	if format == "json" {
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "  ")
+		enc.SetEscapeHTML(false)
+		if err := enc.Encode(v); err != nil {
+			return fmt.Errorf("write json: %w", err)
+		}
+		return nil
+	}
+	return text(w, v)
+}
+
+func text(w io.Writer, v any) error {
+	switch x := v.(type) {
+	case map[string]any:
+		keys := make([]string, 0, len(x))
+		for k := range x {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			if _, err := fmt.Fprintf(w, "%s: %v\n", k, x[k]); err != nil {
+				return fmt.Errorf("write text: %w", err)
+			}
+		}
+	case []any:
+		for _, it := range x {
+			if _, err := fmt.Fprintln(w, it); err != nil {
+				return fmt.Errorf("write text: %w", err)
+			}
+		}
+	default:
+		if _, err := fmt.Fprintln(w, v); err != nil {
+			return fmt.Errorf("write text: %w", err)
+		}
+	}
+	return nil
+}

@@ -1,0 +1,46 @@
+"""Flag and exit-code conventions: --format text|json, errors on stderr."""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from dataclasses import dataclass, field
+
+OK = 0
+FINDINGS = 1
+ERROR = 2
+
+
+class UsageError(Exception):
+    """Raised for invalid arguments."""
+
+
+@dataclass
+class Options:
+    """Parsed common flags plus the remaining arguments."""
+
+    format: str = "text"
+    args: list[str] = field(default_factory=list)
+
+
+def parse(name: str, usage: str, argv: list[str]) -> Options:
+    """Parse the common flags; raise UsageError on bad input."""
+    parser = argparse.ArgumentParser(prog=name, usage=usage, add_help=True, exit_on_error=False)
+    parser.add_argument("--format", choices=["text", "json"], default="text")
+    try:
+        known, rest = parser.parse_known_args(argv)
+    except argparse.ArgumentError as err:
+        raise UsageError(f"{err}\nusage: {usage}") from err
+    return Options(format=known.format, args=rest)
+
+
+def usage(err: Exception) -> int:
+    """Report a usage error and return its exit code."""
+    print(f"error: {err}", file=sys.stderr)
+    return ERROR
+
+
+def fail(err: Exception) -> int:
+    """Report a runtime error and return its exit code."""
+    print(f"error: {err}", file=sys.stderr)
+    return ERROR

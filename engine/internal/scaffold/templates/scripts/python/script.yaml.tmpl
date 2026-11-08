@@ -1,0 +1,31 @@
+id: {{.ID}}
+summary: TODO one-line summary of what {{.ID}} does (≤ 160 chars)
+description: |
+  TODO: what it reads, what it reports, and when to use it.
+status: draft
+replaced_by: null
+runtime: python
+runtime_justification: >
+  TODO: name the Python library with no adequate Go equivalent that this script needs.
+entry: main.py
+usage: {{.ID}} [--format text|json]
+examples:
+  - cmd: strata run {{.ID}} -- --format json
+    explain: TODO explain what this invocation shows
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "TODO describe the output" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [uv]
+env: []
+timeout: 60s
+tags: [{{.Domain}}]
+aliases: []
+applies_to: []
+shards: []
+tests: [test_main.py]
+owner: gardener
