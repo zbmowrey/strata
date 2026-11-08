@@ -1,0 +1,11 @@
+═══ auth-rework · project/active · projects/auth-rework/
+Rework the auth flow
+goal: Refresh tokens rotate
+created 2026-11-07 · updated 2026-11-07 · last activity 2026-11-07 · 1 log entry
+tracked: out/summary.md
+
+## Next
+1. Write the plan (plan.md).
+
+## Recent log
+- 2026-11-07 00:00 — tried: rotating tokens on every request  [auth-rework:log#2026-11-07-00-00]

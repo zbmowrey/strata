@@ -1,0 +1,14 @@
+---
+updated: 2026-11-07T12:00:00Z
+session: abcd
+---
+## State
+Teardown fix landed.
+## Next
+1. Write find-leaked-fixtures.
+2. Re-run CI 50×.
+## Open threads
+- Is redis leaking?
+## Don't redo
+- Raising --timeout (log 2026-11-06 10:00)
+- pytest-rerunfailures hides races (log 2026-11-07 10:00)
