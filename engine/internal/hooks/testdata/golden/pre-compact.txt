@@ -1,0 +1,7 @@
+exit 0
+--- stdout
+strata ▸ context is about to be compacted. Before it is, update handoff.md for active projects (strata project handoff <slug>).
+ci-flake — recent log:
+  2026-10-22 15:30 — decided: add explicit teardown to `db_session` rather than raising the timeout
+  2026-10-21 10:00 — tried: `pytest -x --timeout 30` on the integration suite
+--- stderr

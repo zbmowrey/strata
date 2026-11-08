@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -383,4 +385,40 @@ func FuzzDecode(f *testing.F) {
 		_ = NormalizeCommand(in.BashCommand())
 		_ = FirstToken(in.BashCommand())
 	})
+}
+
+var reMS = regexp.MustCompile(`\(\d+ ms\)`)
+
+// TestRecordedPayloadsGolden runs every recorded Claude Code payload through
+// its hook and compares stdout/stderr/exit with golden files.
+func TestRecordedPayloadsGolden(t *testing.T) {
+	t.Parallel()
+	cases := []struct{ file, event string }{
+		{"session-start", "session-start"},
+		{"pre-edit", "pre-edit"},
+		{"pre-edit-edit", "pre-edit"},
+		{"post-edit", "post-edit"},
+		{"post-edit-edit", "post-edit"},
+		{"post-bash", "post-bash"},
+		{"post-bash-subagent", "post-bash"},
+		{"stop", "stop"},
+		{"subagent-stop", "stop"},
+		{"pre-compact", "pre-compact"},
+	}
+	for _, c := range cases {
+		t.Run(c.file, func(t *testing.T) {
+			t.Parallel()
+			root := fixture(t)
+			gates := func(_ context.Context, _ *config.Instance, stage string, paths []string) (GateResult, error) {
+				if stage == "edit" && len(paths) == 1 && strings.HasSuffix(paths[0], ".go") {
+					return GateResult{Blocking: 1, Hash: "h", Report: "strata gates ✗ 1 blocking finding (edit stage)\n" + paths[0] + "\n  1:1   go-lint/x   example\nFix these, then continue.\n"}, nil
+				}
+				return GateResult{}, nil
+			}
+			r := run(t, c.event, payload(t, c.file, root), Env{Gates: gates, Subagent: c.file == "subagent-stop"})
+			got := fmt.Sprintf("exit %d\n--- stdout\n%s--- stderr\n%s", r.code, r.out, r.err)
+			got = reMS.ReplaceAllString(strings.ReplaceAll(got, root, "<root>"), "(N ms)")
+			testutil.Golden(t, filepath.Join("testdata", "golden", c.file+".txt"), []byte(got))
+		})
+	}
 }

@@ -1,0 +1,7 @@
+exit 0
+--- stdout
+strata ▸ 40 shards · 5 scripts · 2 playbooks · index refreshed +54 ~0 -0 (N ms)
+Active projects (strata resume):
+  ci-flake — Next: 1. Finish find-leaked-fixtures (strata run find-leaked-fixtures -- --path tests/).
+Inbox 2 · Open questions 1 (strata questions list) · Stale 1
+--- stderr

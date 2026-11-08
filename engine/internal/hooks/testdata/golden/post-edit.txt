@@ -1,0 +1,7 @@
+exit 2
+--- stdout
+--- stderr
+strata gates ✗ 1 blocking finding (edit stage)
+hello.go
+  1:1   go-lint/x   example
+Fix these, then continue.
