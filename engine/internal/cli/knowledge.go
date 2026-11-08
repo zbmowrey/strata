@@ -187,12 +187,12 @@ func newHubsCmd(a *app) *cobra.Command {
 		Use:   "hubs",
 		Short: "Regenerate knowledge/_hubs/ (hand-written intros are preserved)",
 		Args:  cobra.NoArgs,
-		RunE: func(*cobra.Command, []string) error {
+		RunE: func(cmd *cobra.Command, _ []string) error {
 			st, err := a.store()
 			if err != nil {
 				return err
 			}
-			written, err := st.Hubs()
+			written, err := st.Hubs(cmd.Context())
 			if err != nil {
 				return err
 			}

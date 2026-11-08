@@ -70,6 +70,7 @@ type PerfOptions struct {
 type Op struct {
 	Run  func(ctx context.Context) (time.Duration, error)
 	Name string
+	N    int // samples (0 = the run's default); slow operations use fewer
 }
 
 // RunPerf measures every operation and compares with budgets and baseline.
@@ -85,7 +86,11 @@ func RunPerf(ctx context.Context, opt PerfOptions, base *PerfBaseline) ([]PerfRe
 	ops = append(ops, opt.Extra...)
 	var out []PerfResult
 	for _, op := range ops {
-		r, err := measure(ctx, op, opt.N)
+		n := opt.N
+		if op.N > 0 {
+			n = min(n, op.N)
+		}
+		r, err := measure(ctx, op, n)
 		if err != nil {
 			return nil, fmt.Errorf("perf %s: %w", op.Name, err)
 		}
@@ -130,6 +135,11 @@ func execOp(name, bin, dir string, args ...string) Op {
 		}
 		return d, err
 	}}
+}
+
+func withN(op Op, n int) Op {
+	op.N = n
+	return op
 }
 
 // hookOp times one hook invocation with a minimal payload on stdin.
@@ -202,6 +212,7 @@ func standardOps(ctx context.Context, opt PerfOptions) ([]Op, func(), error) {
 		}},
 		hookOp("hook-post-edit", opt.Binary, dir, "post-edit", files[0]),
 		hookOp("hook-session-start", opt.Binary, dir, "session-start", ""),
+		withN(execOp("garden-plan", opt.Binary, dir, "garden", "--plan"), 5),
 		{Name: "rebuild-10k", Run: func(ctx context.Context) (time.Duration, error) {
 			st, err := ix.Rebuild(ctx)
 			return st.Elapsed, err

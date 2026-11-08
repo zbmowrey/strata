@@ -3,6 +3,7 @@ package knowledge
 import (
 	"bytes"
 	"cmp"
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -10,9 +11,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/zbmowrey/strata/engine/internal/corpus"
-	"github.com/zbmowrey/strata/engine/internal/doc"
 	"github.com/zbmowrey/strata/engine/internal/fsutil"
+	"github.com/zbmowrey/strata/engine/internal/index"
 )
 
 // HubMarkers delimit the generated part of a hub; text above is preserved.
@@ -31,13 +31,13 @@ type hubShard struct {
 
 // Hubs regenerates knowledge/_hubs/hub-<domain>.md for every domain and the
 // root index.md (filename stem == id, so links resolve in Obsidian too). It returns the paths it wrote (unchanged files are skipped).
-func (s *Store) Hubs() ([]string, error) {
+func (s *Store) Hubs(ctx context.Context) ([]string, error) {
 	l, err := s.lock()
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = l.Unlock() }()
-	domains, err := s.collectShards()
+	domains, err := s.collectShards(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -79,33 +79,39 @@ func (s *Store) Hubs() ([]string, error) {
 	return written, nil
 }
 
-// collectShards groups active public shards by domain.
-func (s *Store) collectShards() (map[string][]hubShard, error) {
-	fs, err := s.files()
+// collectShards groups active public shards by domain. It reads the index
+// (refreshing it first), not the files: hubs are regenerated on every
+// garden run, including the incremental SessionStart pass.
+func (s *Store) collectShards(ctx context.Context) (map[string][]hubShard, error) {
+	ix, _, err := index.Open(ctx, s.inst, index.Options{})
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = ix.Close() }()
+	k := s.layout.Knowledge + "/"
+	rows, err := ix.DB().QueryContext(ctx, `SELECT src, topic, summary, updated FROM docs
+		WHERE kind = 'shard' AND private = 0 AND status NOT IN ('superseded', 'archived')
+		AND substr(src, 1, ?) = ? AND substr(src, ?, 1) != '_' ORDER BY src`, len(k), k, len(k)+1)
+	if err != nil {
+		return nil, fmt.Errorf("hubs: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
 	out := map[string][]hubShard{}
-	for _, f := range fs {
-		if f.Kind != corpus.Shard || f.Private || f.Archived {
-			continue
+	for rows.Next() {
+		var src, topic, summary, updated string
+		if err := rows.Scan(&src, &topic, &summary, &updated); err != nil {
+			return nil, fmt.Errorf("hubs: %w", err)
 		}
-		parts := strings.Split(strings.TrimPrefix(f.Rel, s.layout.Knowledge+"/"), "/")
+		parts := strings.Split(strings.TrimPrefix(src, k), "/")
 		if len(parts) < 3 {
 			continue
 		}
-		raw, err := s.readFile(f.Rel)
-		if err != nil {
-			return nil, err
-		}
-		d, _ := doc.Parse(f.Rel, raw)
-		if st := d.Meta.String("status"); st == "superseded" || st == "archived" {
-			continue
-		}
 		out[parts[0]] = append(out[parts[0]], hubShard{
-			id: strings.TrimSuffix(parts[len(parts)-1], ".md"), topic: parts[1],
-			summary: d.Meta.String("summary"), updated: d.Meta.String("updated"),
+			id: strings.TrimSuffix(parts[len(parts)-1], ".md"), topic: parts[1], summary: summary, updated: updated,
 		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("hubs: %w", err)
 	}
 	return out, nil
 }

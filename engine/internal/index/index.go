@@ -45,6 +45,7 @@ type Stats struct {
 	Added   int
 	Changed int
 	Removed int
+	Paths   []string // instance-relative files added, changed or removed (sorted)
 	Rebuilt bool
 	Skipped bool // another process held the lock; read the current snapshot
 }

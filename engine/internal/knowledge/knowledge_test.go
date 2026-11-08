@@ -1,6 +1,7 @@
 package knowledge
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -109,11 +110,11 @@ func TestMoveRewritesManifestsAndPlaybooks(t *testing.T) {
 func TestHubsDeterministicAndPreserveIntro(t *testing.T) {
 	t.Parallel()
 	s, dir := newStore(t)
-	first, err := s.Hubs()
+	first, err := s.Hubs(context.Background())
 	if err != nil || len(first) != 5 {
 		t.Fatalf("first run %v %v", first, err)
 	}
-	again, err := s.Hubs()
+	again, err := s.Hubs(context.Background())
 	if err != nil || len(again) != 0 {
 		t.Fatalf("second run rewrote %v (%v)", again, err)
 	}
@@ -127,7 +128,7 @@ func TestHubsDeterministicAndPreserveIntro(t *testing.T) {
 	if _, err := s.Supersede("ci-cache-keys", "ci-pipeline-stages"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.Hubs(); err != nil {
+	if _, err := s.Hubs(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	got := read(t, dir, hub)

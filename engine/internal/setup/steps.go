@@ -150,7 +150,7 @@ func (r *run) generated() error {
 		r.note(r.inst.Config.Paths.Knowledge+"/_hubs/", Skip, "hubs and catalogs regenerate on a real run")
 		return nil
 	}
-	hubs, err := knowledge.New(r.inst, r.opt.Now, telemetry.New(r.inst, r.opt.Now)).Hubs()
+	hubs, err := knowledge.New(r.inst, r.opt.Now, telemetry.New(r.inst, r.opt.Now)).Hubs(r.ctx)
 	if err != nil {
 		return err
 	}

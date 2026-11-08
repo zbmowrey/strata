@@ -67,8 +67,9 @@ func (h *handler) sessionStart() (outcome, error) {
 	}
 	defer func() { _ = ix.Close() }()
 	var lines []string
-	if h.env.GardenAuto != nil && h.inst.Config.Hooks.SessionStartGardenAuto {
-		if note, err := h.env.GardenAuto(h.ctx, h.inst); err != nil {
+	// The safe gardener subset runs only when the refresh found changes.
+	if h.env.GardenAuto != nil && h.inst.Config.Hooks.SessionStartGardenAuto && len(st.Paths) > 0 {
+		if note, err := h.env.GardenAuto(h.ctx, h.inst, st.Paths); err != nil {
 			lines = append(lines, "⚠ garden --auto: "+err.Error())
 		} else if note != "" {
 			lines = append(lines, note)

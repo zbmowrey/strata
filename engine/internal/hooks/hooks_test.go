@@ -57,7 +57,7 @@ func TestSessionStart(t *testing.T) {
 	t.Parallel()
 	root := fixture(t)
 	called := false
-	r := run(t, "session-start", payload(t, "session-start", root), Env{GardenAuto: func(context.Context, *config.Instance) (string, error) {
+	r := run(t, "session-start", payload(t, "session-start", root), Env{GardenAuto: func(context.Context, *config.Instance, []string) (string, error) {
 		called = true
 		return "garden --auto: 1 hub regenerated", nil
 	}})
@@ -88,7 +88,7 @@ func TestSessionStart(t *testing.T) {
 func TestSessionStartGardenError(t *testing.T) {
 	t.Parallel()
 	root := fixture(t)
-	r := run(t, "session-start", payload(t, "session-start", root), Env{GardenAuto: func(context.Context, *config.Instance) (string, error) {
+	r := run(t, "session-start", payload(t, "session-start", root), Env{GardenAuto: func(context.Context, *config.Instance, []string) (string, error) {
 		return "", errors.New("boom")
 	}})
 	if r.code != 0 || !strings.Contains(r.out, "⚠ garden --auto: boom") {

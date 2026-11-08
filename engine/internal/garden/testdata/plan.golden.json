@@ -1,0 +1,717 @@
+{
+  "counts": {
+    "apply-answer": 1,
+    "archive-cold": 1,
+    "bench-grow": 1,
+    "deprecated-script-removal": 1,
+    "distill-project": 1,
+    "file-inbox": 2,
+    "fill-gap": 1,
+    "fix-broken-link": 2,
+    "fix-orphan": 24,
+    "merge-duplicates": 1,
+    "promote": 7,
+    "resolve-conflict": 1,
+    "reverify-stale": 3,
+    "scriptify": 1,
+    "split-oversize": 1,
+    "stale-project": 1
+  },
+  "generated": "2026-11-07",
+  "fixes": [],
+  "tasks": [
+    {
+      "evidence": {
+        "path": "knowledge/_inbox/20261101-120000-retry-budget.md",
+        "title": "The partner API allows 3 retries per minute per client; beyond that it returns …",
+        "type": "fact"
+      },
+      "id": "file-inbox:20261101-120000-retry-budget",
+      "type": "file-inbox",
+      "risk": "low",
+      "suggested_action": "file into a shard (new or merged), then delete the inbox item",
+      "targets": [
+        "20261101-120000-retry-budget"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/_inbox/20261102-093000-helm-diff.md",
+        "title": "helm diff shows no changes when only a ConfigMap referenced via envFrom changed…",
+        "type": "gotcha"
+      },
+      "id": "file-inbox:20261102-093000-helm-diff",
+      "type": "file-inbox",
+      "risk": "low",
+      "suggested_action": "file into a shard (new or merged), then delete the inbox item",
+      "targets": [
+        "20261102-093000-helm-diff"
+      ]
+    },
+    {
+      "evidence": {
+        "body_jaccard": 0.66,
+        "paths": [
+          "knowledge/database/postgres/pg-connection-pool-size.md",
+          "knowledge/database/postgres/postgres-connection-pool.md"
+        ],
+        "title_dice": 1
+      },
+      "id": "merge-duplicates:pg-connection-pool-size+postgres-connection-pool",
+      "type": "merge-duplicates",
+      "risk": "low",
+      "suggested_action": "merge into the better-sourced shard; keep the other id as an alias",
+      "targets": [
+        "pg-connection-pool-size",
+        "postgres-connection-pool"
+      ]
+    },
+    {
+      "evidence": {
+        "body_bytes": 6921,
+        "body_lines": 132,
+        "max_bytes": 6144,
+        "max_lines": 120,
+        "path": "knowledge/testing/pytest/pytest-everything.md"
+      },
+      "id": "split-oversize:pytest-everything",
+      "type": "split-oversize",
+      "risk": "low",
+      "suggested_action": "split into focused shards that link each other; keep the id on the core claim",
+      "targets": [
+        "pytest-everything"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/migrations/alembic-autogenerate-limits.md",
+        "topic": "migrations"
+      },
+      "id": "fix-orphan:alembic-autogenerate-limits",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "alembic-autogenerate-limits"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "infra",
+        "path": "knowledge/infra/observability/alert-routing.md",
+        "topic": "observability"
+      },
+      "id": "fix-orphan:alert-routing",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "alert-routing"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/api-error-format.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:api-error-format",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "api-error-format"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/api-retries.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:api-retries",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "api-retries"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/versioning/api-versioning.md",
+        "topic": "versioning"
+      },
+      "id": "fix-orphan:api-versioning",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "api-versioning"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/auth/auth-token-storage.md",
+        "topic": "auth"
+      },
+      "id": "fix-orphan:auth-token-storage",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "auth-token-storage"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/http-timeouts.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:http-timeouts",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "http-timeouts"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/auth/jwt-clock-skew.md",
+        "topic": "auth"
+      },
+      "id": "fix-orphan:jwt-clock-skew",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "jwt-clock-skew"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "infra",
+        "path": "knowledge/infra/k8s/k8s-glossary-pdb.md",
+        "topic": "k8s"
+      },
+      "id": "fix-orphan:k8s-glossary-pdb",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "k8s-glossary-pdb"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "infra",
+        "path": "knowledge/infra/k8s/k8s-liveness-probe-timeout.md",
+        "topic": "k8s"
+      },
+      "id": "fix-orphan:k8s-liveness-probe-timeout",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "k8s-liveness-probe-timeout"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "infra",
+        "path": "knowledge/infra/k8s/k8s-old-ingress.md",
+        "topic": "k8s"
+      },
+      "id": "fix-orphan:k8s-old-ingress",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "k8s-old-ingress"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/migrations/migrations-run-before-deploy.md",
+        "topic": "migrations"
+      },
+      "id": "fix-orphan:migrations-run-before-deploy",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "migrations-run-before-deploy"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/auth/oauth-scopes-glossary.md",
+        "topic": "auth"
+      },
+      "id": "fix-orphan:oauth-scopes-glossary",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "oauth-scopes-glossary"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/pagination-cursor.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:pagination-cursor",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "pagination-cursor"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/postgres/pg-connection-pool-size.md",
+        "topic": "postgres"
+      },
+      "id": "fix-orphan:pg-connection-pool-size",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "pg-connection-pool-size"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/postgres/pg-pool-per-worker.md",
+        "topic": "postgres"
+      },
+      "id": "fix-orphan:pg-pool-per-worker",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "pg-pool-per-worker"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/postgres/postgres-vacuum-settings.md",
+        "topic": "postgres"
+      },
+      "id": "fix-orphan:postgres-vacuum-settings",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "postgres-vacuum-settings"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "testing",
+        "path": "knowledge/testing/pytest/pytest-everything.md",
+        "topic": "pytest"
+      },
+      "id": "fix-orphan:pytest-everything",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "pytest-everything"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "testing",
+        "path": "knowledge/testing/pytest/pytest-parallel-xdist.md",
+        "topic": "pytest"
+      },
+      "id": "fix-orphan:pytest-parallel-xdist",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "pytest-parallel-xdist"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/rate-limit-headers.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:rate-limit-headers",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "rate-limit-headers"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "api",
+        "path": "knowledge/api/http/request-id-propagation.md",
+        "topic": "http"
+      },
+      "id": "fix-orphan:request-id-propagation",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "request-id-propagation"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "testing",
+        "path": "knowledge/testing/debugging/snapshot-test-updates.md",
+        "topic": "debugging"
+      },
+      "id": "fix-orphan:snapshot-test-updates",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "snapshot-test-updates"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/modeling/soft-delete-pattern.md",
+        "topic": "modeling"
+      },
+      "id": "fix-orphan:soft-delete-pattern",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "soft-delete-pattern"
+      ]
+    },
+    {
+      "evidence": {
+        "domain": "database",
+        "path": "knowledge/database/modeling/uuid-primary-keys.md",
+        "topic": "modeling"
+      },
+      "id": "fix-orphan:uuid-primary-keys",
+      "type": "fix-orphan",
+      "risk": "low",
+      "suggested_action": "link it from related shards (See also) or merge it into one",
+      "targets": [
+        "uuid-primary-keys"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/infra/k8s/k8s-old-ingress.md",
+        "review_after_days": 90,
+        "since": "2025-01-10",
+        "trust": "observed"
+      },
+      "id": "reverify-stale:k8s-old-ingress",
+      "type": "reverify-stale",
+      "risk": "low",
+      "suggested_action": "re-check against sources and code; bump verified_at or correct it",
+      "targets": [
+        "k8s-old-ingress"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/database/postgres/postgres-vacuum-settings.md",
+        "review_after_days": 90,
+        "since": "2026-05-01",
+        "trust": "observed"
+      },
+      "id": "reverify-stale:postgres-vacuum-settings",
+      "type": "reverify-stale",
+      "risk": "low",
+      "suggested_action": "re-check against sources and code; bump verified_at or correct it",
+      "targets": [
+        "postgres-vacuum-settings"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/testing/pytest/pytest-everything.md",
+        "review_after_days": 90,
+        "since": "2026-06-01",
+        "trust": "observed"
+      },
+      "id": "reverify-stale:pytest-everything",
+      "type": "reverify-stale",
+      "risk": "low",
+      "suggested_action": "re-check against sources and code; bump verified_at or correct it",
+      "targets": [
+        "pytest-everything"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/infra/k8s/k8s-old-ingress.md",
+        "window_days": 180
+      },
+      "id": "archive-cold:k8s-old-ingress",
+      "type": "archive-cold",
+      "risk": "low",
+      "suggested_action": "move to _archive/ (never delete)",
+      "targets": [
+        "k8s-old-ingress"
+      ]
+    },
+    {
+      "evidence": {
+        "query": "kafka consumer lag",
+        "window_days": 30,
+        "zero_results": 3
+      },
+      "id": "fill-gap:query:kafka consumer lag",
+      "type": "fill-gap",
+      "risk": "low",
+      "suggested_action": "find or write the knowledge this query was looking for",
+      "targets": [
+        "query:kafka consumer lag"
+      ]
+    },
+    {
+      "evidence": {
+        "entries": 1,
+        "last_activity": "2026-06-01"
+      },
+      "id": "distill-project:project:old-migration",
+      "type": "distill-project",
+      "risk": "low",
+      "suggested_action": "distill durable learnings into shards, then archive the project",
+      "targets": [
+        "project:old-migration"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:api-retries#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "api-retries"
+      ]
+    },
+    {
+      "evidence": {
+        "sessions": 3,
+        "to": "playbook"
+      },
+      "id": "promote:auth-token-storage+jwt-clock-skew+oauth-scopes-glossary#playbook",
+      "type": "promote",
+      "risk": "low",
+      "suggested_action": "draft a playbook (skill) linking these shards",
+      "targets": [
+        "auth-token-storage",
+        "jwt-clock-skew",
+        "oauth-scopes-glossary"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:image-tagging#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "image-tagging"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:log-format-json#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "log-format-json"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:postgres-index-concurrently#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "postgres-index-concurrently"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:request-id-propagation#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "request-id-propagation"
+      ]
+    },
+    {
+      "evidence": {
+        "enforcement": "none yet",
+        "to": "gate"
+      },
+      "id": "promote:soft-delete-pattern#gate",
+      "type": "promote",
+      "risk": "medium",
+      "suggested_action": "enforce it as a gate (advisory unless the codebase is clean)",
+      "targets": [
+        "soft-delete-pattern"
+      ]
+    },
+    {
+      "evidence": {
+        "count": 3,
+        "first_token": "docker",
+        "sessions": 3
+      },
+      "id": "scriptify:bash:00000000000000aa",
+      "type": "scriptify",
+      "risk": "low",
+      "suggested_action": "write a script for this repeated command (strata new script …)",
+      "targets": [
+        "bash:00000000000000aa"
+      ]
+    },
+    {
+      "evidence": {
+        "candidates": [],
+        "link_kind": "wikilink",
+        "path": "knowledge/api/http/api-retries.md",
+        "target": "no-such-document-anywhere"
+      },
+      "id": "fix-broken-link:api-retries#no-such-document-anywhere",
+      "type": "fix-broken-link",
+      "risk": "medium",
+      "suggested_action": "point the link at the right document or remove it",
+      "targets": [
+        "api-retries"
+      ]
+    },
+    {
+      "evidence": {
+        "candidates": [
+          "postgres-connection-pool"
+        ],
+        "link_kind": "wikilink",
+        "path": "knowledge/api/http/api-retries.md",
+        "target": "postgres-connection-pol"
+      },
+      "id": "fix-broken-link:api-retries#postgres-connection-pol",
+      "type": "fix-broken-link",
+      "risk": "medium",
+      "suggested_action": "point the link at the right document or remove it",
+      "targets": [
+        "api-retries"
+      ]
+    },
+    {
+      "evidence": {
+        "titles": [
+          "Never reuse the database connection pool in workers",
+          "Reuse the database connection pool in workers"
+        ]
+      },
+      "id": "resolve-conflict:pg-pool-per-worker+pg-pool-reuse",
+      "type": "resolve-conflict",
+      "risk": "high",
+      "suggested_action": "confirm the contradiction from code or sources; correct the weaker claim or raise a question",
+      "targets": [
+        "pg-pool-per-worker",
+        "pg-pool-reuse"
+      ]
+    },
+    {
+      "evidence": {
+        "path": "knowledge/_questions/q-20261103-coverage-floor.md",
+        "title": "[[coverage-floor]] (user-stated) says 85%; the CI config enforces 80%. Which is correct?"
+      },
+      "id": "apply-answer:q-20261103-coverage-floor",
+      "type": "apply-answer",
+      "risk": "low",
+      "suggested_action": "apply the answer to the shards it concerns, then mark the question applied",
+      "targets": [
+        "q-20261103-coverage-floor"
+      ]
+    },
+    {
+      "evidence": {
+        "age_days": 159,
+        "last_activity": "2026-06-01"
+      },
+      "id": "stale-project:project:dormant",
+      "type": "stale-project",
+      "risk": "question",
+      "suggested_action": "ask whether to pause, close or continue it",
+      "targets": [
+        "project:dormant"
+      ]
+    },
+    {
+      "evidence": {
+        "idle_days": 90,
+        "path": "scripts/database/check-migrations/script.yaml",
+        "replaced_by": "check-deploy-config"
+      },
+      "id": "deprecated-script-removal:check-migrations",
+      "type": "deprecated-script-removal",
+      "risk": "low",
+      "suggested_action": "remove the script (and its catalog entry); point references at its replacement",
+      "targets": [
+        "check-migrations"
+      ]
+    },
+    {
+      "evidence": {
+        "query": "helm rollback",
+        "zero_results_before": 2
+      },
+      "id": "bench-grow:query:helm rollback",
+      "type": "bench-grow",
+      "risk": "low",
+      "suggested_action": "add the query to .strata/bench/retrieval.yaml with its relevant ids",
+      "targets": [
+        "query:helm rollback"
+      ]
+    }
+  ],
+  "v": 1,
+  "applied": false
+}

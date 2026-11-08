@@ -7,6 +7,8 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+
+	"github.com/zbmowrey/strata/engine/internal/textsim"
 )
 
 // fuzzyTokens are the positive non-phrase tokens long enough for trigrams.
@@ -39,29 +41,10 @@ func (s *Searcher) anyTokenMissing(ctx context.Context, q Query) bool {
 	return false
 }
 
-// trigrams returns the set of rune trigrams of s.
-func trigrams(s string) map[string]bool {
-	r := []rune(s)
-	out := make(map[string]bool, max(0, len(r)-2))
-	for i := 0; i+3 <= len(r); i++ {
-		out[string(r[i:i+3])] = true
-	}
-	return out
-}
+// trigrams and dice are the shared similarity primitives.
+func trigrams(s string) map[string]bool { return textsim.Trigrams(s) }
 
-// dice is the Sørensen–Dice coefficient of two trigram sets.
-func dice(a, b map[string]bool) float64 {
-	if len(a) == 0 || len(b) == 0 {
-		return 0
-	}
-	n := 0
-	for t := range a {
-		if b[t] {
-			n++
-		}
-	}
-	return 2 * float64(n) / float64(len(a)+len(b))
-}
+func dice(a, b map[string]bool) float64 { return textsim.Dice(a, b) }
 
 // nameWords splits a name into lowercase words (plus the whole name).
 func nameWords(name string) []string {

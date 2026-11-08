@@ -2,6 +2,7 @@ package hooks
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/zbmowrey/strata/engine/internal/render"
 )
@@ -24,7 +25,7 @@ func (h *handler) stop() (outcome, error) {
 		return outcome{}, err
 	}
 	if out.label == "abandoned" {
-		_ = h.tel.Emit("gate", map[string]any{"stage": "stop", "result": "abandoned", "blocking": gr.Blocking, "rules": gr.Rules})
+		_ = h.tel.Emit("gate", map[string]any{"stage": "stop", "result": "abandoned", "blocking": gr.Blocking, "rules": ruleList(gr.Rules)})
 	}
 	return out, nil
 }
@@ -58,4 +59,18 @@ func (h *handler) wantNudge(s *State) bool {
 		return false
 	}
 	return s.CodeChanged || s.GateFailures > 0 || s.Corrections
+}
+
+// ruleList renders rule counts as the gate event's [{id,count}] list.
+func ruleList(m map[string]int) []map[string]any {
+	ids := make([]string, 0, len(m))
+	for id := range m {
+		ids = append(ids, id)
+	}
+	slices.Sort(ids)
+	out := make([]map[string]any, 0, len(ids))
+	for _, id := range ids {
+		out = append(out, map[string]any{"id": id, "count": m[id]})
+	}
+	return out
 }

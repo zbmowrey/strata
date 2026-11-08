@@ -15,6 +15,12 @@ The deterministic phase does every mechanical fix itself and produces a **plan**
 
 `strata garden [--plan] [--auto] [--format json]`:
 
+- no flag: run the analyses and write the plan; mechanical fixes are not applied (safe in the human's tree).
+- `--auto`: apply the mechanical fixes only. At SessionStart the hook runs it **incrementally** — only when the index refresh found changes, and only for what those paths can affect (per-file normalization of changed shards, hubs when shards changed, catalogs + allowlist when scripts changed, the projects block when a `project.md` changed) — so the hook stays within its 300 ms budget.
+- `--plan`: apply the mechanical fixes and write the plan (what `/garden` runs inside its worktree). Holds `.strata/garden.lock` (exit 6 when held).
+
+Sessions the gardener starts set `STRATA_GARDEN=1`; the `pre-edit` hook then refuses writes under `knowledge/_private/`, and the analyses never read the private tier.
+
 **Auto-applied mechanical fixes** (`--auto` applies them in the working tree; within `/garden` they are applied in the garden worktree):
 
 - Rebuild/refresh the index; prune telemetry past retention.
@@ -44,7 +50,9 @@ The deterministic phase does every mechanical fix itself and produces a **plan**
 | `deprecated-script-removal` | deprecated script, 0 runs in 90 days | low |
 | `bench-grow` | resolved `fill-gap` tasks → new bench queries | low |
 
-Each task: `{id, type, risk, targets[], evidence{…}, suggested_action}`. Plan output is deterministic and diffable.
+Each task: `{id, type, risk, targets[], evidence{…}, suggested_action, escalate?}`. Plan output is deterministic and diffable: tasks sorted by the table order above, then id; ids are `<type>:<targets joined by +>` (qualified with `#<detail>` when one target has several tasks of a type, e.g. `fix-broken-link:api-retries#old-id`). Telemetry-derived targets are `query:<normalized query>` and `bash:<hash>`; project targets are `project:<slug>`. A type listed in `[garden] escalate` gets `escalate: true` and risk `question`.
+
+Implementation notes (v0.1): duplicate titles use trigram Dice over lowercase titles via an inverted index (trigrams shared by > 400 titles are skipped), plus "alias equals the other's id"; bodies use 64-permutation MinHash over word 3-shingles with 16×4 LSH banding; a pair whose titles differ by negation is a `resolve-conflict` candidate, not a duplicate. `archive-cold` and `deprecated-script-removal` are only judged when telemetry reaches back over the whole window (a new instance has no usage history). `fill-gap` needs the zero-result query in telemetry (`[telemetry] store_queries`); `bench-grow` = a former gap query that now has results and is absent from `.strata/bench/retrieval.yaml`. Link repair rewrites only wikilinks with exactly one candidate at Dice ≥ 0.9 over ids; frontmatter link fields become tasks.
 
 ## 3. Judgment phase (`/garden`)
 

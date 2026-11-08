@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -158,7 +159,7 @@ func (ix *Index) refreshLocked(ctx context.Context) (Stats, error) {
 // apply indexes the difference between files and known in one transaction.
 func (ix *Index) apply(ctx context.Context, files []corpus.File, known map[string]fileRow) (Stats, error) {
 	plan := diff(files, known)
-	st := Stats{Files: len(files), Removed: len(plan.removed)}
+	st := Stats{Files: len(files), Removed: len(plan.removed), Paths: slices.Clone(plan.removed)}
 	changes := ix.readChanges(plan.candidates)
 	tx, err := ix.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -184,6 +185,7 @@ func (ix *Index) apply(ctx context.Context, files []corpus.File, known map[strin
 	if err := tx.Commit(); err != nil {
 		return st, fmt.Errorf("commit refresh: %w", err)
 	}
+	slices.Sort(st.Paths)
 	return st, nil
 }
 
@@ -205,6 +207,7 @@ func (w *writer) applyChanges(ctx context.Context, changes []change, known map[s
 		} else {
 			st.Added++
 		}
+		st.Paths = append(st.Paths, c.file.Rel)
 		if err := w.replace(ctx, c); err != nil {
 			return err
 		}

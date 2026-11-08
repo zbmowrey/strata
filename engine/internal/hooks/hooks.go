@@ -29,8 +29,9 @@ type GateResult struct {
 // e.g. changed files for stop). Wired by the CLI to internal/gates.
 type Gates func(ctx context.Context, inst *config.Instance, stage string, paths []string) (GateResult, error)
 
-// GardenAuto runs the deterministic gardener's safe subset at session start.
-type GardenAuto func(ctx context.Context, inst *config.Instance) (string, error)
+// GardenAuto runs the deterministic gardener's safe subset at session start
+// for the paths the index refresh found changed.
+type GardenAuto func(ctx context.Context, inst *config.Instance, changed []string) (string, error)
 
 // Env is everything a hook needs besides its payload.
 type Env struct {

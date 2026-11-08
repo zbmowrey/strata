@@ -46,6 +46,16 @@ func applyFixes(items []*item, _ []finding.Finding, _ config.Config, opt Options
 	return fixed, nil
 }
 
+// NormalizeFile applies the per-file content-preserving fixes (canonical
+// shard frontmatter, trailing whitespace, final newline) without the
+// corpus-wide link table — the incremental path of `garden --auto`.
+func NormalizeFile(raw []byte, shard bool) []byte {
+	if shard {
+		raw = NormalizeFrontmatter(raw, schema.ShardKeys)
+	}
+	return trimTrailing(raw)
+}
+
 // RewriteLinks replaces link targets for which resolve returns a new id,
 // keeping anchors and labels. It returns the new file content.
 func RewriteLinks(d *doc.Doc, resolve func(target string) (string, bool)) []byte {

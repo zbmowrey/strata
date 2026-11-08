@@ -275,9 +275,13 @@ func Scan(inst *config.Instance) ([]Record, error) {
 	ix := &Index{x: x}
 	var out []Record
 	for _, c := range ix.readChanges(files) {
-		if c.err == nil {
-			out = append(out, c.recs...)
+		if c.err != nil {
+			continue
 		}
+		for i := range c.recs {
+			c.recs[i].Src = c.file.Rel
+		}
+		out = append(out, c.recs...)
 	}
 	return out, nil
 }
