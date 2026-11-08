@@ -1,0 +1,25 @@
+{
+  "session_id": "e7fb1a7c-8d1d-4c52-acac-a957e213986a",
+  "transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "cwd": "/work/repo",
+  "prompt_id": "7c95e97c-3fd4-4c76-a529-475a9886a415",
+  "permission_mode": "acceptEdits",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "ls",
+    "description": "List files in current directory"
+  },
+  "tool_response": {
+    "stdout": "drwxr-xr-x user wheel 192 B Sat Nov  7 23:03:42 2026 .\ndrwxr-xr-x user wheel 224 B Sat Nov  7 23:03:30 2026 ..\ndrwxr-xr-x user wheel  96 B Sat Nov  7 23:03:22 2026 .claude\ndrwxr-xr-x user wheel 384 B Sat Nov  7 23:03:23 2026 .git\n.rw-r--r-- user wheel  74 B Sat Nov  7 23:03:40 2026 hello.go\n.rw-r--r-- user wheel   2 B Sat Nov  7 23:03:42 2026 notes.txt",
+    "stderr": "",
+    "interrupted": false,
+    "isImage": false,
+    "noOutputExpected": false
+  },
+  "tool_use_id": "toolu_01QgwELWwDerFLyBZGiNEzSL",
+  "duration_ms": 234
+}
