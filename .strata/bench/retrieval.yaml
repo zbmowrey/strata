@@ -1,4 +1,70 @@
 # Golden queries for `strata bench retrieval` (docs/spec/10-evals.md §1).
-# - q: "tests hang at exit"
-#   relevant: { pytest-fixture-teardown: 3, debug-hanging-tests: 2 }
-[]
+# Graded relevance: 3 = the answer, 2 = closely related, 1 = useful context.
+- q: "how does a hook make Claude fix a file"
+  relevant: { hook-exit-2-feeds-stderr: 3, hooks-fail-open: 1 }
+- q: "keep claude working after stop"
+  relevant: { stop-hook-decision-block: 3 }
+- q: "inject context before an edit"
+  relevant: { pretooluse-additional-context: 3 }
+- q: "what fields are in the hook stdin json"
+  relevant: { hook-payload-fields: 3 }
+- q: "\"claude -p\" permission denied bypassPermissions"
+  relevant: { headless-bypass-permissions-refused: 3, untrusted-workspace-ignores-allowlist: 1 }
+- q: "settings.json allowlist ignored in temp repo"
+  relevant: { untrusted-workspace-ignores-allowlist: 3 }
+- q: "gardener bash command denied cd"
+  relevant: { background-agent-no-permission-prompts: 3, agent-spawn-cwd-not-shell: 2 }
+- q: "subagent runs in the wrong directory"
+  relevant: { agent-spawn-cwd-not-shell: 3, background-agent-no-permission-prompts: 1 }
+- q: "can I store $ in a variable in a mod"
+  relevant: { mod-dollar-not-storable: 3 }
+- q: "mcp tool name for strata_search"
+  relevant: { mod-model-tool-names: 3 }
+- q: "restrict bash commands for an agent"
+  relevant: { agent-frontmatter-tools-names-only: 3, background-agent-no-permission-prompts: 1 }
+- q: "freshness check slow on macOS"
+  relevant: { apfs-parallel-lstat-serializes: 3 }
+- q: "getattrlistbulk"
+  relevant: { apfs-parallel-lstat-serializes: 3 }
+- q: "delete rows from fts5 table"
+  relevant: { fts5-contentless-delete: 3 }
+- q: "two documents with the same id"
+  relevant: { id-collision-kind-rank: 3 }
+- q: "how is bm25 normalized"
+  relevant: { bm25-normalize-divide-by-best: 3 }
+- q: "search ranking tie break"
+  relevant: { bm25-normalize-divide-by-best: 3 }
+- q: "hook crashes should not block the session"
+  relevant: { hooks-fail-open: 3 }
+- q: "session start too slow garden auto"
+  relevant: { session-start-budget-incremental-garden: 3 }
+- q: "hook name missing from telemetry"
+  relevant: { hook-telemetry-field-hook: 3 }
+- q: "errcheck not reported after edit"
+  relevant: { golangci-fast-only-skips-errcheck: 3 }
+- q: "gate tool not installed"
+  relevant: { missing-tool-is-warning: 3 }
+- q: "nosemgrep still blocking"
+  relevant: { sarif-suppressed-results: 3 }
+- q: "typos ignores extend-exclude"
+  relevant: { typos-force-exclude: 3 }
+- q: "gitleaks /dev/stdout permission denied"
+  relevant: { gitleaks-report-path-dash: 3 }
+- q: "go test package failed testdata"
+  relevant: { testdata-maps-to-owning-package: 3 }
+- q: "index file open failed not a directory"
+  relevant: { git-hook-env-leaks: 3 }
+- q: "echo newline in fake test script"
+  relevant: { macos-sh-echo-expands-escapes: 3 }
+- q: "how do I run the gardener"
+  relevant: { garden-flow-engine-helpers: 3, forge-auto-detect: 1 }
+- q: "open garden pull request without gh"
+  relevant: { forge-auto-detect: 3, garden-flow-engine-helpers: 1 }
+- q: "forgejo tea"
+  relevant: { forge-auto-detect: 3 }
+- q: "garden plan task id format"
+  relevant: { garden-task-ids: 3 }
+- q: "worktree missing latest commits"
+  relevant: { fork-worktrees-branch-from-main: 3 }
+- q: "flaky benchmark test latency"
+  relevant: { bench-tests-load-independent: 3 }

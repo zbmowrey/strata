@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-08",
+  "metrics": {
+    "recall_at_1": 0.824,
+    "recall_at_3": 0.926,
+    "recall_at_5": 0.956,
+    "recall_at_10": 0.956,
+    "mrr": 0.944,
+    "ndcg_at_10": 0.947,
+    "latency_p50_ms": 1,
+    "latency_p95_ms": 3,
+    "bytes_p50": 625,
+    "bytes_p90": 1280,
+    "queries": 34
+  },
+  "v": 1
+}
