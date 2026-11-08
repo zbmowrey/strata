@@ -68,6 +68,13 @@ The plugin's `/garden` command runs:
 8. **Escalate.** Questions raised (§5) are written to `knowledge/_questions/` in the branch and listed at the top of the PR body.
 9. **Clean up.** Remove the worktree; release the lock; emit a summary to the session (and status line).
 
+**Engine helpers (v0.1).** Steps 1–3 and 7–9 are engine commands so the plugin stays a thin client:
+
+- `strata garden start [--format json]` — creates the run marker `.strata/garden.lock` (JSON `{branch, worktree, base, started}`, created exclusively; a marker younger than 2 h → exit 6; older → exit 6 with the `strata doctor --fix` hint), fetches `origin/<default>` when a remote exists, adds the worktree and branch, runs `garden --plan` inside it, drops tasks whose evidence paths are touched by open garden PRs (`forge.FindOpen(branch_prefix)`), and commits the mechanical fixes as `garden(fixes): …`. Output: `{"v":1,"tidy":bool,"worktree","branch","base","plan_file","counts":{…},"tasks":n,"skipped":[ids],"open_prs":[{number,url,branch}]}`. When tidy (no tasks, no fixes) it cleans up itself.
+- `strata garden finish [--title T] [--body-file F] [--no-ready] [--format json]` — from the main tree: if the branch has no commits beyond the base it cleans up and reports `nothing to propose`; otherwise pushes the branch, opens a **draft** PR via the forge adapter with the digest as the body, marks it ready unless `--no-ready`, removes the worktree and the marker. Missing forge CLI → pushes and prints the compare URL. Output: `{"v":1,"pr":{number,url},"compare_url":…,"ready":bool}`.
+- `strata garden abort` — removes the worktree, deletes the unpushed local branch, removes the marker.
+- Hooks treat any instance rooted under `.strata/worktrees/garden-*` (or `STRATA_GARDEN=1`) as a gardener session (private-tier guard).
+
 If a previous garden PR is still open: the new run bases on the default branch, and skips tasks whose targets are touched by the open PR (to avoid conflicting PRs), noting them in the digest.
 
 ## 4. Promotion (hardening the ladder)
