@@ -55,6 +55,7 @@ type StartResult struct {
 func git(ctx context.Context, dir string, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, "git", args...) //nolint:gosec // G204: fixed program, engine-built arguments
 	cmd.Dir = dir
+	cmd.Env = cleanGitEnv(os.Environ())
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
@@ -62,6 +63,21 @@ func git(ctx context.Context, dir string, args ...string) (string, error) {
 		return "", fmt.Errorf("git %s: %w: %s", strings.Join(args, " "), err, strings.TrimSpace(stderr.String()))
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+// cleanGitEnv drops repository-locating variables a git hook exports
+// (GIT_DIR, GIT_INDEX_FILE, …) so commands act on cmd.Dir's repository.
+func cleanGitEnv(env []string) []string {
+	out := env[:0:0]
+	for _, kv := range env {
+		k, _, _ := strings.Cut(kv, "=")
+		switch k {
+		case "GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE", "GIT_PREFIX", "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR":
+			continue
+		}
+		out = append(out, kv)
+	}
+	return out
 }
 
 // claimRun creates the run marker exclusively.

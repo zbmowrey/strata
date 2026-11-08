@@ -35,14 +35,14 @@ esac
 
 func argv(t *testing.T, log string) []string {
 	t.Helper()
-	raw, err := os.ReadFile(log) //nolint:gosec // G304: test log
+	raw, err := os.ReadFile(log) //nolint:gosec // G304: the fake CLI argv log in t.TempDir
 	if err != nil {
 		t.Fatal(err)
 	}
 	return strings.Split(strings.TrimSuffix(string(raw), "\n\n"), "\n\n")
 }
 
-func TestGitHub(t *testing.T) { //nolint:paralleltest // sets PATH
+func TestGitHub(t *testing.T) { //nolint:paralleltest // t.Setenv(PATH) forbids t.Parallel
 	bin, log := fakeCLI(t, "gh")
 	t.Setenv("PATH", bin)
 	ctx := context.Background()
@@ -76,7 +76,7 @@ func TestGitHub(t *testing.T) { //nolint:paralleltest // sets PATH
 	}
 }
 
-func TestForgejo(t *testing.T) { //nolint:paralleltest // sets PATH
+func TestForgejo(t *testing.T) { //nolint:paralleltest // t.Setenv(PATH) forbids t.Parallel
 	bin, log := fakeCLI(t, "tea")
 	t.Setenv("PATH", bin)
 	ctx := context.Background()
@@ -104,7 +104,7 @@ func TestForgejo(t *testing.T) { //nolint:paralleltest // sets PATH
 	}
 }
 
-func TestAutoDetectAndMissingCLI(t *testing.T) { //nolint:paralleltest // sets PATH
+func TestAutoDetectAndMissingCLI(t *testing.T) { //nolint:paralleltest // t.Setenv(PATH) forbids t.Parallel
 	bin, _ := fakeCLI(t, "git")
 	ghBin, _ := fakeCLI(t, "gh")
 	t.Setenv("PATH", bin+string(os.PathListSeparator)+ghBin)
@@ -132,7 +132,7 @@ func TestAutoDetectAndMissingCLI(t *testing.T) { //nolint:paralleltest // sets P
 	}
 }
 
-func TestCLIErrors(t *testing.T) { //nolint:paralleltest // sets PATH
+func TestCLIErrors(t *testing.T) { //nolint:paralleltest // t.Setenv(PATH) forbids t.Parallel
 	bin := t.TempDir()
 	for _, name := range []string{"gh", "tea"} {
 		if err := os.WriteFile(filepath.Join(bin, name), []byte("#!/bin/sh\necho nope >&2\nexit 3\n"), 0o755); err != nil { //nolint:gosec // G306: test fake must be executable

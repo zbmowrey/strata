@@ -133,3 +133,14 @@ func FuzzParsers(f *testing.F) {
 		_ = scanSuppressions("f.go", string(raw))
 	})
 }
+
+func TestSARIFSkipsSuppressed(t *testing.T) {
+	t.Parallel()
+	out := `{"runs":[{"tool":{"driver":{"rules":[]}},"results":[
+{"ruleId":"r1","level":"error","message":{"text":"kept"},"locations":[]},
+{"ruleId":"r2","level":"error","message":{"text":"suppressed"},"suppressions":[{"kind":"inSource"}],"locations":[]}]}]}`
+	fs, err := parseSARIF(Output{Stdout: []byte(out)}, &Gate{})
+	if err != nil || len(fs) != 1 || fs[0].Rule != "r1" {
+		t.Fatalf("%v %+v", err, fs)
+	}
+}

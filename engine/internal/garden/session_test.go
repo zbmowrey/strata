@@ -17,6 +17,7 @@ func sh(t *testing.T, dir string, args ...string) string {
 	t.Helper()
 	cmd := exec.CommandContext(context.Background(), args[0], args[1:]...)
 	cmd.Dir = dir
+	cmd.Env = cleanGitEnv(os.Environ())
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("%v: %v\n%s", args, err, out)

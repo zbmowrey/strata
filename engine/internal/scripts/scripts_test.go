@@ -222,7 +222,7 @@ func TestRunPolicies(t *testing.T) {
 	}
 }
 
-func TestEnvAndArgs(t *testing.T) { //nolint:paralleltest // uses t.Setenv
+func TestEnvAndArgs(t *testing.T) { //nolint:paralleltest // t.Setenv forbids t.Parallel
 	inst := gitInstance(t, map[string]string{
 		"envy":      "side_effect: read-only\nenv: [MY_DECLARED]\n---\necho \"d=$MY_DECLARED s=$MY_SECRET\"\n",
 		"echo-args": "side_effect: read-only\n---\nprintf '%s|' \"$@\"\n",

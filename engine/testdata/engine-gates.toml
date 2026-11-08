@@ -94,7 +94,7 @@ desc = "typos over all text"
 exclude = ["**/*.golden", "**/testdata/fuzz/**", "engine/go.sum", "plugin/pnpm-lock.yaml"]
 stages = ["edit", "stop", "commit", "ci"]
 scope = "file"
-cmd = ["typos", "--format", "brief", "{targets}"]
+cmd = ["typos", "--force-exclude", "--format", "brief", "{targets}"]
 config_files = ["typos.toml"]
 parser = "lines"
 timeout = "30s"
@@ -126,7 +126,7 @@ id = "suppressions"
 desc = "suppressions carry a rule id and a reason"
 builtin = "suppressions"
 applies_to = ["engine/**", "plugin/**", "scripts/**"]
-exclude = ["**/testdata/**", "engine/internal/gates/suppressions_test.go"]
+exclude = ["**/testdata/**", "engine/internal/gates/suppressions_test.go", "engine/internal/gates/config_test.go"]
 stages = ["edit", "commit", "ci"]
 scope = "file"
 

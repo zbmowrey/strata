@@ -183,7 +183,7 @@ func dateOK(r *index.Record, f Filter, today time.Time) bool {
 		return v >= args[0].(string) && v <= args[1].(string) //nolint:forcetypeassert // date() always binds strings
 	default:
 		op := strings.Fields(expr[strings.LastIndex(expr, ")")+1:])[0]
-		arg := args[0].(string) //nolint:forcetypeassert // see above
+		arg := args[0].(string) //nolint:forcetypeassert // date() always binds strings
 		return map[string]bool{"=": v == arg, ">": v > arg, ">=": v >= arg, "<": v < arg, "<=": v <= arg}[op]
 	}
 }

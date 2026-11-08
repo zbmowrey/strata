@@ -131,3 +131,14 @@ func TestGatesAndEngineEdges(t *testing.T) {
 		t.Fatal("Worst")
 	}
 }
+
+func TestResolveArgs(t *testing.T) {
+	t.Parallel()
+	got := resolveArgs([]string{"go", "version", "-m", "go"})
+	if got[3] == "go" || !strings.HasSuffix(got[3], "go") {
+		t.Fatalf("not resolved: %v", got)
+	}
+	if got := resolveArgs([]string{"go", "version", "-m", "no-such-tool-xyz"}); got[3] != "no-such-tool-xyz" {
+		t.Fatalf("unknown tool changed: %v", got)
+	}
+}

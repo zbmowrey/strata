@@ -160,10 +160,13 @@ func (g *Gate) Targets(files []string) []string {
 	case ScopePackage:
 		var dirs []string
 		for _, f := range files {
-			d := path.Dir(g.rel(f))
-			if d == "." {
+			d := owningPackage(path.Dir(g.rel(f)))
+			switch d {
+			case ".":
 				dirs = append(dirs, ".")
-			} else {
+			case "...":
+				dirs = append(dirs, "./...")
+			default:
 				dirs = append(dirs, "./"+d)
 			}
 		}
@@ -208,4 +211,16 @@ func (g *Gate) Select(files []string) []string {
 		}
 	}
 	return out
+}
+
+// owningPackage maps a directory inside testdata/ to the package that owns
+// it (the go tool ignores testdata, so a changed fixture tests its owner).
+func owningPackage(dir string) string {
+	if dir == "testdata" || strings.HasPrefix(dir, "testdata/") {
+		return "..." // module-level fixtures are shared by every package
+	}
+	if i := strings.Index(dir, "/testdata"); i >= 0 && (len(dir) == i+9 || dir[i+9] == '/') {
+		return dir[:i]
+	}
+	return dir
 }

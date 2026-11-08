@@ -40,7 +40,7 @@ func SourceHash(inst *config.Instance, s *Script) (string, error) {
 	add := func(p string) error {
 		b, err := os.ReadFile(p) //nolint:gosec // G304: files under the instance's scripts tree
 		if err != nil {
-			return err //nolint:wrapcheck // wrapped below
+			return err //nolint:wrapcheck // wrapped once by the caller below
 		}
 		rel, _ := filepath.Rel(sd, p)
 		_, _ = h.WriteString(filepath.ToSlash(rel) + "\x00")

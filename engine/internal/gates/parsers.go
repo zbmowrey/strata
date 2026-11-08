@@ -247,6 +247,11 @@ func parseSARIF(o Output, g *Gate) ([]finding.Finding, error) {
 				} `json:"driver"`
 			} `json:"tool"`
 			Results []struct {
+				// Suppressions lists in-source (nosemgrep) or external
+				// suppressions; suppressed results are not findings.
+				Suppressions []struct {
+					Kind string `json:"kind"`
+				} `json:"suppressions"`
 				RuleID  string `json:"ruleId"`
 				Level   string `json:"level"`
 				Message struct {
@@ -276,6 +281,9 @@ func parseSARIF(o Output, g *Gate) ([]finding.Finding, error) {
 			levels[rule.ID], docs[rule.ID] = rule.DefaultConfiguration.Level, rule.HelpURI
 		}
 		for _, res := range run.Results {
+			if len(res.Suppressions) > 0 {
+				continue
+			}
 			f := finding.Finding{Rule: res.RuleID, Message: strings.TrimSpace(res.Message.Text), Docs: docs[res.RuleID]}
 			level := res.Level
 			if level == "" {

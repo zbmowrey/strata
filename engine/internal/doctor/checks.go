@@ -204,7 +204,22 @@ func (d *doctor) tool(name string, pin scaffold.ToolPin) Check {
 	return c
 }
 
+// resolveArgs turns `go version -m <tool>` into `go version -m <path>`
+// (go needs a binary path; tools.toml names the tool).
+func resolveArgs(argv []string) []string {
+	out := slices.Clone(argv)
+	for i := 1; i < len(out); i++ {
+		if out[i-1] == "-m" && !strings.ContainsRune(out[i], '/') {
+			if p, err := exec.LookPath(out[i]); err == nil {
+				out[i] = p
+			}
+		}
+	}
+	return out
+}
+
 func runTool(ctx context.Context, argv []string) (string, error) {
+	argv = resolveArgs(argv)
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	out, err := exec.CommandContext(ctx, argv[0], argv[1:]...).CombinedOutput() //nolint:gosec // G204: argv from the instance's tools.toml

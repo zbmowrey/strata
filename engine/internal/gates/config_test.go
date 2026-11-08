@@ -57,7 +57,7 @@ func TestEngineGates(t *testing.T) {
 	}{
 		{"go-fmt", []string{"internal/gates/runner.go", "internal/gates/runner_test.go", "internal/cli/gates.go", "main.go"}},
 		{"go-lint", []string{".", "./internal/cli", "./internal/gates"}},
-		{"go-test", []string{".", "./internal/cli", "./internal/gates", "./internal/gates/testdata/tools"}},
+		{"go-test", []string{".", "./internal/cli", "./internal/gates"}},
 		{"go-vuln", []string{"./..."}},
 	}
 	for _, tc := range cases {
@@ -241,5 +241,17 @@ func TestSuppressionsTable(t *testing.T) {
 	fs := CheckSuppressions(dir, []string{"a.go", "bin", "missing"})
 	if len(fs) != 1 || fs[0].Line != 1 || fs[0].Col != 3 || !strings.Contains(fs[0].Message, "linter id") {
 		t.Fatalf("CheckSuppressions %v", fs)
+	}
+}
+
+func TestOwningPackage(t *testing.T) {
+	t.Parallel()
+	for in, want := range map[string]string{
+		"internal/x": "internal/x", "internal/x/testdata": "internal/x", "internal/x/testdata/a/b": "internal/x",
+		"testdata": "...", "testdata/fuzz": "...", "internal/testdatax": "internal/testdatax",
+	} {
+		if got := owningPackage(in); got != want {
+			t.Errorf("owningPackage(%q) = %q, want %q", in, got, want)
+		}
 	}
 }
