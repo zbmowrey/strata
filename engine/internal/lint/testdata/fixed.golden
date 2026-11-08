@@ -1,0 +1,16 @@
+---
+id: messy
+title: Messy
+summary: S
+type: fact
+tags: [go, testing]
+status: active  # inline comment
+trust: inferred
+created: 2026-01-01
+# leading comment about id
+updated: 2026-01-01
+applies_to:
+  - "x/**"
+mystery: keep-me
+---
+See [[target#Sec|label]] and [[target]].

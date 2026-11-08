@@ -1,0 +1,9 @@
+id: wrong-id
+summary: Fetches things.
+status: deprecated
+runtime: go
+entry: main.go
+usage: net-tool
+side_effect: network
+timeout: forever
+owner: robot

@@ -1,0 +1,5 @@
+# comma-separated groups; the first term is canonical
+k8s, kubernetes
+pg, postgres, postgresql
+db, database
+ci, continuous-integration

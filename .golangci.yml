@@ -58,7 +58,7 @@ linters:
       ignore-missing-subtests: true
     gocritic:
       enabled-tags: [diagnostic, performance, style]
-      disabled-checks: [whyNoLint, unnamedResult, hugeParam]
+      disabled-checks: [whyNoLint, unnamedResult, hugeParam, rangeValCopy]
     govet:
       enable-all: true
       disable: [shadow, fieldalignment]
@@ -96,7 +96,7 @@ linters:
     generated: strict
     rules:
       - path: _test\.go
-        linters: [funlen, dupl, goconst, wrapcheck, gocognit]
+        linters: [funlen, dupl, goconst, wrapcheck, gocognit, gocyclo, gosec, prealloc, perfsprint]
 formatters:
   enable:
     - gofumpt
