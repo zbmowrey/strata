@@ -1,6 +1,9 @@
 # tests hang at exit
 debug-hanging-tests 1.00
 pytest-fixture-teardown 0.96
+hanging-test-diagnosis 0.30
+ci-flake:plan 0.26
+ci-flake:log#2026-10-21-10-00 0.24
 # fixture teardown
 pytest-fixture-teardown 1.00
 find-leaked-fixtures 0.99
@@ -30,6 +33,7 @@ migration-rollback 1.10
 check-migrations 0.95
 migration-review-checklist 0.70
 incident-rollback 0.67
+migrations-run-before-deploy 0.25
 # pg pool
 postgres-connection-pool 1.10
 pgbouncer-transaction-mode 0.35
@@ -59,7 +63,8 @@ migration-review-checklist 0.30
 # flaky retries
 flaky-test-quarantine 1.15
 ci-flake 0.85
-20261101-120000-retry-budget 0.24
+20261101-120000-retry-budget 0.26
+ci-flake:plan 0.23
 # coverage
 coverage-floor 1.15
 q-20261103-coverage-floor 0.69

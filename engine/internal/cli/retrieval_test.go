@@ -52,7 +52,7 @@ func TestRetrievalGolden(t *testing.T) {
 		{"search-stale", []string{"search", "stale:true"}, 0},
 		{"search-negation", []string{"search", "rollback -helm"}, 0},
 		{"search-or-phrase", []string{"search", `"cursor pagination" OR versioning kind:shard`}, 0},
-		{"search-zero", []string{"search", "fixtur zzzz tag:pytest"}, 0},
+		{"search-zero", []string{"search", "fixtur zzzz tag:nosuchtag"}, 0},
 		{"search-superseded", []string{"search", "sunset header"}, 0},
 		{"search-project", []string{"search", "teardown project:ci-flake"}, 0},
 		{"search-dates", []string{"search", "updated:2026-10-20..2026-10-25"}, 0},

@@ -64,6 +64,7 @@ Deterministic, explainable (`--explain` prints the score breakdown per hit).
 1. **Exact short-circuit.** If the whole query equals an id or alias (case-insensitive), that document ranks first with score ∞.
 2. **Lexical.** FTS5 `bm25()` with column weights (configurable): `title 10, aliases 8, summary 5, tags 4, headings 3, body 1`.
 3. **Fuzzy assist.** If lexical results < `limit`, or the query contains a token with no FTS hits, trigram matches over `names_tri` are merged with a discounted score (0.5×) — catches typos and partial ids.
+3a. **Relaxation.** If the strict query (all terms, `AND`) yields fewer than `limit` candidates and it has ≥ 2 meaningful terms, the terms are `OR`ed (stopwords such as *how, the, is, after* dropped) and the extra matches merged at 0.6× — keeping only those within 30% of the best relaxed BM25 score. Natural-language questions ("keep claude working after stop") then find the shard that matches most of their words. (Added during dogfooding: MRR on the engine bench 0.57 → 0.94.)
 4. **Synonym expansion.** Query tokens are expanded via `.strata/synonyms.txt` (`k8s, kubernetes`, `pg, postgres, postgresql`) as FTS `OR` groups, original token weighted 1.0, synonyms 0.7.
 5. **Multipliers** (applied to the normalized lexical score):
 

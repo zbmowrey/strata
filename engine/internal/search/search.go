@@ -44,6 +44,7 @@ type Explain struct {
 	Norm     float64 `json:"norm"`
 	Synonym  float64 `json:"synonym,omitempty"`
 	Fuzzy    float64 `json:"fuzzy,omitempty"`
+	Relaxed  float64 `json:"relaxed,omitempty"`
 	Status   float64 `json:"status"`
 	Trust    float64 `json:"trust"`
 	Stale    float64 `json:"stale"`
@@ -146,6 +147,7 @@ type candidate struct {
 	norm    float64
 	fuzzy   float64
 	synonym float64
+	relaxed bool // matched only the relaxed (any-term) query
 	exact   bool
 }
 
@@ -159,6 +161,11 @@ func (s *Searcher) collect(ctx context.Context, req Request, w *where) (map[int6
 	}
 	if expr != orig && len(cands) > 0 {
 		if err := s.discountSynonyms(ctx, orig, cands); err != nil {
+			return nil, 0, err
+		}
+	}
+	if len(cands) < req.Limit {
+		if err := s.relax(ctx, req, w, cands); err != nil {
 			return nil, 0, err
 		}
 	}
@@ -362,6 +369,10 @@ func (s *Searcher) score(h *Hit, c *candidate, explain bool) {
 	if c.synonym > 0 {
 		e.Synonym = c.synonym
 		base *= c.synonym
+	}
+	if c.relaxed {
+		e.Relaxed = relaxDiscount
+		base *= relaxDiscount
 	}
 	if c.fuzzy > 0 {
 		e.Fuzzy = round(c.fuzzy, 4)
