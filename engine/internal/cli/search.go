@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/zbmowrey/strata/engine/internal/config"
 	"github.com/zbmowrey/strata/engine/internal/fail"
 	"github.com/zbmowrey/strata/engine/internal/render"
 	"github.com/zbmowrey/strata/engine/internal/search"
@@ -109,10 +110,11 @@ func (a *app) runSearch(ctx context.Context, raw string, f searchFlags) error {
 	if f.scope != "local" && f.scope != "fleet" {
 		return fail.New(fail.Usage, "use --scope local|fleet", "unknown scope %q", f.scope)
 	}
-	res, err := a.execSearch(ctx, raw, q, f)
+	res, inst, err := a.execSearch(ctx, raw, q, f)
 	if err != nil {
 		return err
 	}
+	a.emitSearch(inst, raw, q, res)
 	return a.printSearch(res, format, f.explain)
 }
 
@@ -126,14 +128,14 @@ func sortFilters(fs []search.Filter) []search.Filter {
 	return fs
 }
 
-func (a *app) execSearch(ctx context.Context, raw string, q search.Query, f searchFlags) (*search.Result, error) {
+func (a *app) execSearch(ctx context.Context, raw string, q search.Query, f searchFlags) (*search.Result, *config.Instance, error) {
 	inst, err := a.instance()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	syn, err := search.LoadSynonyms(inst.Path(inst.Config.Search.Synonyms))
 	if err != nil {
-		return nil, fmt.Errorf("synonyms: %w", err)
+		return nil, nil, fmt.Errorf("synonyms: %w", err)
 	}
 	req := search.Request{
 		Query: q, Raw: raw, Limit: f.limit, Explain: f.explain, Synonyms: syn,
@@ -142,16 +144,19 @@ func (a *app) execSearch(ctx context.Context, raw string, q search.Query, f sear
 	_, ix, err := a.openIndex(ctx)
 	if err != nil {
 		if fail.CodeOf(err) == fail.Locked {
-			return nil, err
+			return nil, nil, err
 		}
 		a.warnf("index unavailable (%v); falling back to a full scan without BM25 statistics", err)
-		return search.Fallback(ctx, inst, req)
+		res, err := search.Fallback(ctx, inst, req)
+		return res, inst, err
 	}
 	defer func() { _ = ix.Close() }()
 	if f.scope == "fleet" {
-		return search.Fleet(ctx, inst, ix, req)
+		res, err := search.Fleet(ctx, inst, ix, req)
+		return res, inst, err
 	}
-	return search.New(ix).Search(ctx, req)
+	res, err := search.New(ix).Search(ctx, req)
+	return res, inst, err
 }
 
 func (a *app) printSearch(res *search.Result, format string, explain bool) error {

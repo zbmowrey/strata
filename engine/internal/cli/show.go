@@ -89,6 +89,7 @@ func (a *app) runShow(ctx context.Context, req search.ShowRequest, format string
 	if err != nil {
 		return err
 	}
+	a.emitShow(inst, res)
 	if format == fmtJSON {
 		if err := render.JSON(a.io.Out, struct {
 			*search.ShowResult
