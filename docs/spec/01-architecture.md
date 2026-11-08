@@ -72,7 +72,7 @@ All paths are configurable in `.strata/config.toml`; these are defaults.
 ├── CLAUDE.md                     # user content + <!-- strata:begin --> managed block <!-- strata:end -->
 ├── knowledge/                    # Obsidian-compatible vault (open this folder or the repo root)
 │   ├── <domain>/<topic>/<id>.md  # shards; filename stem == id (globally unique)
-│   ├── _hubs/<domain>.md         # GENERATED domain maps (hand-written intro above marker preserved)
+│   ├── _hubs/hub-<domain>.md     # GENERATED domain maps (hand-written intro above marker preserved)
 │   ├── _inbox/<ts>-<slug>.md     # captures awaiting filing
 │   ├── _questions/<id>.md        # escalations awaiting a human answer
 │   ├── _archive/<domain>/...     # archived shards (excluded from default search)

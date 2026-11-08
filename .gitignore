@@ -25,3 +25,6 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Claude Code agent worktrees (local)
+/.claude/worktrees/

@@ -1,0 +1,9 @@
+---
+type: gotcha
+captured: 2026-11-07T12:00:00Z
+session: abcd
+project: _adhoc
+tags: [redis]
+sources: [{ kind: session, ref: projects/ci-flake/log.md }]
+---
+Redis fixture leaks too!

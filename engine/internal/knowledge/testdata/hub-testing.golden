@@ -1,0 +1,27 @@
+---
+id: hub-testing
+title: Testing
+summary: Map of everything known about testing in this repository.
+type: index
+---
+Hand-written intro: testing is sacred.
+
+<!-- strata:hub:begin — GENERATED, do not edit below -->
+## pytest  (4)
+- [[pytest-fixture-teardown]] — Session-scoped DB fixtures leak connections unless torn down; tests then hang at exit.
+- [[pytest-markers-registered]] — Every custom pytest marker is declared in pyproject.toml; unknown markers fail the run.
+- [[pytest-parallel-xdist]] — Use pytest -n auto with per-worker database names to parallelize the integration suite.
+- [[test-database-per-worker]] — The test harness creates app_test_gw0..gwN databases so parallel workers never share state.
+
+## ci  (3)
+- [[ci-pipeline-stages]] — The CI pipeline has four ordered stages; integration only runs after lint and unit tests pass.
+- [[coverage-floor]] — Line coverage for the app package must not drop below 85 percent; CI enforces the floor.
+- [[flaky-test-quarantine]] — Flaky tests are marked quarantine and tracked; automatic retries are not allowed in CI.
+
+## debugging  (2)
+- [[hanging-test-diagnosis]] — Dump thread stacks with py-spy to see which non-daemon thread keeps a finished suite alive.
+- [[snapshot-test-updates]] — Syrupy snapshots are refreshed by running pytest with --snapshot-update and reviewing the diff.
+
+## newtopic  (1)
+- [[brand-new-thing]] — s
+<!-- strata:hub:end -->

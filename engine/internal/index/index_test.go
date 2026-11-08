@@ -207,7 +207,7 @@ func TestIDCollisionAndKinds(t *testing.T) {
 	t.Parallel()
 	dir := testutil.CopyFixture(t, "instance-basic")
 	testutil.WriteFile(t, dir, ".claude/skills/deploy-flow/SKILL.md", "---\nname: deploy-flow\ndescription: Collides with a shard id.\n---\nbody\n")
-	testutil.WriteFile(t, dir, "knowledge/_hubs/testing.md", "---\nid: hub-testing\ntitle: Testing\nsummary: Map of testing.\ntype: index\n---\nintro\n")
+	testutil.WriteFile(t, dir, "knowledge/_hubs/hub-testing.md", "---\nid: hub-testing\ntitle: Testing\nsummary: Map of testing.\ntype: index\n---\nintro\n")
 	testutil.WriteFile(t, dir, "knowledge/_archive/old/stuff/ancient.md", "---\nid: ancient\ntitle: Ancient\nsummary: s\ntype: fact\ntags: [x]\nstatus: active\ntrust: inferred\ncreated: 2020-01-01\nupdated: 2020-01-01\n---\nold\n")
 	testutil.WriteFile(t, dir, "knowledge/_private/p/q/secret-ish.md", "---\nid: secret-ish\ntitle: Where creds live\nsummary: s\ntype: fact\ntags: [x]\nstatus: active\ntrust: inferred\ncreated: 2020-01-01\nupdated: 2020-01-01\nsensitive: true\n---\nin 1password\n")
 	testutil.WriteFile(t, dir, "projects/ci-flake/out/report.md", "# Report\n")

@@ -18,7 +18,7 @@ func Inbox(file string, d *doc.Doc, parseErr error) []finding.Finding {
 	c.required("type", "captured")
 	c.enum("type", Types...)
 	c.date("captured")
-	c.list("sources")
+	checkSources(c, "inferred")
 	c.list(KeyTags)
 	return c.out
 }

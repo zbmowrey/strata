@@ -129,7 +129,7 @@ var commandSet []func(*app) *cobra.Command
 func register(f func(*app) *cobra.Command) { commandSet = append(commandSet, f) }
 
 // cobraUsagePrefixes identify argument errors cobra reports as plain errors.
-var cobraUsagePrefixes = []string{"unknown command", "unknown flag", "unknown shorthand", "accepts ", "requires at least", "requires at most", "invalid argument", "flag needs"}
+var cobraUsagePrefixes = []string{"unknown command", "required flag", "unknown flag", "unknown shorthand", "accepts ", "requires at least", "requires at most", "invalid argument", "flag needs"}
 
 // classify maps cobra's untyped usage errors to fail.Usage.
 func classify(err error) error {

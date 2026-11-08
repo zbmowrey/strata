@@ -55,3 +55,5 @@ func realPath(p string) string {
 		cur = parent
 	}
 }
+
+func getenv(k string) string { return os.Getenv(k) }

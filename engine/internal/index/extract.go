@@ -93,7 +93,7 @@ func (x *extractor) markdown(f corpus.File, d *doc.Doc) Record {
 	case corpus.Shard:
 		x.shard(&r, f, d, stem)
 	case corpus.Hub:
-		r.ID, r.Domain = firstNonEmpty(d.Meta.String("id"), "hub-"+stem), stem
+		r.ID, r.Domain = stem, strings.TrimPrefix(stem, "hub-")
 		r.Type, r.Status = "index", firstNonEmpty(r.Status, "active")
 	case corpus.Inbox:
 		r.ID = stem
