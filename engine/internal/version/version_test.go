@@ -61,3 +61,10 @@ func TestGet(t *testing.T) {
 		t.Fatalf("incomplete info %+v", info)
 	}
 }
+
+func TestCurrentMatchesGet(t *testing.T) {
+	t.Parallel()
+	if Current() != Get().Version || Current() == "" {
+		t.Fatalf("Current %q, Get %q", Current(), Get().Version)
+	}
+}

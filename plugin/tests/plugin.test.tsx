@@ -67,6 +67,7 @@ const DEFAULTS: Record<string, Answer> = {
 function engine(
   on: On,
   over: Record<string, Answer | 'missing'> = {},
+  refuse: readonly string[] = [],
 ): { calls: string[][]; lines: (string | undefined)[] } {
   const calls: string[][] = []
   const lines: (string | undefined)[] = []
@@ -97,7 +98,11 @@ function engine(
     }
   })
   on('session.id', () => ({ value: 'sess-1' }))
-  on('command.register', (_, e) => ({ value: { command: e.name } }))
+  on('command.register', (_, e) =>
+    refuse.includes(e.name)
+      ? { deny: `"/${e.name}" refused: it is the built-in /${e.name}` }
+      : { value: { command: e.name } },
+  )
   on('tool.register', (_, e) => ({ value: { tool: `mcp__strata__${e.name}` } }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
@@ -113,6 +118,16 @@ test('session start: version check and status line', async ($, on) => {
   expect(calls[0]).toEqual(['strata', 'version', '--format', 'json'])
   expect(calls).toContainEqual(['strata', 'status', '--session', 'sess-1', '--format', 'json'])
   expect(seen.at(-1)).toBe('⛬ 40 · inbox 2 · ? 1 · gates ✗2')
+})
+
+test('session start: a refused command name does not abort the rest', async ($, on) => {
+  const { calls, lines: seen } = engine(on, {}, ['garden', 'project'])
+  await $.session.start(start)
+  expect(calls).toContainEqual(['strata', 'status', '--session', 'sess-1', '--format', 'json'])
+  expect(seen.at(-1)).toBe('⛬ 40 · inbox 2 · ? 1 · gates ✗2')
+  const res = await $.command.run(cmd('strata', 'resume ci-flake'))
+  expect(calls).toContainEqual(['strata', 'resume', 'ci-flake'])
+  expect(res.text).toBeDefined()
 })
 
 test('session start: version mismatch', async ($, on) => {
@@ -141,7 +156,7 @@ test('slash commands map to engine argv', async ($, on) => {
     '--project',
     'ci-flake',
   ])
-  const res = await $.command.run(cmd('resume', ''))
+  const res = await $.command.run(cmd('strata', 'resume'))
   expect(calls).toContainEqual(['strata', 'resume'])
   expect(res.text).toBeDefined()
   const doc = await $.command.run(cmd('strata', 'doctor'))

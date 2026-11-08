@@ -38,7 +38,7 @@ Strata is a drop-in, per-repository operating layer for [Claude Code](https://cl
 | 📓 **Projects** | Local-only working memory for multi-session work: plan, an append-only chronicle of what was *tried and failed*, and a handoff note that survives context compaction. |
 | 🛡️ **Gates** | Formatters, strict linters, type checkers, complexity limits, SAST, secret scanning, and tests, run **as Claude edits**. Failures block, and ratcheting baselines let you adopt Strata in a messy repo without being buried in errors. |
 | 🌱 **Gardener** | Autonomous upkeep: files the inbox, merges duplicates, re-verifies stale facts, distills finished projects, and promotes knowledge into scripts and gates. It delivers everything as a PR for you to review. |
-| 🔌 **Plugin** | `/garden`, `/capture`, `/bench`, `/resume`, a status line, a side pane, and specialist subagents (gardener, scout, scribe, scriptsmith, verifier). |
+| 🔌 **Plugin** | `/garden`, `/capture`, `/bench`, `/strata resume`, a status line, a side pane, and specialist subagents (gardener, scout, scribe, scriptsmith, verifier). |
 
 ## The big idea: the hardening ladder
 
@@ -110,7 +110,10 @@ ci-flake — Eliminate CI flakiness in the integration suite (active, last activ
 ```bash
 # 1. Install the engine (Go 1.26+; the module pins its toolchain)
 go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.0
-#    …or download a binary for macOS / Linux / Windows from the GitHub release.
+#    …or download a binary for macOS / Linux / Windows from the GitHub release
+#    (gh release download v0.1.0 -R zbmowrey/strata -p 'strata_*_darwin_arm64.tar.gz').
+#    The binaries are not notarized: if you download one with a browser on macOS, clear the
+#    quarantine flag before running it: xattr -d com.apple.quarantine ./strata
 
 # 2. Drop Strata into a repository
 cd your-repo
@@ -160,6 +163,10 @@ security); `doctor` prints the install command for any missing tool.
 /plugin marketplace add zbmowrey/strata
 /plugin install strata@strata
 ```
+
+Open Claude Code in the repository once, interactively, and accept the workspace trust dialog.
+Until you do, Claude Code ignores the permission allowlist in `.claude/settings.json`, and every
+`strata search` asks for permission. `strata doctor` then also reports the plugin as installed.
 
 Start a session. The hooks `strata init` wrote into `.claude/settings.json` make Claude search
 before it acts, block it on failing gates as it edits, and ask once per session for a knowledge

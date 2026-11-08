@@ -85,7 +85,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 
 ## 4. `strata doctor` checks
 
-Engine version ≥ `min_version`; plugin installed and version-matched; hooks present in `.claude/settings.json`; `CLAUDE.md` managed block present and current; required tools present at pinned versions (`tools.toml`); index healthy; git pre-commit hook installed; `.gitignore` managed blocks current; no disabled gates without reasons; lint summary (counts by severity); open questions; garden lock not stale (> 2 h → offer to clear). `--fix` applies safe fixes (regenerate managed blocks, install missing git hook, clear stale lock) and prints install commands for missing tools (it never installs system tools itself).
+Engine version ≥ `min_version`; plugin installed and version-matched (from Claude Code's `plugins/installed_plugins.json`; a warning, since the hooks enforce without the plugin); hooks present in `.claude/settings.json`; `CLAUDE.md` managed block present and current; required tools present at pinned versions (`tools.toml`); index healthy; git pre-commit hook installed; `.gitignore` managed blocks current; no disabled gates without reasons; lint summary (counts by severity); open questions; garden lock not stale (> 2 h → offer to clear). `--fix` applies safe fixes (regenerate managed blocks, install missing git hook, clear stale lock) and prints install commands for missing tools (it never installs system tools itself).
 
 ## 5. Output conventions
 

@@ -26,7 +26,7 @@ import (
 // managed reports stale managed pieces (CLAUDE.md block, .gitignore blocks,
 // hook wiring, allowlist); --fix regenerates them via upgrade.
 func (d *doctor) managed() []Check {
-	res, err := setup.Upgrade(d.ctx, d.inst, setup.Options{Now: d.opt.Now, Version: version.Version, DryRun: true})
+	res, err := setup.Upgrade(d.ctx, d.inst, setup.Options{Now: d.opt.Now, Version: version.Current(), DryRun: true})
 	if err != nil {
 		return []Check{{Name: "managed", Status: Fail, Message: err.Error()}}
 	}
@@ -41,7 +41,7 @@ func (d *doctor) managed() []Check {
 	}
 	c := Check{Name: "managed", Status: Warn, Message: "stale: " + strings.Join(stale, ", "), Fix: "strata upgrade"}
 	if d.opt.Fix {
-		if _, err := setup.Upgrade(d.ctx, d.inst, setup.Options{Now: d.opt.Now, Version: version.Version}); err == nil {
+		if _, err := setup.Upgrade(d.ctx, d.inst, setup.Options{Now: d.opt.Now, Version: version.Current()}); err == nil {
 			c.Fixed, c.Message = true, c.Message+" — regenerated"
 		}
 	}

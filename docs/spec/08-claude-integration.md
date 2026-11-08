@@ -142,9 +142,9 @@ The plugin is a Claude Code mod (function-hooks module in TypeScript) plus markd
 | `/capture <text>` | `strata capture` with the current project; confirms the inbox id. |
 | `/promote <id>` | Asks the gardener agent to evaluate promoting a specific shard down the ladder now. |
 | `/bench [retrieval\|protocol]` | Runs the bench; renders metrics vs. baseline. |
-| `/resume [slug]` | Prints `strata resume`. |
+| `/strata resume [slug]` | Prints `strata resume`. (Not `/resume`: that name is a Claude Code built-in and registering it is refused.) |
 | `/project <new\|list\|close\|handoff> …` | Project lifecycle shortcuts. |
-| `/strata` | Opens the Strata pane (§5.4); `/strata doctor` runs doctor. |
+| `/strata` | Opens the Strata pane (§5.4); `/strata doctor` runs doctor; `/strata resume` as above. |
 
 ### 5.3 Status line
 

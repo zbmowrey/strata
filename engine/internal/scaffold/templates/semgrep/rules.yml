@@ -1,0 +1,6 @@
+# Project-specific semgrep rules, run by the `sast` gate alongside p/default
+# (.strata/gates.toml). Add rules below; see https://semgrep.dev/docs/writing-rules/overview
+#
+# Keep this directory: the sast gate passes it to semgrep with --config, and
+# semgrep refuses to run when a --config path is missing.
+rules: []

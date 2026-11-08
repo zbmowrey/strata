@@ -92,7 +92,7 @@ func (a *app) runProtocol(cmd *cobra.Command, f protocolFlags) error {
 	}
 	rep := bench.RunProtocol(cmd.Context(), scenarios, bench.ProtocolOptions{
 		Now: a.now, Claude: protocolClaude, Strata: bin, PluginDir: plugin, Model: f.model,
-		Version: version.Version, Runs: f.runs, Parallel: f.parallel,
+		Version: version.Current(), Runs: f.runs, Parallel: f.parallel,
 	})
 	if _, err := bench.SaveProtocol(inst, rep); err != nil {
 		return err

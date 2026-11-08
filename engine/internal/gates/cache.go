@@ -81,7 +81,27 @@ func writeField(h hash.Hash, k, v string) {
 	_, _ = fmt.Fprintf(h, "%s=%d:%s\n", k, len(v), v)
 }
 
+// hashFile hashes one file, or every regular file under a directory (so a
+// config_files entry such as ".strata/semgrep/" covers a rules directory).
 func hashFile(h hash.Hash, root, rel string) {
+	abs := filepath.Join(root, filepath.FromSlash(rel))
+	if fi, err := os.Stat(abs); err == nil && fi.IsDir() {
+		var files []string
+		_ = filepath.WalkDir(abs, func(p string, d os.DirEntry, err error) error {
+			if err == nil && d.Type().IsRegular() {
+				if r, rerr := filepath.Rel(root, p); rerr == nil {
+					files = append(files, filepath.ToSlash(r))
+				}
+			}
+			return nil
+		})
+		slices.Sort(files)
+		writeField(h, "dir", rel)
+		for _, f := range files {
+			hashFile(h, root, f)
+		}
+		return
+	}
 	raw, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel))) //nolint:gosec // G304: repo files selected by the gate
 	if err != nil {
 		writeField(h, "missing", rel)

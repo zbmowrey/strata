@@ -110,6 +110,8 @@ func TestInfrastructureFailures(t *testing.T) {
 	slow := tool(t, "slow", "sleep 5")
 	crash := tool(t, "crash", "echo 'panic: boom'; exit 3")
 	quiet := tool(t, "quiet", "exit 0")
+	// semgrep with a missing --config path: valid, empty SARIF and exit 7.
+	sarifErr := tool(t, "sarif-error", `echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"semgrep"}},"results":[]}]}'; exit 7`)
 	cfg := cfgOf(t, `
 [[gate]]
 id = "missing"
@@ -126,6 +128,11 @@ parser = "golangci-json"
 id = "quiet"
 cmd = ["`+quiet+`"]
 parser = "golangci-json"
+[[gate]]
+id = "sarif-error"
+cmd = ["`+sarifErr+`"]
+parser = "semgrep-sarif"
+severity = "warning"
 `)
 	r := &Runner{Inst: inst, Cfg: cfg, NoCache: true}
 	start := time.Now()
@@ -140,14 +147,14 @@ parser = "golangci-json"
 	for _, g := range rep.Gates {
 		status[g.ID] = g.Status
 	}
-	want := map[string]string{"missing": StatusMissing, "slow": StatusTimeout, "crash": StatusError, "quiet": StatusPass}
+	want := map[string]string{"missing": StatusMissing, "slow": StatusTimeout, "crash": StatusError, "quiet": StatusPass, "sarif-error": StatusError}
 	for k, v := range want {
 		if status[k] != v {
 			t.Errorf("%s: status %s want %s", k, status[k], v)
 		}
 	}
-	if got := ids(rep.Blocking); !slices.Equal(got, []string{"crash"}) {
-		t.Fatalf("only the crash blocks: %v", got)
+	if got := ids(rep.Blocking); !slices.Equal(got, []string{"crash", "sarif-error"}) {
+		t.Fatalf("only the tool failures block: %v", got)
 	}
 }
 
@@ -182,6 +189,40 @@ config_files = ["conf.yml"]
 	run()
 	if runs(t, counter) != 3 {
 		t.Fatal("config change did not invalidate the cache")
+	}
+}
+
+func TestCacheConfigDirectory(t *testing.T) {
+	t.Parallel()
+	inst, dir := repo(t, map[string]string{"a.txt": "BAD\n", "rules/one.yml": "v1\n"})
+	bad, counter := countingGrep(t, "BAD")
+	cfg := cfgOf(t, `
+[[gate]]
+id = "bad"
+cmd = ["`+bad+`", "{targets}"]
+parser = "lines"
+config_files = ["rules/"]
+`)
+	r := &Runner{Inst: inst, Cfg: cfg}
+	run := func() {
+		if _, err := r.Run(context.Background(), Request{Stage: StageStop, Files: []string{"a.txt"}}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	run()
+	run()
+	if runs(t, counter) != 1 {
+		t.Fatal("unchanged directory missed the cache")
+	}
+	testutil.WriteFile(t, dir, "rules/two.yml", "v1\n")
+	run()
+	if runs(t, counter) != 2 {
+		t.Fatal("a file added to a config directory did not invalidate the cache")
+	}
+	testutil.WriteFile(t, dir, "rules/one.yml", "v2\n")
+	run()
+	if runs(t, counter) != 3 {
+		t.Fatal("a changed file in a config directory did not invalidate the cache")
 	}
 }
 

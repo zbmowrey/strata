@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -209,6 +210,9 @@ func (r *run) gateFiles() error {
 	if err := r.createFile(".strata/gates.toml", g); err != nil {
 		return err
 	}
+	if err := r.semgrepRules(g); err != nil {
+		return err
+	}
 	t, err := scaffold.RenderTools(profiles)
 	if err != nil {
 		return err
@@ -220,6 +224,21 @@ func (r *run) gateFiles() error {
 		return r.scriptsLib(profiles)
 	}
 	return nil
+}
+
+// semgrepRules creates the starter .strata/semgrep/ rules when the instance's
+// gates read that directory and it is missing: semgrep exits with a config
+// error on a missing --config path. rendered stands in for gates.toml when
+// it does not exist yet (a dry run).
+func (r *run) semgrepRules(rendered []byte) error {
+	raw, err := os.ReadFile(r.inst.Path(".strata", "gates.toml"))
+	if err != nil {
+		raw = rendered
+	}
+	if !bytes.Contains(raw, []byte(".strata/semgrep/")) || isDir(r.inst.Path(".strata", "semgrep")) {
+		return nil
+	}
+	return r.createFile(scaffold.SemgrepRulesFile, scaffold.SemgrepRules())
 }
 
 // scriptsLib creates the scripts modules and shared lib starters.

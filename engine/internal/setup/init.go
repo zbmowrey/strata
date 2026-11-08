@@ -48,13 +48,17 @@ func Init(ctx context.Context, root string, opt Options) (*Result, error) {
 
 // Upgrade refreshes Strata's managed pieces of an existing instance: the
 // CLAUDE.md block, .gitignore blocks, hook wiring, allowlist, hubs and
-// catalogs. It never creates or edits user-owned files.
+// catalogs. It never edits user-owned files; it only creates the starter
+// .strata/semgrep/ rules when gates.toml reads that directory and it is missing.
 func Upgrade(ctx context.Context, inst *config.Instance, opt Options) (*Result, error) {
 	if opt.Now == nil {
 		opt.Now = time.Now
 	}
 	r := &run{ctx: ctx, inst: inst, opt: opt, res: &Result{}}
 	if err := r.managed(); err != nil {
+		return r.res, err
+	}
+	if err := r.semgrepRules(nil); err != nil {
 		return r.res, err
 	}
 	return r.res, nil

@@ -6,6 +6,33 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+Fixes found by installing 0.1.0 into a fresh repository through the public path.
+
+### Fixed
+
+- **Plugin:** `session.start` threw because `/resume` is a Claude Code built-in, and the refusal
+  aborted every registration after it (`/project`, `/strata`, the status line, the
+  `strata_search`/`strata_show` tools, the version check). Resume is now `/strata resume [slug]`.
+  Each command and tool registers on its own, so a refused name is logged and skipped.
+- **Gates fail closed:** a tool that exits non-zero without reporting a finding is now a blocking
+  `tool-failed` error, not a pass. Before this, semgrep's exit 7 on a missing `--config` path (it
+  still prints valid, empty SARIF) made the `sast` gate pass everything.
+- **`strata init`** creates `.strata/semgrep/rules.yml` (empty starter rules) for the security
+  profile's `sast` gate, and `strata upgrade` restores it when gates.toml reads the directory
+  and it is missing.
+- **Gate cache:** `config_files` entries may name directories (every file under them is
+  hashed). The security profile's `sast` gate declares `.strata/semgrep/`, so rule changes
+  invalidate cached results.
+- **Version:** `doctor`, `init`/`upgrade` and `bench protocol` report the module version for
+  `go install …@vX.Y.Z` builds, as `strata version` already did, instead of `0.1.0-dev`.
+
+### Added
+
+- `strata doctor` checks that the Claude Code plugin is installed and matches the engine
+  (warning only: the hooks enforce without it), as docs/spec/09-cli.md §4 specifies.
+- Quickstart: the trust-dialog step (Claude Code ignores `.claude/settings.json` permissions in
+  untrusted workspaces) and the macOS quarantine note for browser-downloaded binaries.
+
 ## [0.1.0] - 2026-11-08
 
 First release: the full v1 design in `docs/spec/` (Phases 0–12 of the build plan).
