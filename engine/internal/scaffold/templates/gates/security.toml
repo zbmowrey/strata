@@ -12,7 +12,7 @@ id = "secrets"
 desc = "gitleaks over the working tree (knowledge/ and _private/ included)"
 stages = ["stop", "commit", "ci"]
 scope = "repo"
-cmd = ["gitleaks", "dir", "{targets}", "--no-banner", "--redact", "--report-format", "json", "--report-path", "/dev/stdout", "--exit-code", "0"]
+cmd = ["gitleaks", "dir", "{targets}", "--no-banner", "--redact", "--report-format", "json", "--report-path", "-", "--exit-code", "0"]
 parser = "gitleaks-json"
 timeout = "120s"
 
