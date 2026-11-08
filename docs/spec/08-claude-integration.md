@@ -171,6 +171,14 @@ Register `strata_search` and `strata_show` via `$.tool.register` as typed tools 
 
 `strata-capture` (what/how to capture; shard anatomy; examples of good and bad shards) · `strata-scriptsmith` (the script creation protocol) · `strata-garden` (the gardener's operating manual: task handling per type, autonomy matrix, commit/PR conventions, scheduling `/garden`) · `strata-project` (project lifecycle, chronicle and handoff discipline) · `strata-search` (retrieval ladder, query language, batching). Skills are themselves indexed as playbooks.
 
+### 5.8 Implementation notes (v0.1)
+
+- Status line comes from `strata status --session <id> --format json` (session id from `$.session.id()`); while a `/garden` run is active it shows `garden running since HH:MM` instead of an open-PR number. Refreshed at session start, after main-loop Edit/Write, after Bash calls running `strata`, and when a garden run ends.
+- `/garden` runs `strata garden start`, then `$.agent.spawn({ subagentType: 'strata:gardener', cwd: <worktree>, prompt })`; a `turn.complete` hook for that agent writes its final answer (the digest) to `<worktree>/.strata/garden/digest.md` and runs `strata garden finish --body-file …`. If the spawn is refused, the command prints instructions for the main agent. `/garden finish` and `/garden abort` are manual fallbacks.
+- `/capture` files into the single active project (else `_adhoc`); `strata_show` returns the engine's markdown; `/promote` spawns `strata:gardener` in evaluate-only mode; the pane's Bench section shows a hint until bench data exists.
+- Agent frontmatter `tools` takes tool names only, so per-command Bash limits (scout, verifier) are stated in the agent prompt.
+- The mod API types are vendored at `plugin/vendor/claude-code.d.ts` so `tsc` runs without the engine; `no-misused-promises` runs with `checksVoidReturn: false` (that check took minutes per file on `on(...)` registrations).
+
 ## 6. Plugin quality bar
 
 TypeScript strict profile ([06](06-gates.md) §4.3); `claude plugin validate plugin/` clean; `tsc -p plugin` clean; `claude plugin test plugin/` covering: status text formatting, command → CLI argv mapping, JSON error handling (engine missing, engine error, version mismatch), pane rendering on `terminal` and `desktop` surfaces.
