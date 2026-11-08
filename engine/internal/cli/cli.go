@@ -94,7 +94,9 @@ func Main(args []string, s Streams) (code int) {
 		return fail.OK
 	}
 	err = classify(err)
-	a.reportError(err)
+	if !fail.IsSilent(err) {
+		a.reportError(err)
+	}
 	return fail.CodeOf(err)
 }
 

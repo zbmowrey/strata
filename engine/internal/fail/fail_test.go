@@ -47,3 +47,14 @@ func TestErrorBasics(t *testing.T) {
 		t.Fatal("empty error message")
 	}
 }
+
+func TestSilent(t *testing.T) {
+	t.Parallel()
+	if Silent(OK) != nil {
+		t.Fatal("Silent(OK) should be nil")
+	}
+	err := Silent(Blocking)
+	if CodeOf(err) != Blocking || !IsSilent(err) || IsSilent(New(Blocking, "", "x")) {
+		t.Fatalf("Silent: code %d silent %v", CodeOf(err), IsSilent(err))
+	}
+}

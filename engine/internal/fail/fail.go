@@ -76,3 +76,18 @@ func HintOf(err error) string {
 	}
 	return ""
 }
+
+// errSilent marks an exit whose output the command already wrote.
+var errSilent = errors.New("silent exit")
+
+// Silent returns an error that only carries an exit code: the CLI prints
+// nothing for it (used by hooks, whose stdout/stderr are the protocol).
+func Silent(code int) error {
+	if code == OK {
+		return nil
+	}
+	return &Error{Code: code, Err: errSilent}
+}
+
+// IsSilent reports whether err was made by Silent.
+func IsSilent(err error) bool { return errors.Is(err, errSilent) }
