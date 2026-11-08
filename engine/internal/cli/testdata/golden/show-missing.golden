@@ -1,0 +1,12 @@
+═══ deploy-flow · shard/howto · knowledge/infra/deploy/deploy-flow.md
+trust: verified · updated 2026-10-01 · verified 2026-10-01 · links: 3 out / 3 in
+A merge to `main` triggers the release workflow.
+
+1. Build and push the image tagged with the commit SHA.
+2. Deploy to staging with [[helm-values-layering]].
+3. Run smoke tests.
+4. Promote with `make promote`; see [[deploy-freeze-window]].
+
+✗ missing: nope
+
+✗ missing: deploy-flow#nowhere (did you mean deploy-flow?)

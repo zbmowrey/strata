@@ -1,0 +1,5 @@
+check-deploy-config   script/ro  1.00  Validate Helm values files for required resources and image tags.
+check-migrations      script/ro  1.00  Verify every alembic migration has a downgrade and no blocking index builds.
+find-leaked-fixtures  script/ro  1.00  Detect pytest fixtures that acquire resources without teardown.
+normalize-csv         script/ro  1.00  Normalize a CSV file to UTF-8, LF endings, and trimmed fields.
+render-release-notes  script/wl  1.00  Render release notes from conventional commits since the last tag.

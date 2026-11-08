@@ -83,7 +83,7 @@ fmt:
 # Performance benchmarks vs. baseline, plus the retrieval bench.
 bench:
     cd engine && go test -run '^$' -bench . -benchtime 1x ./... >/dev/null
-    if [ -f engine/testdata/perf-baseline.json ]; then just build >/dev/null && ./bin/strata bench perf; fi
+    just build >/dev/null && ./bin/strata bench perf --budgets "${STRATA_BUDGETS:-strict}"
 
 plugin-check:
     claude plugin validate plugin/

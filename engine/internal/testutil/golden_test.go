@@ -1,4 +1,4 @@
-package golden
+package testutil
 
 import (
 	"os"
@@ -16,19 +16,19 @@ func (r *recorder) Errorf(string, ...any) { r.failed = true }
 func (r *recorder) Fatalf(string, ...any) { r.failed = true }
 func (r *recorder) Fatal(...any)          { r.failed = true }
 
-func TestAssert(t *testing.T) { //nolint:paralleltest // toggles the package-level update flag
+func TestGolden(t *testing.T) { //nolint:paralleltest // toggles the package-level update flag
 	p := filepath.Join(t.TempDir(), "sub", "x.golden")
 	*update = true
-	Assert(t, p, []byte("hello"))
+	Golden(t, p, []byte("hello"))
 	*update = false
-	Assert(t, p, []byte("hello"))
+	Golden(t, p, []byte("hello"))
 	r := &recorder{TB: t}
-	Assert(r, p, []byte("other"))
+	Golden(r, p, []byte("other"))
 	if !r.failed {
 		t.Fatal("mismatch not reported")
 	}
 	r = &recorder{TB: t}
-	Assert(r, filepath.Join(t.TempDir(), "missing"), nil)
+	Golden(r, filepath.Join(t.TempDir(), "missing"), nil)
 	if !r.failed {
 		t.Fatal("missing golden not reported")
 	}

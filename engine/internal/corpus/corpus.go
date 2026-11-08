@@ -3,11 +3,11 @@
 package corpus
 
 import (
-	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -191,14 +191,20 @@ func (l Layout) roots() []string {
 
 // Walk discovers every corpus file under root, sorted by Rel.
 func Walk(root string, l Layout) ([]File, error) {
-	w := &walker{root: root, layout: l, sem: make(chan struct{}, max(4, runtime.GOMAXPROCS(0)*2))}
+	w := &walker{root: root, layout: l, sem: make(chan struct{}, walkWorkers())}
 	for _, r := range l.roots() {
-		fi, err := os.Lstat(filepath.Join(root, filepath.FromSlash(r)))
+		abs := filepath.Join(root, filepath.FromSlash(r))
+		fi, err := os.Lstat(abs)
 		if err != nil || !fi.IsDir() {
 			continue
 		}
+		f, err := os.Open(abs) //nolint:gosec // G304: the instance's own content roots
+		if err != nil {
+			w.fail(err)
+			continue
+		}
 		w.wg.Add(1)
-		go w.dir(r)
+		go w.dir(r, f)
 	}
 	w.wg.Wait()
 	slices.SortFunc(w.files, func(a, b File) int { return strings.Compare(a.Rel, b.Rel) })
@@ -215,39 +221,47 @@ type walker struct {
 	mu     sync.Mutex
 }
 
-// dir reads one directory; subdirectories are walked concurrently, bounded
-// by the semaphore (falling back to inline recursion when it is full).
-func (w *walker) dir(rel string) {
+// dir reads one open directory (closing it); subdirectories are opened
+// relative to it and walked concurrently, bounded by the semaphore (falling
+// back to inline recursion when it is full).
+func (w *walker) dir(rel string, f *os.File) {
 	defer w.wg.Done()
-	w.readDir(rel)
+	w.readDir(rel, f)
 }
 
-func (w *walker) readDir(rel string) {
-	entries, err := os.ReadDir(filepath.Join(w.root, filepath.FromSlash(rel)))
+func (w *walker) readDir(rel string, f *os.File) {
+	entries, err := readDirFile(f)
 	if err != nil {
+		_ = f.Close()
 		w.fail(err)
 		return
 	}
 	var local []File
+	var subdirs []string
 	for _, e := range entries {
-		child := rel + "/" + e.Name()
+		child := rel + "/" + e.name
 		switch {
-		case e.Type()&fs.ModeSymlink != 0:
-			continue // never follow symlinks (docs/spec/11-security.md §5)
-		case e.IsDir():
+		case e.isDir:
 			if !w.layout.skipDir(child) {
-				w.spawn(child)
+				subdirs = append(subdirs, e.name)
 			}
-		case e.Type().IsRegular():
-			if f, ok := w.layout.Classify(child); ok {
-				if info, err := e.Info(); err == nil {
-					f.Abs = filepath.Join(w.root, filepath.FromSlash(child))
-					f.Size, f.ModNS = info.Size(), info.ModTime().UnixNano()
-					local = append(local, f)
-				}
+		case e.regular: // symlinks are neither: never followed (docs/spec/11-security.md §5)
+			if cf, ok := w.layout.Classify(child); ok {
+				cf.Abs = filepath.Join(w.root, filepath.FromSlash(child))
+				cf.Size, cf.ModNS = e.size, e.modNS
+				local = append(local, cf)
 			}
 		}
 	}
+	for _, name := range subdirs {
+		sub, err := openChild(f, name)
+		if err != nil {
+			w.fail(err)
+			continue
+		}
+		w.spawn(rel+"/"+name, sub)
+	}
+	_ = f.Close()
 	if len(local) > 0 {
 		w.mu.Lock()
 		w.files = append(w.files, local...)
@@ -255,16 +269,16 @@ func (w *walker) readDir(rel string) {
 	}
 }
 
-func (w *walker) spawn(child string) {
+func (w *walker) spawn(child string, f *os.File) {
 	select {
 	case w.sem <- struct{}{}:
 		w.wg.Add(1)
 		go func() {
 			defer func() { <-w.sem }()
-			w.dir(child)
+			w.dir(child, f)
 		}()
 	default:
-		w.readDir(child)
+		w.readDir(child, f)
 	}
 }
 
@@ -274,4 +288,13 @@ func (w *walker) fail(err error) {
 	if w.err == nil {
 		w.err = err
 	}
+}
+
+func walkWorkers() int {
+	if v, err := strconv.Atoi(os.Getenv("STRATA_WALK_WORKERS")); err == nil && v >= 0 {
+		return v
+	}
+	// Measured on APFS: directory syscalls contend in the kernel, so more
+	// than a few workers is slower (see the build log, Phase 3).
+	return min(4, runtime.GOMAXPROCS(0))
 }

@@ -53,3 +53,27 @@ func TestWriteErrors(t *testing.T) {
 		t.Fatal("want write errors")
 	}
 }
+
+func TestTextHelpers(t *testing.T) {
+	t.Setenv("COLUMNS", "")
+	if Width(0, false) != DefaultWidth {
+		t.Fatal("default width")
+	}
+	t.Setenv("COLUMNS", "99")
+	if Width(0, true) != 99 {
+		t.Fatal("COLUMNS width")
+	}
+	t.Setenv("COLUMNS", "10")
+	if w := Width(^uintptr(0), true); w != DefaultWidth {
+		t.Fatalf("bad fd width %d", w)
+	}
+	if Truncate("héllo", 3) != "hé…" || Truncate("hi", 5) != "hi" || Truncate("x", 0) != "" {
+		t.Fatal("Truncate")
+	}
+	if Pad("ab", 4) != "ab  " || Pad("abcdef", 3) != "ab…" {
+		t.Fatal("Pad")
+	}
+	if OneLine(" a \n b\t c ") != "a b c" || Runes("héllo") != 5 {
+		t.Fatal("OneLine/Runes")
+	}
+}

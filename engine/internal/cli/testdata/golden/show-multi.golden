@@ -1,0 +1,32 @@
+═══ pytest-fixture-teardown · shard/gotcha · knowledge/testing/pytest/pytest-fixture-teardown.md
+trust: observed · updated 2026-10-01 · links: 3 out / 4 in
+Session-scoped database fixtures that open a connection without a `yield` teardown leak it; pytest then hangs after the last test.
+
+## Symptom
+The suite prints its summary and never exits. `--timeout` does not fire because no test is running.
+
+## Cause
+The connection pool keeps a non-daemon thread alive. See [[postgres-connection-pool]].
+
+## Fix
+Yield the connection and close it after the yield. Scan for offenders with the `find-leaked-fixtures` script; procedure in [[debug-hanging-tests]].
+
+═══ find-leaked-fixtures · script/read-only · scripts/testing/find-leaked-fixtures/
+links: 1 out / 1 in
+Detect pytest fixtures that acquire resources without teardown.
+
+usage: find-leaked-fixtures [--path DIR] [--format text|json]
+runtime: python
+side effect: read-only
+requires: uv
+status: active
+examples:
+  strata run find-leaked-fixtures -- --help
+      Show usage.
+
+═══ ci-flake:log#2026-10-21-10-00 · project/log · projects/ci-flake/log.md
+updated 2026-10-21 · links: 0 out / 0 in
+## 2026-10-21 10:00 · s:a1b2
+- tried: `pytest -x --timeout 30` on the integration suite
+- failed: hang persists at session teardown; timeout never fires
+- learned: hang is in fixture finalization, not in a test

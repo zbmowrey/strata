@@ -1,6 +1,4 @@
-// Package golden compares test output with files under testdata; run tests
-// with -update to rewrite them.
-package golden
+package testutil
 
 import (
 	"flag"
@@ -13,8 +11,8 @@ import (
 
 var update = flag.Bool("update", false, "rewrite golden files")
 
-// Assert compares got with the golden file at path (rewriting it with -update).
-func Assert(tb testing.TB, path string, got []byte) {
+// Golden compares got with the golden file at path (rewriting it with -update).
+func Golden(tb testing.TB, path string, got []byte) {
 	tb.Helper()
 	t := tb
 	if *update {

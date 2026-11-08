@@ -1,0 +1,5 @@
+debug-hanging-tests         2.73  → ← #testing
+find-leaked-fixtures        2.73  → ← #testing
+postgres-connection-pool    2.69  → ← #database
+pytest-markers-registered   2.05  #pytest #testing
+pytest-parallel-xdist       2.05  #pytest #testing

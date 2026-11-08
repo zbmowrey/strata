@@ -1,0 +1,4 @@
+- **pytest-fixture-teardown** (shard/gotcha, 1.00) — DB fixtures need explicit teardown — Session-scoped DB fixtures leak connections unless torn down; tests then hang at exit.
+- **find-leaked-fixtures** (script/ro, 0.99) — Detect pytest fixtures that acquire resources without teardown.
+- **debug-hanging-tests** (playbook, 0.88) — Procedure for diagnosing a test suite that hangs at exit — find the live thread, map it to a fixture, fix teardown.
+6 more results (use --limit)

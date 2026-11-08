@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
@@ -20,6 +21,7 @@ type Streams struct {
 	In     io.Reader
 	Out    io.Writer
 	Err    io.Writer
+	OutFd  uintptr
 	OutTTY bool
 }
 
@@ -29,6 +31,7 @@ func OSStreams() Streams {
 		In:     os.Stdin,
 		Out:    os.Stdout,
 		Err:    os.Stderr,
+		OutFd:  os.Stdout.Fd(),
 		OutTTY: isatty.IsTerminal(os.Stdout.Fd()),
 	}
 }
@@ -48,6 +51,28 @@ type globals struct {
 type app struct {
 	io Streams
 	g  globals
+}
+
+// Output format names.
+const (
+	fmtJSON  = "json"
+	fmtJSONL = "jsonl"
+)
+
+// NowEnv overrides the clock (YYYY-MM-DD or RFC 3339) for reproducible
+// output in tests, evals and golden files.
+const NowEnv = "STRATA_NOW"
+
+// now returns the current time, honoring STRATA_NOW.
+func (a *app) now() time.Time {
+	if v := os.Getenv(NowEnv); v != "" {
+		for _, layout := range []string{time.RFC3339, time.DateOnly} {
+			if t, err := time.Parse(layout, v); err == nil {
+				return t
+			}
+		}
+	}
+	return time.Now()
 }
 
 // Main runs the CLI with args and returns the process exit code.
@@ -130,7 +155,7 @@ func (a *app) reportError(err error) {
 		line += " (hint: " + hint + ")"
 	}
 	_, _ = fmt.Fprintln(a.io.Err, line)
-	if a.g.format == "json" {
+	if a.g.format == fmtJSON {
 		payload := map[string]any{"v": 1, "error": map[string]any{"message": msg, "hint": hint, "code": fail.CodeOf(err)}}
 		_ = json.NewEncoder(a.io.Out).Encode(payload)
 	}

@@ -17,12 +17,12 @@ func newVersionCmd(a *app) *cobra.Command {
 		Short: "Print build information",
 		Args:  cobra.NoArgs,
 		RunE: func(*cobra.Command, []string) error {
-			format, err := a.formatOr("line", "line", "json")
+			format, err := a.formatOr("line", "line", fmtJSON)
 			if err != nil {
 				return err
 			}
 			info := version.Get()
-			if format == "json" {
+			if format == fmtJSON {
 				return json.NewEncoder(a.io.Out).Encode(struct {
 					V int `json:"v"`
 					version.Info

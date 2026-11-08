@@ -21,7 +21,7 @@ func newLintCmd(a *app) *cobra.Command {
 		Use:   "lint [paths…]",
 		Short: "Validate knowledge, manifests, projects and links",
 		RunE: func(_ *cobra.Command, args []string) error {
-			format, err := a.formatOr("line", "line", "json", "jsonl")
+			format, err := a.formatOr("line", "line", fmtJSON, fmtJSONL)
 			if err != nil {
 				return err
 			}
@@ -63,11 +63,11 @@ func validKind(k string) bool {
 func (a *app) printLint(rep *lint.Report, format string) error {
 	errs, warns := finding.Count(rep.Findings)
 	switch format {
-	case "json":
+	case fmtJSON:
 		if err := render.JSON(a.io.Out, map[string]any{"v": 1, "checked": rep.Checked, "errors": errs, "warnings": warns, "fixed": nonNil(rep.Fixed), "findings": nonNil(rep.Findings)}); err != nil {
 			return err
 		}
-	case "jsonl":
+	case fmtJSONL:
 		if err := render.JSONL(a.io.Out, rep.Findings); err != nil {
 			return err
 		}

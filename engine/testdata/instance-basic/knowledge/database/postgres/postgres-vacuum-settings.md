@@ -7,7 +7,7 @@ tags: [database, postgres, performance]
 status: active
 trust: observed
 created: 2026-06-01
-updated: 2026-10-01
+updated: 2026-05-01
 sources:
   - { kind: url, ref: "https://wiki.example.com/ops", at: 2026-06-01 }
 ---

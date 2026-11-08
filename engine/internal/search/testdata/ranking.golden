@@ -1,0 +1,83 @@
+# tests hang at exit
+debug-hanging-tests 1.00
+pytest-fixture-teardown 0.96
+# fixture teardown
+pytest-fixture-teardown 1.00
+find-leaked-fixtures 0.99
+debug-hanging-tests 0.88
+ci-flake:plan 0.84
+ci-flake:log#2026-10-22-15-30 0.79
+# deploy
+deploy-freeze-window 1.13
+migrations-run-before-deploy 1.09
+deploy-flow 1.08
+ci-pipeline-stages 1.06
+rollback-procedure 1.05
+# how do we deploy
+deploy-flow 0.55
+deploy-freeze-window 0.38
+migrations-run-before-deploy 0.37
+ci-pipeline-stages 0.34
+check-deploy-config 0.30
+# rollback
+rollback-procedure 1.00
+migration-rollback 1.04
+incident-rollback 1.00
+image-tagging 0.71
+coverage-floor 0.49
+# migration downgrade
+migration-rollback 1.10
+check-migrations 0.95
+migration-review-checklist 0.70
+incident-rollback 0.67
+# pg pool
+postgres-connection-pool 1.10
+pgbouncer-transaction-mode 0.35
+pytest-fixture-teardown 0.19
+# k8s limits
+k8s-resource-limits 1.10
+k8s-glossary-pdb 0.53
+helm-values-layering 0.47
+k8s-liveness-probe-timeout 0.34
+# xdist
+pytest-parallel-xdist 1.00
+test-database-per-worker 1.03
+pagination-cursor 0.33
+# jwt
+jwt-clock-skew 1.00
+# timeouts
+http-timeouts 1.00
+k8s-liveness-probe-timeout 0.95
+ci-flake:log#2026-10-21-10-00 0.83
+ci-flake:log#2026-10-22-15-30 0.76
+ci-flake:handoff 0.40
+# pagination
+pagination-cursor 1.10
+jwt-clock-skew 0.35
+migration-rollback 0.33
+migration-review-checklist 0.30
+# flaky retries
+flaky-test-quarantine 1.15
+ci-flake 0.85
+20261101-120000-retry-budget 0.24
+# coverage
+coverage-floor 1.15
+q-20261103-coverage-floor 0.69
+deploy-freeze-window 0.48
+# fixtrue
+hanging-test-diagnosis 0.43
+pytest-fixture-teardown 0.43
+find-leaked-fixtures 0.38
+# kind:playbook
+debug-hanging-tests 1.00
+incident-rollback 1.00
+# kind:script side:read-only
+check-deploy-config 1.00
+check-migrations 1.00
+find-leaked-fixtures 1.00
+normalize-csv 1.00
+# tag:pytest -tag:database
+pytest-markers-registered 1.10
+pytest-parallel-xdist 1.00
+# status:any sunset
+deprecation-header 0.30

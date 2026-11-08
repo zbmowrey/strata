@@ -1,0 +1,5 @@
+═══ pytest-parallel-xdist · shard/howto · knowledge/testing/pytest/pytest-parallel-xdist.md
+trust: observed · updated 2026-10-01 · links: 1 out / 0 in
+Use pytest -n auto with per-worker database names to parallelize the integration suite.
+
+Run `pytest -n auto`; each worker gets its own database via the `worker_id` fixture.

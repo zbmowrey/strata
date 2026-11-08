@@ -1,0 +1,13 @@
+{
+  "machine": "darwin/arm64/14cpu",
+  "date": "2026-11-07",
+  "p95_ms": {
+    "freshness": 10.9,
+    "rebuild-10k": 1513.4,
+    "refresh-10-changed": 34.2,
+    "search": 22.4,
+    "show-10": 16.9,
+    "show-links-1": 16.1,
+    "version": 3.2
+  }
+}

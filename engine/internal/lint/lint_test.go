@@ -9,8 +9,8 @@ import (
 	"github.com/zbmowrey/strata/engine/internal/config"
 	"github.com/zbmowrey/strata/engine/internal/corpus"
 	"github.com/zbmowrey/strata/engine/internal/finding"
-	"github.com/zbmowrey/strata/engine/internal/golden"
 	"github.com/zbmowrey/strata/engine/internal/render"
+	"github.com/zbmowrey/strata/engine/internal/testutil"
 )
 
 func open(t *testing.T, dir string) *config.Instance {
@@ -45,12 +45,12 @@ func TestInvalidGolden(t *testing.T) {
 	if err := render.Findings(&b, rep.Findings); err != nil {
 		t.Fatal(err)
 	}
-	golden.Assert(t, "testdata/invalid.golden", b.Bytes())
+	testutil.Golden(t, "testdata/invalid.golden", b.Bytes())
 	var j bytes.Buffer
 	if err := render.JSONL(&j, rep.Findings); err != nil {
 		t.Fatal(err)
 	}
-	golden.Assert(t, "testdata/invalid.jsonl.golden", j.Bytes())
+	testutil.Golden(t, "testdata/invalid.jsonl.golden", j.Bytes())
 }
 
 func TestFilters(t *testing.T) {
@@ -102,7 +102,7 @@ func TestFix(t *testing.T) {
 		t.Fatalf("fixed = %v", rep.Fixed)
 	}
 	got, _ := os.ReadFile(filepath.Join(dir, "knowledge", "a", "b", "messy.md"))
-	golden.Assert(t, "testdata/fixed.golden", got)
+	testutil.Golden(t, "testdata/fixed.golden", got)
 	for _, f := range rep.Findings {
 		if f.Severity == finding.Error || f.Rule == RuleAlias {
 			t.Errorf("finding after fix: %+v", f)

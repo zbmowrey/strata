@@ -1,0 +1,13 @@
+═══ soft-delete-pattern · shard/standard · knowledge/database/modeling/soft-delete-pattern.md
+trust: inferred · updated 2026-10-01 · links: 0 out / 0 in
+[proposed] not binding until verified or user-stated
+Soft-deletable tables carry `deleted_at timestamptz NULL`, and queries filter on it.
+
+## Rule
+Never hard-delete user-facing rows.
+
+## Rationale
+Support restores mistaken deletions.
+
+## Enforcement
+none yet

@@ -1,0 +1,1 @@
+check-deploy-config  script/ro  1.00  Validate Helm values files for required resources and image tags.
