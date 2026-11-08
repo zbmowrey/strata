@@ -162,7 +162,9 @@ func (h *handler) postEdit() (outcome, error) {
 		return outcome{label: "outside"}, nil
 	}
 	var reports []string
-	if h.isKnowledge(rel) && strings.HasSuffix(rel, ".md") {
+	// With gates wired, knowledge lint runs as the strata-lint gate; the
+	// direct call keeps the structural lint when no gate runner is present.
+	if h.env.Gates == nil && h.isKnowledge(rel) && strings.HasSuffix(rel, ".md") {
 		r, err := lint.Run(h.inst, lint.Options{Paths: []string{rel}})
 		if err != nil {
 			return outcome{}, err

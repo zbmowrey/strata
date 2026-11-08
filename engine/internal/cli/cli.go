@@ -59,6 +59,9 @@ const (
 	fmtJSONL = "jsonl"
 )
 
+// cmdList is the shared `list` subcommand name.
+const cmdList = "list"
+
 // NowEnv overrides the clock (YYYY-MM-DD or RFC 3339) for reproducible
 // output in tests, evals and golden files.
 const NowEnv = "STRATA_NOW"

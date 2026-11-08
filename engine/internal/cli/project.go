@@ -83,7 +83,7 @@ func newProjectNewCmd(a *app) *cobra.Command {
 func newProjectListCmd(a *app) *cobra.Command {
 	var all bool
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:   cmdList,
 		Short: "List projects (stale ones flagged)",
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {

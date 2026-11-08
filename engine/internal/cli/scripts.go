@@ -79,7 +79,7 @@ func newScriptsCmd(a *app) *cobra.Command {
 func newScriptsListCmd(a *app) *cobra.Command {
 	var domain, side string
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:   cmdList,
 		Short: "List scripts (id, side effect, runtime, summary)",
 		Args:  cobra.NoArgs,
 		RunE: func(*cobra.Command, []string) error {

@@ -177,7 +177,7 @@ func (a *app) loadGates() (*config.Instance, *gates.Config, error) {
 
 func newGatesListCmd(a *app) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
+		Use:   cmdList,
 		Short: "List configured gates",
 		Args:  cobra.NoArgs,
 		RunE: func(*cobra.Command, []string) error {

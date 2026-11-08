@@ -210,7 +210,7 @@ func newQuestionsCmd(a *app) *cobra.Command {
 func questionsListCmd(a *app) *cobra.Command {
 	var all bool
 	list := &cobra.Command{
-		Use: "list", Short: "List open questions", Args: cobra.NoArgs,
+		Use: cmdList, Short: "List open questions", Args: cobra.NoArgs,
 		RunE: func(*cobra.Command, []string) error {
 			format, err := a.formatOr("line", "line", fmtJSON)
 			if err != nil {
