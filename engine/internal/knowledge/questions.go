@@ -54,7 +54,7 @@ func (s *Store) loadQuestion(rel string) (Question, error) {
 	}
 	d, _ := doc.Parse(rel, raw)
 	q := Question{
-		ID: d.Meta.String("id"), Status: d.Meta.String("status"), RaisedBy: d.Meta.String("raised_by"),
+		ID: d.Meta.String("id"), Status: d.Meta.String(keyStatus), RaisedBy: d.Meta.String("raised_by"),
 		Raised: d.Meta.String("raised"), Blocking: d.Meta.Strings("blocking"), Path: rel,
 	}
 	if q.ID == "" {
@@ -131,7 +131,27 @@ func (s *Store) Answer(id string) (string, error) {
 		return "", fail.New(fail.Usage, "write the answer under `## Answer` in "+rel+", then run this again", "question %s has no answer yet", id)
 	}
 	if _, err := s.edit(rel, func(b []byte) ([]byte, error) {
-		return setKeys(b, [2]string{"status", "answered"}, [2]string{"answered", s.today()})
+		return setKeys(b, [2]string{keyStatus, "answered"}, [2]string{"answered", s.today()})
+	}); err != nil {
+		return "", err
+	}
+	return rel, nil
+}
+
+// Apply marks an answered question applied (the gardener's apply-answer
+// task is done), so it stops producing tasks.
+func (s *Store) Apply(id string) (string, error) {
+	rel := s.questionPath(id)
+	raw, err := s.readFile(rel)
+	if err != nil {
+		return "", fail.Wrap(fail.Partial, "list questions with `strata questions list --all`", err)
+	}
+	d, _ := doc.Parse(rel, raw)
+	if st := d.Meta.String(keyStatus); st != "answered" {
+		return "", fail.New(fail.Usage, "only answered questions can be applied", "question %s is %s", id, st)
+	}
+	if _, err := s.edit(rel, func(b []byte) ([]byte, error) {
+		return setKeys(b, [2]string{keyStatus, "applied"}, [2]string{"applied", s.today()})
 	}); err != nil {
 		return "", err
 	}

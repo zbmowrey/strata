@@ -2,6 +2,8 @@ package cli
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -32,4 +34,30 @@ func TestStatusCommand(t *testing.T) {
 	if code != 0 || json.Unmarshal([]byte(out), &rep) != nil || rep.V != 1 || rep.Gates != "ok" || rep.Counts.Shards != 40 {
 		t.Fatalf("status json: %d %q", code, out)
 	}
+}
+
+func TestQuestionsApply(t *testing.T) {
+	t.Parallel()
+	dir := testutil.CopyFixture(t, "instance-basic")
+	if _, _, code := run(t, "--root", dir, "questions", "apply", "q-20261103-coverage-floor"); code != 4 {
+		t.Fatalf("apply open question: %d", code)
+	}
+	p := "knowledge/_questions/q-20261103-coverage-floor.md"
+	testutil.WriteFile(t, dir, p, strings.Replace(readFile(t, dir, p), "status: open", "status: answered", 1))
+	out, _, code := run(t, "--root", dir, "questions", "apply", "q-20261103-coverage-floor")
+	if code != 0 || out != p+"\n" || !strings.Contains(readFile(t, dir, p), "status: applied") {
+		t.Fatalf("apply: %d %q", code, out)
+	}
+	if _, _, code := run(t, "--root", dir, "lint", p); code != 0 {
+		t.Fatalf("applied question fails lint: %d", code)
+	}
+}
+
+func readFile(t *testing.T, dir, rel string) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join(dir, rel))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
 }

@@ -14,7 +14,10 @@ import (
 )
 
 // keyUpdated is bumped on every content change.
-const keyUpdated = "updated"
+const (
+	keyUpdated = "updated"
+	keyStatus  = "status"
+)
 
 // refKeys are frontmatter list keys that hold document ids, by kind.
 var refKeys = map[corpus.Kind][]string{
@@ -157,7 +160,7 @@ func (s *Store) Supersede(oldID, newID string) ([]string, error) {
 	}
 	today := s.today()
 	if _, err := s.edit(oldF.Rel, func(raw []byte) ([]byte, error) {
-		return setKeys(raw, [2]string{"status", "superseded"}, [2]string{"superseded_by", newID}, [2]string{keyUpdated, today})
+		return setKeys(raw, [2]string{keyStatus, "superseded"}, [2]string{"superseded_by", newID}, [2]string{keyUpdated, today})
 	}); err != nil {
 		return nil, err
 	}
@@ -197,7 +200,7 @@ func (s *Store) Archive(ids []string) ([]string, error) {
 		if err != nil {
 			return out, err
 		}
-		body, err := setKeys(raw, [2]string{"status", "archived"}, [2]string{keyUpdated, s.today()})
+		body, err := setKeys(raw, [2]string{keyStatus, "archived"}, [2]string{keyUpdated, s.today()})
 		if err != nil {
 			return out, err
 		}

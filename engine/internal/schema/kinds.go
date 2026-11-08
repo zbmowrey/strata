@@ -24,7 +24,7 @@ func Inbox(file string, d *doc.Doc, parseErr error) []finding.Finding {
 }
 
 // QuestionStatuses are the allowed question states.
-var QuestionStatuses = []string{"open", "answered", "withdrawn"}
+var QuestionStatuses = []string{"open", "answered", "applied", "withdrawn"}
 
 // Question validates an escalation file (docs/spec/02-knowledge.md §8.2).
 func Question(file string, d *doc.Doc, parseErr error) []finding.Finding {

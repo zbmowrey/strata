@@ -203,7 +203,7 @@ func newHubsCmd(a *app) *cobra.Command {
 
 func newQuestionsCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{Use: "questions", Short: "Escalations awaiting a human answer"}
-	cmd.AddCommand(questionsListCmd(a), questionsShowCmd(a), questionsAskCmd(a), questionsAnswerCmd(a))
+	cmd.AddCommand(questionsListCmd(a), questionsShowCmd(a), questionsAskCmd(a), questionsAnswerCmd(a), questionsApplyCmd(a))
 	return cmd
 }
 
@@ -286,6 +286,23 @@ func questionsAnswerCmd(a *app) *cobra.Command {
 				return err
 			}
 			rel, err := st.Answer(args[0])
+			if err != nil {
+				return err
+			}
+			return a.printPaths(rel)
+		},
+	}
+}
+
+func questionsApplyCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use: "apply <id>", Short: "Mark an answered question applied (gardener apply-answer done)", Args: cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			st, err := a.store()
+			if err != nil {
+				return err
+			}
+			rel, err := st.Apply(args[0])
 			if err != nil {
 				return err
 			}
