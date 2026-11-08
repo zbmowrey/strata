@@ -76,6 +76,8 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 ### Bench, telemetry
 `strata bench retrieval [--update-baseline]` · `strata bench protocol [--scenario id]… [--model …]` · `strata bench perf` (engine repo) · `strata telemetry stats [--since 30d]` · `strata telemetry prune`.
 
+`telemetry stats` reports event counts, distinct sessions, the top 10 bash programs (`first_token`), search count and zero-result rate, hook latency p50/p95 per hook, and pass/fail/other per gate (`--format json`: `{"v":1,"since":…,"stats":{…}}`). `telemetry prune` deletes events older than `[telemetry] retention` and reports the count on stderr only.
+
 ### Lifecycle
 `strata init [--profile go,python,ts,…] [--ci] [--scripts] [--no-hooks] [--dry-run]` · `strata upgrade [--dry-run]` · `strata doctor [--fix]` · `strata version [--format json]` · `strata completion <shell>`.
 
