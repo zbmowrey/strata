@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -168,13 +169,13 @@ func (r *Runner) runGate(ctx context.Context, g *Gate, req Request) GateResult {
 		return res
 	}
 	var fs []finding.Finding
-	res.Status, fs = r.execute(ctx, g, req, files)
-	if g.Parser == ParserGoTest {
-		r.goPackagePaths(g, fs)
+	if g.Module != "" {
+		res.Status, fs = r.perModule(ctx, g, req, files)
+	} else {
+		res.Status, fs = r.executeIn(ctx, g, req, files)
 	}
 	for i := range fs {
 		fs[i].Gate = g.ID
-		fs[i].File = r.normalize(g, fs[i].File)
 		if fs[i].Docs == "" && g.Docs != "" {
 			fs[i].Docs = g.Docs
 		}
@@ -347,15 +348,15 @@ func (r *Runner) baseline(g *Gate, files []string, fs []finding.Finding) ([]find
 	if g.Baseline == "" {
 		return fs, 0
 	}
-	path := r.Inst.Path(filepath.FromSlash(g.Baseline))
-	b, err := LoadBaseline(path, g.ID)
+	bpath := r.Inst.Path(filepath.FromSlash(g.Baseline))
+	b, err := LoadBaseline(bpath, g.ID)
 	if err != nil {
 		return append(fs, finding.Finding{Gate: g.ID, Rule: "baseline", Severity: finding.Warning, File: g.Baseline, Message: err.Error()}), 0
 	}
 	covered := coverage(g, files)
 	fresh, n, stale := b.apply(fs, NewFingerprinter(r.Inst.Root), covered)
 	if r.Ratchet && b.shrink(stale) {
-		if err := b.Save(path); err != nil {
+		if err := b.Save(bpath); err != nil {
 			fresh = append(fresh, finding.Finding{Gate: g.ID, Rule: "baseline", Severity: finding.Warning, File: g.Baseline, Message: err.Error()})
 		}
 	}
@@ -407,4 +408,71 @@ func sortedKeys[V any](m map[string]V) []string {
 	}
 	slices.Sort(keys)
 	return keys
+}
+
+// executeIn runs the gate and makes finding paths repo-relative.
+func (r *Runner) executeIn(ctx context.Context, g *Gate, req Request, files []string) (string, []finding.Finding) {
+	status, fs := r.execute(ctx, g, req, files)
+	if g.Parser == ParserGoTest {
+		r.goPackagePaths(g, fs)
+	}
+	for i := range fs {
+		fs[i].File = r.normalize(g, fs[i].File)
+	}
+	return status, fs
+}
+
+// perModule runs a module-aware gate once per nearest module root (the
+// directory holding g.Module, e.g. go.mod), with that root as workdir.
+// Files outside any module are skipped.
+func (r *Runner) perModule(ctx context.Context, g *Gate, req Request, files []string) (string, []finding.Finding) {
+	groups := map[string][]string{}
+	for _, f := range files {
+		if dir, ok := r.moduleRoot(path.Dir(f), g.Module); ok {
+			groups[dir] = append(groups[dir], f)
+		}
+	}
+	dirs := make([]string, 0, len(groups))
+	for d := range groups {
+		dirs = append(dirs, d)
+	}
+	slices.Sort(dirs)
+	status := StatusSkipped
+	var all []finding.Finding
+	for _, d := range dirs {
+		gc := *g
+		gc.Workdir, gc.Module = d, ""
+		st, fs := r.executeIn(ctx, &gc, req, groups[d])
+		status = worseStatus(status, st)
+		all = append(all, fs...)
+	}
+	return status, all
+}
+
+// moduleRoot finds the nearest ancestor of dir (repo-relative) containing
+// file; "" denotes the repository root.
+func (r *Runner) moduleRoot(dir, file string) (string, bool) {
+	for {
+		d := dir
+		if d == "." {
+			d = ""
+		}
+		if _, err := os.Stat(filepath.Join(r.Inst.Root, filepath.FromSlash(d), file)); err == nil {
+			return d, true
+		}
+		if d == "" {
+			return "", false
+		}
+		dir = path.Dir(dir)
+	}
+}
+
+// statusRank orders statuses for merging per-module runs (higher = worse).
+var statusRank = map[string]int{StatusSkipped: 0, StatusCached: 1, StatusPass: 2, StatusFixed: 3, StatusMissing: 4, StatusFail: 5, StatusTimeout: 6, StatusError: 7}
+
+func worseStatus(a, b string) string {
+	if statusRank[b] > statusRank[a] {
+		return b
+	}
+	return a
 }

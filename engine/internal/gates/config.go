@@ -72,6 +72,7 @@ type Gate struct {
 	Baseline    string   `toml:"baseline" json:"baseline,omitempty"`
 	Docs        string   `toml:"docs" json:"docs,omitempty"`
 	Workdir     string   `toml:"workdir" json:"workdir,omitempty"`
+	Module      string   `toml:"module" json:"module,omitempty"` // e.g. go.mod: run once per nearest module root
 	RepoTarget  string   `toml:"repo_target" json:"repo_target,omitempty"`
 	Builtin     string   `toml:"builtin" json:"builtin,omitempty"`
 	Reason      string   `toml:"reason" json:"reason,omitempty"`
@@ -241,6 +242,9 @@ func (g *Gate) validate() error {
 // validateEnums checks mode, scope, stages and parser.
 func (g *Gate) validateEnums() []error {
 	var errs []error
+	if g.Module != "" && g.Workdir != "" {
+		errs = append(errs, errors.New("module and workdir are exclusive"))
+	}
 	if g.Mode != ModeCheck && g.Mode != ModeFix {
 		errs = append(errs, fmt.Errorf("mode must be check|fix, got %q", g.Mode))
 	}

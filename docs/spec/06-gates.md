@@ -33,6 +33,7 @@ Additional keys (recorded during the build):
 |---|---|
 | `check_cmd` | for `mode = "fix"` gates: the non-modifying variant run when fixes are not allowed (e.g. `gofumpt -l`); without it a fix gate is skipped in that run |
 | `workdir` | repo-relative directory the command runs in (`{targets}` are relative to it; tool-reported paths are mapped back to repo-relative) |
+| `module` | marker file such as `go.mod` / `pyproject.toml`: matched files are grouped by their nearest ancestor holding it and the gate runs once per group with that directory as `workdir` (files outside any module are skipped). Exclusive with `workdir`. The go and python profiles use it, so instances whose module lives in a subdirectory (e.g. `scripts/go.mod`) work — found by the `script-create` protocol eval. |
 | `repo_target` | what `{targets}` expands to for `scope = "repo"` (default `.`; Go uses `./...`) |
 | `config_files` | extra files whose content is part of the results-cache key (e.g. `.golangci.yml`) |
 | `builtin` | `suppressions` or `strata-lint`: an engine-implemented gate with no `cmd` |

@@ -42,7 +42,8 @@ desc = "pip-audit over the uv lockfile"
 applies_to = ["**/uv.lock", "**/pyproject.toml"]
 stages = ["commit", "ci"]
 scope = "repo"
-cmd = ["uv", "run", "pip-audit"]
+module = "pyproject.toml"
+cmd = ["uvx", "pip-audit", "."]
 parser = "exitcode"
 timeout = "300s"
 

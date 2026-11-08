@@ -313,3 +313,44 @@ func TestSetHashIgnoresPositions(t *testing.T) {
 		t.Fatal("SetHash")
 	}
 }
+
+func TestModuleGatesRunPerModule(t *testing.T) {
+	t.Parallel()
+	inst, dir := repo(t, map[string]string{
+		"scripts/go.mod":     "module example.com/s\n\ngo 1.26\n",
+		"scripts/a/main.go":  "package main\n",
+		"tools/x/go.mod":     "module example.com/x\n\ngo 1.26\n",
+		"tools/x/y/z.go":     "package y\n",
+		"loose/no_module.go": "package loose\n",
+	})
+	// Reports one finding per run: the workdir it ran in and its targets.
+	where := tool(t, "where", `printf 'main.go:1:1: ran in %s with %s\n' "$(basename "$PWD")" "$*"`)
+	testutil.WriteFile(t, dir, File, `
+[[gate]]
+id = "mod"
+scope = "repo"
+repo_target = "./..."
+module = "go.mod"
+applies_to = ["**/*.go"]
+cmd = ["`+where+`", "{targets}"]
+parser = "lines"
+stages = ["edit"]
+`)
+	rep, err := RunStage(context.Background(), inst, StageEdit, []string{"scripts/a/main.go", "tools/x/y/z.go", "loose/no_module.go"},
+		StageOptions{NoCache: true, Now: time.Now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var msgs []string
+	for _, f := range append(rep.Blocking, rep.Advisory...) {
+		msgs = append(msgs, f.File+": "+f.Message)
+	}
+	slices.Sort(msgs)
+	want := []string{"scripts/main.go: ran in scripts with ./...", "tools/x/main.go: ran in x with ./..."}
+	if !slices.Equal(msgs, want) {
+		t.Fatalf("per-module runs:\n got %v\nwant %v", msgs, want)
+	}
+	if _, err := Parse([]byte("[[gate]]\nid = \"m\"\ncmd = [\"x\"]\nmodule = \"go.mod\"\nworkdir = \"a\"\n")); err == nil {
+		t.Fatal("module + workdir accepted")
+	}
+}

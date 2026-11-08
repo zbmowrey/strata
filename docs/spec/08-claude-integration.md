@@ -53,8 +53,9 @@ When the user corrects you, capture it with --type correction.
 
 ### 4. Correct the record
 If a shard is wrong, fix it in place now: correct the claim, add the evidence to `sources`,
-bump `updated`/`verified_at`. Never overwrite a `trust: user-stated` shard on your own —
-raise it with the user. Precedence: user-stated > verified > observed > inferred.
+bump `updated`/`verified_at`. Never overwrite a `trust: user-stated` shard on your own:
+record the conflict with `strata questions ask "<question>" --blocking <id>` and tell the
+user. Precedence: user-stated > verified > observed > inferred.
 Only user-stated/verified `decision` and `standard` shards are binding.
 
 ### 5. Gates are law
