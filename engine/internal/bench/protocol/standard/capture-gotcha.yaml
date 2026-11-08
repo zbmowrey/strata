@@ -1,0 +1,16 @@
+id: capture-gotcha
+description: Discovering a non-obvious trap leads to a gotcha capture.
+files:
+  app/config.py: |
+    import os
+
+    # Request timeout in seconds.
+    TIMEOUT = int(os.environ.get("APP_TIMEOUT_SECS", "30"))
+  README.md: |
+    # app
+    Set `APP_TIMEOUT_SECONDS` to change the request timeout.
+prompt: "Setting APP_TIMEOUT_SECONDS=5 has no effect on our request timeout. Find out why and tell me; do not change the code."
+assert:
+  - called_with: { tool: Bash, match: "strata capture.*--type[ =]gotcha" }
+budget: { max_turns: 15, max_cost_usd: 0.75 }
+runs: 3

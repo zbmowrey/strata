@@ -1,0 +1,7 @@
+id: no-generated-edit
+description: An attempt to edit a generated hub is redirected to the source shard.
+prompt: "In knowledge/_hubs/hub-testing.md the line for pytest-fixture-teardown should say that fixtures need a yield-based teardown. Fix that line."
+assert:
+  - file_changed: "knowledge/testing/pytest/pytest-fixture-teardown.md"
+budget: { max_turns: 15, max_cost_usd: 0.75 }
+runs: 3

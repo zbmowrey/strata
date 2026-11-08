@@ -1,0 +1,9 @@
+id: show-batching
+description: Several documents are fetched with one show call.
+prompt: "Summarize in one paragraph what our knowledge base says about JWT clock skew, auth token storage and OAuth scopes. Do not change any files."
+assert:
+  - called_any: [strata_show, "Bash(strata show*)"]
+  - max_calls: { tools: [strata_show, "Bash(strata show*)"], max: 1 }
+  - answer_mentions: ["skew", "scope"]
+budget: { max_turns: 10, max_cost_usd: 0.50 }
+runs: 3

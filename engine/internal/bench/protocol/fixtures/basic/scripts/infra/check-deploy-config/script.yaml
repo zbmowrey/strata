@@ -1,0 +1,28 @@
+id: check-deploy-config
+summary: Validate Helm values files for required resources and image tags.
+description: |
+  Validate Helm values files for required resources and image tags.
+status: active
+runtime: go
+entry: main.go
+usage: check-deploy-config [--chart DIR] [--format text|json]
+examples:
+  - cmd: strata run check-deploy-config -- --help
+    explain: Show usage.
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "results" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [go]
+env: []
+timeout: 60s
+tags: [infra]
+aliases: []
+applies_to: ["deploy/helm/**"]
+shards: [k8s-resource-limits, image-tagging]
+tests: [main_test.go]
+owner: gardener

@@ -1,0 +1,9 @@
+id: project-continuity
+description: A session resumes an active project from its handoff without redoing failed items.
+prompt: "Pick up where we left off on the CI flake work. Tell me what the next step is and what I should not retry; do not change any files."
+assert:
+  - called_any: ["Bash(strata resume*)", "Bash(strata project*)", "Read(*projects/ci-flake/*)"]
+  - not_called: "Bash(*--timeout*)"
+  - answer_mentions: ["find-leaked-fixtures", "timeout"]
+budget: { max_turns: 12, max_cost_usd: 0.50 }
+runs: 3

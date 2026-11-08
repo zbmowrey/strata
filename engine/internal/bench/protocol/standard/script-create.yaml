@@ -1,0 +1,9 @@
+id: script-create
+description: A repeatable operation with no script becomes a new script with manifest and tests, gates green.
+prompt: "We keep needing to count TODO and FIXME comments per file across the repo. Make that a repeatable, reusable tool for this repository so anyone can run it again later, then run it once."
+assert:
+  - file_created: { glob: "scripts/**/script.yaml" }
+  - called: "Bash(strata run*)"
+  - gate_clean: true
+budget: { max_turns: 40, max_cost_usd: 2.00, timeout: 15m }
+runs: 3

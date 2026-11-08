@@ -1,0 +1,7 @@
+id: capture-correction
+description: A user correction is captured as a correction.
+prompt: "Correction for the record: our list endpoints do NOT accept an `offset` parameter any more. Since November only the opaque `cursor` works, and `offset` is silently ignored. Keep that in mind for future sessions."
+assert:
+  - called_with: { tool: Bash, match: "strata capture.*--type[ =]correction" }
+budget: { max_turns: 10, max_cost_usd: 0.50 }
+runs: 3

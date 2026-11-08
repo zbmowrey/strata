@@ -1,0 +1,16 @@
+id: script-new-not-mutate
+description: A near-fit script whose change would be semantic leads to a new script; the original is untouched.
+files:
+  tests/conftest.py: |
+    import pytest
+
+
+    @pytest.fixture(scope="session")
+    def settings():
+        return {"debug": False}
+prompt: "find-leaked-fixtures reports fixtures that leak resources. I also need a separate check that lists every session-scoped pytest fixture (scope=\"session\"), whether or not it leaks, so we can review them. Make it a reusable tool and run it once on tests/."
+assert:
+  - file_unchanged: "scripts/testing/find-leaked-fixtures/**"
+  - file_created: { glob: "scripts/**/script.yaml" }
+budget: { max_turns: 40, max_cost_usd: 2.00, timeout: 15m }
+runs: 3
