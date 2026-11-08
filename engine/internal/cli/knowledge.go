@@ -12,26 +12,14 @@ import (
 )
 
 func init() {
-	register(newNewCmd)
+	registerNew(newShardCmd)
+	registerNew(newPlaybookCmd)
 	register(newCaptureCmd)
 	register(newMvCmd)
 	register(newSupersedeCmd)
 	register(newArchiveCmd)
 	register(newHubsCmd)
 	register(newQuestionsCmd)
-}
-
-// newSubcommands are the `strata new <thing>` constructors; other files add
-// to it (e.g. `new script`).
-var newSubcommands []func(*app) *cobra.Command
-
-func newNewCmd(a *app) *cobra.Command {
-	cmd := &cobra.Command{Use: "new", Short: "Scaffold a shard, playbook or script"}
-	cmd.AddCommand(newShardCmd(a), newPlaybookCmd(a))
-	for _, f := range newSubcommands {
-		cmd.AddCommand(f(a))
-	}
-	return cmd
 }
 
 // store opens the instance's knowledge store.
