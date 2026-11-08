@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -29,6 +30,11 @@ func TestBenchRetrieval(t *testing.T) {
 	if code != 0 || !strings.Contains(out, "4 queries") || !strings.Contains(out, `miss: "zzzz nothing matches this"`) {
 		t.Fatalf("bench: %d %q", code, out)
 	}
+	// Keep quality from the accepted baseline but relax its cost: latency
+	// under a loaded, parallel test run must not read as a regression.
+	base := readFile(t, dir, ".strata/bench/baseline.json")
+	base = regexp.MustCompile(`"latency_p95_ms": [0-9.]+`).ReplaceAllString(base, `"latency_p95_ms": 100000`)
+	testutil.WriteFile(t, dir, ".strata/bench/baseline.json", base)
 	out, _, code = run(t, "--root", dir, "bench", "retrieval", "--format", "json")
 	var rep struct {
 		Baseline *struct {
