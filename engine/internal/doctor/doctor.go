@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/zbmowrey/strata/engine/internal/config"
+	"github.com/zbmowrey/strata/engine/internal/garden"
 	"github.com/zbmowrey/strata/engine/internal/version"
 )
 
@@ -111,8 +112,11 @@ func (d *doctor) gardenLock() []Check {
 		return []Check{{Name: "garden-lock", Status: Info, Message: "a gardener run holds garden.lock (" + age.Round(time.Minute).String() + ")"}}
 	}
 	c := Check{Name: "garden-lock", Status: Warn, Message: "garden.lock is stale (" + age.Round(time.Minute).String() + " old)", Fix: "strata doctor --fix clears it"}
-	if d.opt.Fix && os.Remove(p) == nil {
-		c.Fixed, c.Message = true, c.Message+" — cleared"
+	if d.opt.Fix {
+		// Abort also removes the run's worktree and unpushed branch.
+		if garden.Abort(d.ctx, d.inst) == nil || os.Remove(p) == nil {
+			c.Fixed, c.Message = true, c.Message+" — cleared"
+		}
 	}
 	return []Check{c}
 }

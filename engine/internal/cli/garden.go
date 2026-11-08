@@ -3,10 +3,12 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/zbmowrey/strata/engine/internal/config"
+	"github.com/zbmowrey/strata/engine/internal/fail"
 	"github.com/zbmowrey/strata/engine/internal/garden"
 	"github.com/zbmowrey/strata/engine/internal/render"
 )
@@ -69,7 +71,97 @@ func newGardenCmd(a *app) *cobra.Command {
 	cmd.Flags().BoolVar(&plan, "plan", false, "apply mechanical fixes and write .strata/garden/plan.json")
 	cmd.Flags().BoolVar(&auto, "auto", false, "apply mechanical fixes only")
 	cmd.MarkFlagsMutuallyExclusive("plan", "auto")
+	cmd.AddCommand(newGardenStartCmd(a), newGardenFinishCmd(a), newGardenAbortCmd(a))
 	return cmd
+}
+
+func newGardenStartCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "start",
+		Short: "Begin a /garden run: marker, worktree + branch, plan, mechanical-fix commit",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			format, err := a.formatOr("line", "line", fmtJSON)
+			if err != nil {
+				return err
+			}
+			inst, err := a.instance()
+			if err != nil {
+				return err
+			}
+			res, err := garden.Start(cmd.Context(), inst, a.now)
+			if err != nil {
+				return err
+			}
+			if format == fmtJSON {
+				return render.JSON(a.io.Out, res)
+			}
+			if res.Tidy {
+				return a.printf("garden is tidy\n")
+			}
+			return a.printf("%s\n%s · %s · plan: %s\n", res.Worktree, res.Branch, render.Plural(res.Tasks, "task"), res.PlanFile)
+		},
+	}
+}
+
+func newGardenFinishCmd(a *app) *cobra.Command {
+	var opt garden.FinishOptions
+	var bodyFile string
+	cmd := &cobra.Command{
+		Use:   "finish",
+		Short: "Push the garden branch, open a draft PR with the digest, mark it ready, clean up",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			format, err := a.formatOr("line", "line", fmtJSON)
+			if err != nil {
+				return err
+			}
+			inst, err := a.instance()
+			if err != nil {
+				return err
+			}
+			if bodyFile != "" {
+				b, err := os.ReadFile(bodyFile) //nolint:gosec // G304: the digest file the caller names
+				if err != nil {
+					return fail.Wrap(fail.Usage, "pass the digest file written by the gardener", err)
+				}
+				opt.Body = string(b)
+			}
+			res, err := garden.Finish(cmd.Context(), inst, opt)
+			if err != nil {
+				return err
+			}
+			if format == fmtJSON {
+				return render.JSON(a.io.Out, res)
+			}
+			switch {
+			case res.PR != nil:
+				return a.printf("%s\n", res.PR.URL)
+			case res.CompareURL != "":
+				return a.printf("%s\n", res.CompareURL)
+			}
+			return a.printf("%s\n", res.Message)
+		},
+	}
+	cmd.Flags().StringVar(&opt.Title, "title", "", "PR title (default: garden: <stamp>)")
+	cmd.Flags().StringVar(&bodyFile, "body-file", "", "the digest (docs/spec/07-gardener.md §6) used as the PR body")
+	cmd.Flags().BoolVar(&opt.NoReady, "no-ready", false, "leave the PR as a draft")
+	return cmd
+}
+
+func newGardenAbortCmd(a *app) *cobra.Command {
+	return &cobra.Command{
+		Use:   "abort",
+		Short: "Abandon the active /garden run: remove its worktree, local branch and marker",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			inst, err := a.instance()
+			if err != nil {
+				return err
+			}
+			return garden.Abort(cmd.Context(), inst)
+		},
+	}
 }
 
 func (a *app) printGarden(p *garden.Plan, opt garden.Options) error {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/zbmowrey/strata/engine/internal/corpus"
@@ -69,7 +70,7 @@ func (h *handler) preEdit() (outcome, error) {
 // guard returns a block message, or "" when the edit may proceed.
 func (h *handler) guard(abs, rel string) string {
 	private := h.inst.Config.Paths.Knowledge + "/_private/"
-	if os.Getenv(GardenEnv) == "1" && strings.HasPrefix(rel+"/", private) {
+	if h.gardener() && strings.HasPrefix(rel+"/", private) {
 		return "strata: gardener sessions may not write " + private + " (docs/spec/07-gardener.md §6)"
 	}
 	cur, err := os.ReadFile(abs) //nolint:gosec // G304: the path Claude is about to edit, inside the instance
@@ -90,6 +91,12 @@ func (h *handler) guard(abs, rel string) string {
 		}
 	}
 	return ""
+}
+
+// gardener reports a gardener session: STRATA_GARDEN=1, or an instance
+// rooted in a /garden worktree (.strata/worktrees/garden-*).
+func (h *handler) gardener() bool {
+	return os.Getenv(GardenEnv) == "1" || strings.Contains(filepath.ToSlash(h.inst.Root), "/.strata/worktrees/garden-")
 }
 
 func stripComment(s string) string {
@@ -188,8 +195,10 @@ func (h *handler) postEdit() (outcome, error) {
 	}
 	err := update(h.inst.Root, h.in.SessionID, func(s *State) {
 		h.noteEdit(s, rel)
+		s.LastBlocking = gr.Blocking
 		if len(reports) > 0 {
 			s.GateFailures++
+			s.LastBlocking = max(s.LastBlocking, 1)
 		}
 	})
 	if err != nil {

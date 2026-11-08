@@ -26,6 +26,7 @@ type State struct {
 	Corrections  bool     `json:"corrections,omitempty"`
 	StrataSearch int      `json:"strata_search,omitempty"`
 	StrataRun    int      `json:"strata_run,omitempty"`
+	LastBlocking int      `json:"last_blocking"` // blocking findings of the last edit/stop gate run
 }
 
 var safeID = regexp.MustCompile(`[^A-Za-z0-9._-]`)
@@ -37,6 +38,9 @@ func statePath(root, session string) string {
 	}
 	return filepath.Join(root, filepath.FromSlash(SessionDir), safeID.ReplaceAllString(session, "_")+".json")
 }
+
+// LoadState returns a session's hook state (zero value when absent).
+func LoadState(root, session string) *State { return loadState(root, session) }
 
 // loadState reads a session's state (zero value when absent or unreadable).
 func loadState(root, session string) *State {

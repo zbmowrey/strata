@@ -32,6 +32,7 @@ func (h *handler) stop() (outcome, error) {
 
 // decideStop applies the loop guard (docs/spec/06 §2.1) and the nudge.
 func (h *handler) decideStop(s *State, gr GateResult) outcome {
+	s.LastBlocking = gr.Blocking
 	if gr.Blocking > 0 {
 		s.GateFailures++
 		switch {

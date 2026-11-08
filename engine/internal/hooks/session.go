@@ -15,7 +15,12 @@ import (
 
 // Counts summarizes an instance for the session-start banner and status line.
 type Counts struct {
-	Shards, Scripts, Playbooks, Inbox, Questions, Stale int
+	Shards    int `json:"shards"`
+	Scripts   int `json:"scripts"`
+	Playbooks int `json:"playbooks"`
+	Inbox     int `json:"inbox"`
+	Questions int `json:"questions"` // open
+	Stale     int `json:"stale"`
 }
 
 // CountIndex reads banner counts from an open index.
@@ -138,6 +143,9 @@ func count(n int, word string) string {
 	}
 	return thousands(n) + " " + word
 }
+
+// Thousands renders n with thousands separators (1,204).
+func Thousands(n int) string { return thousands(n) }
 
 func thousands(n int) string {
 	s := strconv.Itoa(n)

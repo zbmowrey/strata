@@ -79,7 +79,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 `telemetry stats` reports event counts, distinct sessions, the top 10 bash programs (`first_token`), search count and zero-result rate, hook latency p50/p95 per hook, and pass/fail/other per gate (`--format json`: `{"v":1,"since":…,"stats":{…}}`). `telemetry prune` deletes events older than `[telemetry] retention` and reports the count on stderr only.
 
 ### Lifecycle
-`strata init [--profile go,python,ts,…] [--ci] [--scripts] [--no-hooks] [--dry-run]` · `strata upgrade [--dry-run]` · `strata doctor [--fix]` · `strata version [--format json]` · `strata completion <shell>`.
+`strata status [--session id] [--format json]` — cheap snapshot for status lines (counts, last edit/stop gate result of the session, active `/garden` run). `strata init [--profile go,python,ts,…] [--ci] [--scripts] [--no-hooks] [--dry-run]` · `strata upgrade [--dry-run]` · `strata doctor [--fix]` · `strata version [--format json]` · `strata completion <shell>`.
 
 `init` is idempotent: re-running it adds missing pieces and never overwrites user-owned files (it prints what it skipped). `--dry-run` prints the full change list.
 

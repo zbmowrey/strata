@@ -17,8 +17,8 @@ import (
 // writes to the private tier.
 const Env = "STRATA_GARDEN"
 
-// LockFile serializes gardener runs (one garden per repository).
-const LockFile = ".strata/garden.lock"
+// LockFile serializes mechanical-fix runs in one tree (flock).
+const LockFile = ".strata/garden/fix.lock"
 
 // Options configure a deterministic run.
 type Options struct {
