@@ -11,7 +11,7 @@ tags: [strata, knowledge]
 Capture **immediately** when you learn something non-obvious and reusable:
 a gotcha (symptom → cause → fix), a decision and its reason, how something really works,
 a fact you had to dig for, a correction from the user. Do **not** capture what the code or
-git history already says, transient state, or secrets (record *where* a secret lives).
+git history already says, transient state, or secrets (record _where_ a secret lives).
 
 ```
 strata capture "pytest hangs at exit: session-scoped db fixture never closes its pool; add teardown" \
@@ -35,7 +35,7 @@ tell the user. Precedence: user-stated > verified > observed > inferred.
 
 - One idea per shard; filename stem == `id` (kebab-case, globally unique).
 - Required: `id, title (≤ 80), summary (≤ 160, one line), type, tags (≥ 1), status, trust,
-  created, updated`; `sources` (kind ∈ user/url/file/commit/session/script/doc, `ref`, `at`)
+created, updated`; `sources` (kind ∈ user/url/file/commit/session/script/doc, `ref`, `at`)
   for trust ≥ observed.
 - Useful: `aliases` (other names people search), `applies_to` (code globs → pre-edit
   advisory), `scripts:`/`gates:` (enforcement), `verify: {script: …}`, `review_after`.
@@ -49,8 +49,8 @@ tell the user. Precedence: user-stated > verified > observed > inferred.
 
 ## Good vs bad
 
-Good: *"Session-scoped DB fixtures leak connections unless torn down; tests then hang at
-exit."* — specific, causal, sourced, tagged, `applies_to: ["tests/**/conftest.py"]`.
+Good: _"Session-scoped DB fixtures leak connections unless torn down; tests then hang at
+exit."_ — specific, causal, sourced, tagged, `applies_to: ["tests/**/conftest.py"]`.
 
-Bad: *"Be careful with fixtures."* (vague) · a pasted 300-line log (state the finding, cite
-the log) · *"The API uses JWT"* when `auth/jwt.go` says so plainly (the code already tells).
+Bad: _"Be careful with fixtures."_ (vague) · a pasted 300-line log (state the finding, cite
+the log) · _"The API uses JWT"_ when `auth/jwt.go` says so plainly (the code already tells).

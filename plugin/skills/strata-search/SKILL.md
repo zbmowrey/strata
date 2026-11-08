@@ -22,16 +22,16 @@ tags: [strata, search]
 
 Whitespace = AND · `OR` (uppercase) · `"exact phrase"` · `-term` excludes · `term*` prefix.
 
-| Filter | Example |
-|---|---|
-| `kind:` | `kind:script`, `kind:project`, `kind:playbook` (repeat = OR) |
-| `type:` | `type:gotcha`, `type:decision`, `type:standard` |
-| `tag:` / `-tag:` | `tag:pytest -tag:legacy` |
-| `domain:` / `topic:` | `domain:testing` |
-| `status:` / `trust:` | `status:any`, `trust:>=verified` |
-| `side:` / `runtime:` | `side:read-only`, `side:<=writes-local`, `runtime:go` |
-| `updated:` `created:` `verified:` | `updated:>30d`, `updated:2026-01-01..2026-06-30` |
-| `stale:` / `path:` / `project:` / `meta.<k>:` | `stale:true`, `path:knowledge/infra/**` |
+| Filter                                        | Example                                                      |
+| --------------------------------------------- | ------------------------------------------------------------ |
+| `kind:`                                       | `kind:script`, `kind:project`, `kind:playbook` (repeat = OR) |
+| `type:`                                       | `type:gotcha`, `type:decision`, `type:standard`              |
+| `tag:` / `-tag:`                              | `tag:pytest -tag:legacy`                                     |
+| `domain:` / `topic:`                          | `domain:testing`                                             |
+| `status:` / `trust:`                          | `status:any`, `trust:>=verified`                             |
+| `side:` / `runtime:`                          | `side:read-only`, `side:<=writes-local`, `runtime:go`        |
+| `updated:` `created:` `verified:`             | `updated:>30d`, `updated:2026-01-01..2026-06-30`             |
+| `stale:` / `path:` / `project:` / `meta.<k>:` | `stale:true`, `path:knowledge/infra/**`                      |
 
 Every filter has a flag (`--kind`, `--tag`, …); `--explain` shows scoring; `--limit N`.
 

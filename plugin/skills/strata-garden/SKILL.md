@@ -13,24 +13,24 @@ Never merge. Never read `knowledge/_private/`. Never touch the human's working t
 
 ## Task recipes (plan order)
 
-| Type | Do |
-|---|---|
-| `file-inbox` | `strata search` the claim; merge into an existing shard or `strata new shard …`; delete the inbox file. |
-| `merge-duplicates` | Keep the better-sourced shard; fold the other's evidence into it; `strata supersede <loser> <keeper>` (delete only an exact duplicate). Either side `user-stated` → question. |
-| `split-oversize` | Split into focused shards linked both ways; the original id keeps the core claim. |
-| `fix-orphan` | Link it from related shards' See also, or merge it into one. |
-| `reverify-stale` | `verify_script` in evidence → `strata run <script>`; pass → bump `verified_at`; fail → correct (`observed`/`inferred`) or question (`user-stated`). No script → re-check sources/code. |
-| `archive-cold` | `strata archive <id>` (never delete). |
-| `fill-gap` | Find the answer in code/docs; write the shard; note the query for `bench-grow`. |
-| `distill-project` | Read the chronicle; durable facts/gotchas/decisions → shards with `kind: session` sources; list them in `project.md` `shards:`. Never close a project yourself. |
-| `promote` | `evidence.to`: `gotcha` (correction ≥ 2), `gate` (ratchet rule below), `script` (via scriptsmith), `playbook` (`strata new playbook <name>` linking the shards). Link both ways (`scripts:`/`gates:` ↔ `shards:`). |
-| `scriptify` | Write the script for the repeated command (scriptsmith protocol). |
-| `fix-broken-link` | Point the link at the right id or remove it. |
-| `resolve-conflict` | Confirm from code/sources; correct the weaker claim; equal trust → question. |
-| `apply-answer` | Apply the human's answer (under `## Answer`) to the shards it concerns. |
-| `stale-project` | Always a question: pause, close or continue? |
-| `deprecated-script-removal` | Delete the script dir; repoint references to `replaced_by`; `strata scripts catalog`. |
-| `bench-grow` | Add the query with its relevant ids to `.strata/bench/retrieval.yaml`. |
+| Type                        | Do                                                                                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `file-inbox`                | `strata search` the claim; merge into an existing shard or `strata new shard …`; delete the inbox file.                                                                                                            |
+| `merge-duplicates`          | Keep the better-sourced shard; fold the other's evidence into it; `strata supersede <loser> <keeper>` (delete only an exact duplicate). Either side `user-stated` → question.                                      |
+| `split-oversize`            | Split into focused shards linked both ways; the original id keeps the core claim.                                                                                                                                  |
+| `fix-orphan`                | Link it from related shards' See also, or merge it into one.                                                                                                                                                       |
+| `reverify-stale`            | `verify_script` in evidence → `strata run <script>`; pass → bump `verified_at`; fail → correct (`observed`/`inferred`) or question (`user-stated`). No script → re-check sources/code.                             |
+| `archive-cold`              | `strata archive <id>` (never delete).                                                                                                                                                                              |
+| `fill-gap`                  | Find the answer in code/docs; write the shard; note the query for `bench-grow`.                                                                                                                                    |
+| `distill-project`           | Read the chronicle; durable facts/gotchas/decisions → shards with `kind: session` sources; list them in `project.md` `shards:`. Never close a project yourself.                                                    |
+| `promote`                   | `evidence.to`: `gotcha` (correction ≥ 2), `gate` (ratchet rule below), `script` (via scriptsmith), `playbook` (`strata new playbook <name>` linking the shards). Link both ways (`scripts:`/`gates:` ↔ `shards:`). |
+| `scriptify`                 | Write the script for the repeated command (scriptsmith protocol).                                                                                                                                                  |
+| `fix-broken-link`           | Point the link at the right id or remove it.                                                                                                                                                                       |
+| `resolve-conflict`          | Confirm from code/sources; correct the weaker claim; equal trust → question.                                                                                                                                       |
+| `apply-answer`              | Apply the human's answer (under `## Answer`) to the shards it concerns.                                                                                                                                            |
+| `stale-project`             | Always a question: pause, close or continue?                                                                                                                                                                       |
+| `deprecated-script-removal` | Delete the script dir; repoint references to `replaced_by`; `strata scripts catalog`.                                                                                                                              |
+| `bench-grow`                | Add the query with its relevant ids to `.strata/bench/retrieval.yaml`.                                                                                                                                             |
 
 ## Autonomy
 
@@ -73,18 +73,20 @@ why under Skipped / deferred.
 
 **Needs you:** 1 question → knowledge/_questions/q-20261108-fixture-scope.md
 
-| Area | Changes |
-|---|---|
-| Knowledge | filed 7 inbox items (3 new shards, 4 merged), merged 2 duplicates, archived 4 cold |
-| Corrections | 2 shards corrected from evidence |
-| Scripts | + find-leaked-fixtures (read-only, Go) |
-| Gates | + semgrep:fixture-teardown (advisory; 3 existing findings) |
-| Bench | MRR 0.84 → 0.86 · recall@5 0.95 → 0.96 · +3 queries |
+| Area        | Changes                                                                            |
+| ----------- | ---------------------------------------------------------------------------------- |
+| Knowledge   | filed 7 inbox items (3 new shards, 4 merged), merged 2 duplicates, archived 4 cold |
+| Corrections | 2 shards corrected from evidence                                                   |
+| Scripts     | + find-leaked-fixtures (read-only, Go)                                             |
+| Gates       | + semgrep:fixture-teardown (advisory; 3 existing findings)                         |
+| Bench       | MRR 0.84 → 0.86 · recall@5 0.95 → 0.96 · +3 queries                                |
 
 ### Learned this cycle
+
 - [[pytest-fixture-teardown]] — Session-scoped DB fixtures leak connections unless torn down.
 
 ### Skipped / deferred
+
 - merge `a` + `b`: both user-stated → question raised.
 ```
 

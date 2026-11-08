@@ -13,6 +13,7 @@ declare done until every item of its Done list holds.
 ## Decide first
 
 `strata search '<need> kind:script'` and `strata scripts list`. Then:
+
 - Fits → write nothing; report the `strata run <id> -- …` invocation.
 - Nearly fits, change additive and backward-compatible, tests cover current behavior →
   extend it (new flag), keep existing output byte-identical, add tests. In a gardener run

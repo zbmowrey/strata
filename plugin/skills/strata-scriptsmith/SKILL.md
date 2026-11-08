@@ -10,13 +10,13 @@ tags: [strata, scripts]
 
 `strata search '<need> kind:script'` · `strata scripts list` · then `strata run <id> -- <args>`.
 
-| Situation | Action |
-|---|---|
-| A script fits | Run it. |
-| Nearly fits; change additive, backward-compatible, current behavior tested | Extend: new flag, existing output byte-identical, new tests. |
+| Situation                                                                         | Action                                                                               |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| A script fits                                                                     | Run it.                                                                              |
+| Nearly fits; change additive, backward-compatible, current behavior tested        | Extend: new flag, existing output byte-identical, new tests.                         |
 | Change alters semantics, interface, output, side-effect class, or callers unknown | New script; move shared code into `scripts/lib/<runtime>/` first — never copy-paste. |
-| Nothing fits and it will recur | `strata new script <domain>/<name> [--runtime go\|python]` |
-| Genuinely one-off | Run ad hoc (repeats are detected and become garden tasks). |
+| Nothing fits and it will recur                                                    | `strata new script <domain>/<name> [--runtime go\|python]`                           |
+| Genuinely one-off                                                                 | Run ad hoc (repeats are detected and become garden tasks).                           |
 
 ## Manifest (`script.yaml`) — scaffold placeholders fail lint until filled
 

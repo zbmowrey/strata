@@ -34,13 +34,16 @@ go to the knowledge base (`strata capture … --project ci-flake`).
 
 ## Handoff — before stopping, and when context is about to be compacted
 
-`strata project handoff <slug>` rewrites `handoff.md`, pre-filling *Don't redo* from
+`strata project handoff <slug>` rewrites `handoff.md`, pre-filling _Don't redo_ from
 `failed:` lines. Then make it accurate:
 
 ```markdown
-## State      — what is done and verified, in 2–4 lines
-## Next       — numbered, concrete first steps (commands, ids)
+## State — what is done and verified, in 2–4 lines
+
+## Next — numbered, concrete first steps (commands, ids)
+
 ## Open threads
+
 ## Don't redo — dead ends and why
 ```
 
