@@ -4,7 +4,7 @@
 {"rule":"schema/enum","severity":"error","file":"knowledge/_hubs/a.md","message":"type \"map\" is not allowed","fix_hint":"one of: index","line":4,"col":1}
 {"rule":"schema/required","severity":"error","file":"knowledge/_inbox/20260101-000000-x.md","message":"missing required key \"captured\"","fix_hint":"add `captured:` to the frontmatter","line":1,"col":1}
 {"rule":"id/mismatch","severity":"error","file":"knowledge/_questions/q-1.md","message":"id \"q-wrong\" does not match filename \"q-1\"","line":2,"col":1}
-{"rule":"schema/enum","severity":"error","file":"knowledge/_questions/q-1.md","message":"status \"pending\" is not allowed","fix_hint":"one of: open, answered, withdrawn","line":3,"col":1}
+{"rule":"schema/enum","severity":"error","file":"knowledge/_questions/q-1.md","message":"status \"pending\" is not allowed","fix_hint":"one of: open, answered, applied, withdrawn","line":3,"col":1}
 {"rule":"schema/required","severity":"error","file":"knowledge/_questions/q-1.md","message":"question has no ## Question section","fix_hint":"add a `## Question` section","line":7,"col":1}
 {"rule":"id/format","severity":"error","file":"knowledge/a/b/Bad_ID.md","message":"id \"Bad_ID\" is not lowercase kebab-case of 3–64 chars","fix_hint":"lowercase kebab-case, 3–64 chars","line":2,"col":1}
 {"rule":"frontmatter/syntax","severity":"error","file":"knowledge/a/b/bad-frontmatter.md","message":"invalid frontmatter: sequence end token ']' not found","fix_hint":"fix the YAML between the --- lines","line":3,"col":7}

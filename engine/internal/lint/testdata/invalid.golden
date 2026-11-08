@@ -4,7 +4,7 @@ knowledge/_hubs/a.md:1:1  error    schema/required  missing required key "summar
 knowledge/_hubs/a.md:4:1  error    schema/enum  type "map" is not allowed (hint: one of: index)
 knowledge/_inbox/20260101-000000-x.md:1:1  error    schema/required  missing required key "captured" (hint: add `captured:` to the frontmatter)
 knowledge/_questions/q-1.md:2:1  error    id/mismatch  id "q-wrong" does not match filename "q-1"
-knowledge/_questions/q-1.md:3:1  error    schema/enum  status "pending" is not allowed (hint: one of: open, answered, withdrawn)
+knowledge/_questions/q-1.md:3:1  error    schema/enum  status "pending" is not allowed (hint: one of: open, answered, applied, withdrawn)
 knowledge/_questions/q-1.md:7:1  error    schema/required  question has no ## Question section (hint: add a `## Question` section)
 knowledge/a/b/Bad_ID.md:2:1  error    id/format  id "Bad_ID" is not lowercase kebab-case of 3–64 chars (hint: lowercase kebab-case, 3–64 chars)
 knowledge/a/b/bad-frontmatter.md:3:7  error    frontmatter/syntax  invalid frontmatter: sequence end token ']' not found (hint: fix the YAML between the --- lines)
