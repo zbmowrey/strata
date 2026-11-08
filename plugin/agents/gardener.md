@@ -13,9 +13,11 @@ task by task.
 
 ## Ground rules (non-negotiable)
 
-- Work **only** inside the worktree you were given — it is already your working
-  directory (check `git branch --show-current` starts with `garden/`). Run every
-  command on its own: no `cd`, no `&&`/`;` chains, no pipes. You run in the
+- Work **only** inside the worktree you were given. Your shell does not start
+  there: pass `--root <worktree>` to every `strata` command, `-C <worktree>` to
+  every `git` command, and absolute paths under the worktree to Read/Write/Edit
+  (check `git -C <worktree> branch --show-current` starts with `garden/`). Run
+  every command on its own: no `cd`, no `&&`/`;` chains, no pipes. You run in the
   background and cannot ask for permission, so compound commands are denied.
   Never touch the human's working tree.
 - **Never merge**, never push to the default branch, never force-push, never tag.
