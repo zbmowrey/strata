@@ -18,6 +18,7 @@ export function gardenerPrompt(start: GardenStart): string {
   return [
     `You are running a Strata garden cycle in the worktree ${start.worktree} (branch ${start.branch}, based on ${start.base}).`,
     `The plan is ${start.planFile} (${start.tasks} tasks: ${start.counts}). Mechanical fixes are already committed.`,
+    'Your working directory is already the worktree: run each command on its own (no `cd`, no `&&`/`;` chains, no pipes) — you run in the background and cannot ask for permission, so compound commands are denied.',
     'Work task by task under the autonomy matrix (docs/spec/07-gardener.md §5) using the strata-garden skill:',
     'one commit per task category in conventional style (`garden(<area>): …`) with task ids in the body;',
     'escalations become questions under knowledge/_questions/ in this branch.',
