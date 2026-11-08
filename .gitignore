@@ -1,0 +1,27 @@
+# Build output
+/bin/
+/dist/
+*.test
+*.out
+coverage.*
+
+# Strata local state (generated / machine-local)
+/projects/
+/knowledge/_private/
+/.strata/index.db*
+/.strata/index.lock
+/.strata/telemetry/
+/.strata/session/
+/.strata/garden/
+/.strata/garden.lock
+/.strata/worktrees/
+/.strata/cache/
+/.strata/bin/
+
+# Tooling
+node_modules/
+.venv/
+__pycache__/
+.DS_Store
+.idea/
+.vscode/
