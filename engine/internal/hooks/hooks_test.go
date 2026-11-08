@@ -422,3 +422,14 @@ func TestRecordedPayloadsGolden(t *testing.T) {
 		})
 	}
 }
+
+func TestNestedWorktreesIgnored(t *testing.T) {
+	t.Parallel()
+	root := fixture(t)
+	file := filepath.Join(root, ".claude", "worktrees", "agent-x", "main.go")
+	stdin := `{"session_id":"wt","cwd":"` + root + `","tool_input":{"file_path":"` + file + `"}}`
+	r := run(t, "post-edit", stdin, Env{Gates: fakeGates(1, "h")})
+	if r.code != 0 || r.err != "" {
+		t.Fatalf("nested worktree gated: %d %q", r.code, r.err)
+	}
+}

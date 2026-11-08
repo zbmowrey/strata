@@ -160,7 +160,15 @@ func within(base, p string) (string, bool) {
 	if err != nil || r == ".." || strings.HasPrefix(r, ".."+string(filepath.Separator)) {
 		return "", false
 	}
-	return filepath.ToSlash(r), true
+	r = filepath.ToSlash(r)
+	// Nested worktrees (agent forks, garden runs) are separate checkouts:
+	// this instance's guards and gates do not apply to them.
+	for _, wt := range []string{".claude/worktrees/", ".strata/worktrees/"} {
+		if strings.HasPrefix(r, wt) {
+			return "", false
+		}
+	}
+	return r, true
 }
 
 // blockJSON renders a Stop-style block decision.

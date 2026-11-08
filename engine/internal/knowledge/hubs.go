@@ -168,7 +168,13 @@ func truncateRunes(s string, n int) string {
 	if len(r) <= n {
 		return s
 	}
-	return string(r[:n-1]) + "…"
+	// Cut at a word boundary so hub lines never end in a word fragment
+	// (spell checkers flag cut-off words).
+	cut := string(r[:n-1])
+	if i := strings.LastIndexByte(cut, ' '); i > len(cut)/2 {
+		cut = cut[:i]
+	}
+	return strings.TrimRight(cut, " ,;:—-") + "…"
 }
 
 // writeHub regenerates one hub, preserving frontmatter and intro.
