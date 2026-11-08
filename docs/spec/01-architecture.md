@@ -171,7 +171,7 @@ Local, append-only JSONL under `.strata/telemetry/YYYY-MM.jsonl`; gitignored; re
 | `show` | ids, missing, bytes | hit counts, cold-shard detection |
 | `script_run` | id, exit, ms, side_effect | usage, flaky-script detection |
 | `gate` | gate, stage, files_n, result, rules[{id,count}] | recurring-failure promotion |
-| `hook` | event, ms, outcome | performance, protocol evals |
+| `hook` | hook (the hook event, e.g. `post-edit`; `event` is the envelope key), ms, outcome | performance, protocol evals |
 | `capture` | kind, type, project | capture rate |
 | `bash` | first_token, normalized_hash, length | repeated-command → scriptify candidates |
 | `correction` | shard_id? | mistake ledger |

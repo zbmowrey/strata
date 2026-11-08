@@ -1,6 +1,7 @@
 package bench
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"encoding/json"
@@ -131,6 +132,22 @@ func execOp(name, bin, dir string, args ...string) Op {
 	}}
 }
 
+// hookOp times one hook invocation with a minimal payload on stdin.
+func hookOp(name, bin, dir, event, file string) Op {
+	in, _ := json.Marshal(map[string]any{"session_id": "perf", "cwd": dir, "tool_input": map[string]string{"file_path": file}})
+	return Op{Name: name, Run: func(ctx context.Context) (time.Duration, error) {
+		cmd := exec.CommandContext(ctx, bin, "hook", event) //nolint:gosec // G204: benchmarking our own binary
+		cmd.Stdin = bytes.NewReader(in)
+		start := time.Now()
+		out, err := cmd.CombinedOutput()
+		d := time.Since(start)
+		if err != nil {
+			return d, fmt.Errorf("%s: %w: %s", event, err, out)
+		}
+		return d, nil
+	}}
+}
+
 // standardOps builds the retrieval and index operations over a private copy
 // of the corpus.
 func standardOps(ctx context.Context, opt PerfOptions) ([]Op, func(), error) {
@@ -183,6 +200,8 @@ func standardOps(ctx context.Context, opt PerfOptions) ([]Op, func(), error) {
 			st, err := ix.Refresh(ctx, false)
 			return st.Elapsed, err
 		}},
+		hookOp("hook-post-edit", opt.Binary, dir, "post-edit", files[0]),
+		hookOp("hook-session-start", opt.Binary, dir, "session-start", ""),
 		{Name: "rebuild-10k", Run: func(ctx context.Context) (time.Duration, error) {
 			st, err := ix.Rebuild(ctx)
 			return st.Elapsed, err

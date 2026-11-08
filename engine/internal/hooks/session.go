@@ -82,8 +82,8 @@ func (h *handler) sessionStart() (outcome, error) {
 	if st.Added+st.Changed+st.Removed > 0 {
 		fresh = fmt.Sprintf("index refreshed +%d ~%d -%d", st.Added, st.Changed, st.Removed)
 	}
-	head := fmt.Sprintf("strata ▸ %s shards · %s scripts · %s playbooks · %s (%d ms)",
-		thousands(c.Shards), thousands(c.Scripts), thousands(c.Playbooks), fresh, time.Since(start).Milliseconds())
+	head := fmt.Sprintf("strata ▸ %s · %s · %s · %s (%d ms)",
+		count(c.Shards, "shard"), count(c.Scripts, "script"), count(c.Playbooks, "playbook"), fresh, time.Since(start).Milliseconds())
 	lines = append([]string{head}, lines...)
 	lines = append(lines, h.activeProjects()...)
 	tail := []string{fmt.Sprintf("Inbox %d", c.Inbox)}
@@ -128,6 +128,14 @@ func firstLine(s string) string {
 		}
 	}
 	return ""
+}
+
+// count renders "1 shard" / "1,204 shards".
+func count(n int, word string) string {
+	if n != 1 {
+		word += "s"
+	}
+	return thousands(n) + " " + word
 }
 
 func thousands(n int) string {

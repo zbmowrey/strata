@@ -2,12 +2,14 @@
   "machine": "darwin/arm64/14cpu",
   "date": "2026-11-07",
   "p95_ms": {
-    "freshness": 10.9,
-    "rebuild-10k": 1513.4,
-    "refresh-10-changed": 34.2,
-    "search": 22.4,
-    "show-10": 16.9,
-    "show-links-1": 16.1,
-    "version": 3.2
+    "freshness": 10.7,
+    "hook-post-edit": 8.1,
+    "hook-session-start": 24.4,
+    "rebuild-10k": 1523.5,
+    "refresh-10-changed": 35.9,
+    "search": 18.5,
+    "show-10": 17.5,
+    "show-links-1": 15.9,
+    "version": 3.5
   }
 }

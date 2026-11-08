@@ -57,7 +57,13 @@ func Format(rep *Report) string {
 	if rest := n - shown; rest > 0 {
 		lines = append(lines, fmt.Sprintf("… %d more (strata check --format json)", rest))
 	}
-	example := rep.Blocking[0].Gate + "/" + rep.Blocking[0].Rule
+	example := rep.Blocking[0].Gate
+	for _, f := range rep.Blocking {
+		if f.Rule != "" {
+			example = f.Gate + "/" + f.Rule
+			break
+		}
+	}
 	lines = append(lines, "Fix these, then continue. Explain a gate: strata gates explain "+example)
 	return strings.Join(lines, "\n") + "\n"
 }

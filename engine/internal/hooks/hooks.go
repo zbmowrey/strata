@@ -86,7 +86,7 @@ func Run(ctx context.Context, event string, stdin io.Reader, env Env) (code int)
 	if out.stderr != "" {
 		_, _ = io.WriteString(env.Err, out.stderr)
 	}
-	_ = h.tel.Emit("hook", map[string]any{"event": event, "ms": time.Since(start).Milliseconds(), "outcome": out.label})
+	_ = h.tel.Emit("hook", map[string]any{"hook": event, "ms": time.Since(start).Milliseconds(), "outcome": out.label})
 	return out.code
 }
 

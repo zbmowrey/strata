@@ -76,7 +76,10 @@ func TestSessionStart(t *testing.T) {
 	}
 	tel, _ := filepath.Glob(filepath.Join(root, ".strata", "telemetry", "*.jsonl"))
 	if len(tel) == 0 {
-		t.Error("no hook telemetry written")
+		t.Fatal("no hook telemetry written")
+	}
+	if raw, _ := os.ReadFile(tel[0]); !strings.Contains(string(raw), `"hook":"session-start"`) {
+		t.Errorf("hook event name not recorded: %s", raw)
 	}
 }
 
