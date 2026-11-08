@@ -19,8 +19,14 @@ func init() { register(newBenchCmd) }
 func newBenchCmd(a *app) *cobra.Command {
 	cmd := &cobra.Command{Use: "bench", Short: "Retrieval bench, protocol evals and performance benchmarks"}
 	cmd.AddCommand(newBenchPerfCmd(a))
+	for _, sub := range benchSubcommands {
+		cmd.AddCommand(sub(a))
+	}
 	return cmd
 }
+
+// benchSubcommands are added by the retrieval and protocol bench files.
+var benchSubcommands []func(*app) *cobra.Command
 
 func newBenchPerfCmd(a *app) *cobra.Command {
 	var corpus, baseline string
