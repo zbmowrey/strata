@@ -1,0 +1,28 @@
+id: render-release-notes
+summary: Render release notes from conventional commits since the last tag.
+description: |
+  Render release notes from conventional commits since the last tag.
+status: active
+runtime: go
+entry: main.go
+usage: render-release-notes [--since TAG] [--out FILE]
+examples:
+  - cmd: strata run render-release-notes -- --help
+    explain: Show usage.
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "results" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: writes-local
+writes: ["CHANGELOG.md"]
+network: []
+idempotent: true
+deterministic: true
+requires: [go]
+env: []
+timeout: 60s
+tags: [infra]
+aliases: []
+applies_to: ["CHANGELOG.md"]
+shards: [deploy-flow]
+tests: [main_test.go]
+owner: gardener

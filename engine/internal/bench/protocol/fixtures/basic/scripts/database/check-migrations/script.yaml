@@ -1,0 +1,28 @@
+id: check-migrations
+summary: Verify every alembic migration has a downgrade and no blocking index builds.
+description: |
+  Verify every alembic migration has a downgrade and no blocking index builds.
+status: active
+runtime: go
+entry: main.go
+usage: check-migrations [--dir DIR] [--format text|json]
+examples:
+  - cmd: strata run check-migrations -- --help
+    explain: Show usage.
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "results" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [go]
+env: []
+timeout: 60s
+tags: [database]
+aliases: []
+applies_to: ["migrations/**"]
+shards: [migration-rollback, postgres-index-concurrently]
+tests: [main_test.go]
+owner: gardener

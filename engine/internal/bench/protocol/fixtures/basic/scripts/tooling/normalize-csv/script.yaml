@@ -1,0 +1,28 @@
+id: normalize-csv
+summary: Normalize a CSV file to UTF-8, LF endings, and trimmed fields.
+description: |
+  Normalize a CSV file to UTF-8, LF endings, and trimmed fields.
+status: active
+runtime: go
+entry: main.go
+usage: normalize-csv FILE [--format text|json]
+examples:
+  - cmd: strata run normalize-csv -- --help
+    explain: Show usage.
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "results" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [go]
+env: []
+timeout: 60s
+tags: [tooling]
+aliases: []
+applies_to: ["data/**"]
+shards: []
+tests: [main_test.go]
+owner: gardener

@@ -1,0 +1,21 @@
+---
+id: postgres-connection-pool
+title: The app uses a pool of 20 connections
+summary: Each app instance holds a psycopg pool of 20 connections; background threads keep it alive.
+type: fact
+tags: [database, postgres, pooling]
+aliases: [pg-pool]
+status: active
+trust: verified
+created: 2026-06-01
+updated: 2026-10-01
+sources:
+  - { kind: file, ref: "README.md", at: 2026-06-01 }
+applies_to: ["app/db.py"]
+verified_at: 2026-10-01
+---
+Every app instance opens a `psycopg_pool.ConnectionPool` with `max_size=20` and a non-daemon maintenance thread.
+
+## See also
+- [[pytest-fixture-teardown]]
+- [[pgbouncer-transaction-mode]]

@@ -1,0 +1,16 @@
+id: script-reuse
+description: A task an existing script performs is done with strata run, not ad hoc.
+files:
+  tests/conftest.py: |
+    import pytest
+
+
+    @pytest.fixture(scope="session")
+    def redis_client():
+        import redis
+        return redis.Redis()
+prompt: "Check whether any pytest fixtures under tests/ acquire resources without a teardown, and report what you find. Do not change any files."
+assert:
+  - called: "Bash(strata run find-leaked-fixtures*)"
+budget: { max_turns: 15, max_cost_usd: 0.75 }
+runs: 3
