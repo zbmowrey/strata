@@ -1,0 +1,20 @@
+"""Atomic file writes for writes-local scripts."""
+
+from __future__ import annotations
+
+import os
+import tempfile
+from pathlib import Path
+
+
+def write_atomic(path: Path, data: bytes) -> None:
+    """Write data via a temp file in the same directory and a rename."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.tmp-")
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        Path(tmp).replace(path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise

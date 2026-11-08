@@ -103,7 +103,7 @@ Gates per runtime are defined in [06-gates.md](06-gates.md) §4.
 
 - Any logic used by two scripts lives in `scripts/lib/<runtime>/`. Lint (`dupl` for Go, a jscpd-style duplicate detector across runtimes) flags duplicated blocks ≥ 50 tokens between scripts.
 - `lib/go` starter packages created by `strata init --scripts`: `cli` (flag parsing conventions, `--format text|json`, exit-code helpers), `out` (stable JSON/text writers), `repo` (repo root discovery, path safety), `exec` (safe subprocess with timeouts, no shell), `fsx` (atomic writes).
-- `lib/py/strata_lib` mirrors the same conventions.
+- `lib/py/strata_lib` mirrors the same conventions (modules `cli`, `out`, `repo`, `proc` — named to avoid shadowing the `exec` builtin — and `fsx`); `strata run` puts `scripts/lib/py` on `PYTHONPATH`.
 - Conventions all scripts follow: `--help` is generated from the manifest `usage`; `--format json` for machine output; errors on stderr; exit codes per manifest; no interactive prompts unless `destructive`; no network unless declared; never read secrets from files in the repo.
 
 ## 7. Running and building
@@ -140,3 +140,10 @@ Direct invocation (`go run`, `uv run …`) also works; `strata run` is preferred
 ## 10. Deprecation
 
 Set `status: deprecated` and `replaced_by: <id>`. `strata run` on a deprecated script prints a warning naming the replacement. The gardener removes deprecated scripts with zero runs in 90 days (via PR).
+
+## 11. Implementation notes (recorded during the build)
+
+- `strata run` exit codes: the script's own exit code is propagated; a refused destructive run (no `--yes`) exits 4 (usage); a missing `requires` tool, a timeout, an unknown runtime or side effect, or a writes-local violation exits 1 with a hint.
+- The writes-local post-check diffs `git status --porcelain --untracked-files=all` before and after the run. Paths already dirty before the run are not re-attributed, `.strata/` is ignored, and outside a git repository the check is skipped with a warning.
+- `strata new script` creates the scripts module file (`go.mod` / `pyproject.toml`) and the `lib` starters when missing (never overwriting), so a scaffold always compiles. The Go module path comes from an existing `scripts/go.mod`, else the `origin` remote (`github.com/<o>/<r>/scripts`), else `strata.local/<repo>/scripts`. Scaffolded manifests start as `status: draft` with TODO placeholders (lint rule `script/placeholder`), and the scaffolded test fails until written.
+- `strata scripts build` compiles only Go scripts; the cache stamp `.strata/bin/<id>.hash` is an xxh3-128 over the script directory, `scripts/lib/go`, `go.mod` and `go.sum`.

@@ -1,0 +1,42 @@
+// Package exec runs subprocesses safely: an explicit argv (never a shell)
+// and a timeout.
+package exec
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	osexec "os/exec"
+	"strings"
+	"time"
+)
+
+// Result is a finished command.
+type Result struct {
+	Stdout   []byte
+	Stderr   []byte
+	ExitCode int
+}
+
+// Run executes name with args, capturing output, killing it after timeout.
+// A non-zero exit is reported in Result.ExitCode, not as an error.
+func Run(ctx context.Context, timeout time.Duration, name string, args ...string) (Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	cmd := osexec.CommandContext(ctx, name, args...)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &stdout, &stderr
+	err := cmd.Run()
+	res := Result{Stdout: stdout.Bytes(), Stderr: stderr.Bytes()}
+	if ctx.Err() != nil {
+		return res, fmt.Errorf("%s %s: timed out after %s", name, strings.Join(args, " "), timeout)
+	}
+	if ee, ok := err.(*osexec.ExitError); ok {
+		res.ExitCode = ee.ExitCode()
+		return res, nil
+	}
+	if err != nil {
+		return res, fmt.Errorf("%s: %w", name, err)
+	}
+	return res, nil
+}

@@ -1,0 +1,72 @@
+// Package cli holds the flag and exit-code conventions shared by every Go
+// script: --help from the manifest usage, --format text|json, errors on
+// stderr, and the documented exit codes.
+package cli
+
+import (
+	"errors"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+)
+
+// Exit codes (match exit_codes in script.yaml).
+const (
+	OK       = 0
+	Findings = 1
+	Error    = 2
+)
+
+// Options are the parsed common flags plus the remaining arguments.
+type Options struct {
+	Format string
+	Args   []string
+}
+
+// ErrHelp is returned when --help was requested (usage already printed).
+var ErrHelp = flag.ErrHelp
+
+// Parse parses the common flags. Extra flags can be declared on the
+// returned FlagSet via ParseWith.
+func Parse(name, usage string, args []string) (Options, error) {
+	return ParseWith(name, usage, args, nil)
+}
+
+// ParseWith parses the common flags plus those declared by define.
+func ParseWith(name, usage string, args []string, define func(*flag.FlagSet)) (Options, error) {
+	var o Options
+	fs := flag.NewFlagSet(name, flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	fs.StringVar(&o.Format, "format", "text", "output format: text|json")
+	if define != nil {
+		define(fs)
+	}
+	if err := fs.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			fmt.Fprintln(os.Stdout, "usage: "+usage)
+			return o, ErrHelp
+		}
+		return o, fmt.Errorf("%w\nusage: %s", err, usage)
+	}
+	if o.Format != "text" && o.Format != "json" {
+		return o, fmt.Errorf("--format must be text or json, got %q\nusage: %s", o.Format, usage)
+	}
+	o.Args = fs.Args()
+	return o, nil
+}
+
+// Usage reports a usage error (or a help request) and returns its exit code.
+func Usage(err error) int {
+	if errors.Is(err, ErrHelp) {
+		return OK
+	}
+	fmt.Fprintln(os.Stderr, "error:", err)
+	return Error
+}
+
+// Fail reports a runtime error and returns its exit code.
+func Fail(err error) int {
+	fmt.Fprintln(os.Stderr, "error:", err)
+	return Error
+}

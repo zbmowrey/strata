@@ -1,0 +1,55 @@
+// Package repo finds the repository root and keeps paths inside it.
+package repo
+
+import (
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+// ErrOutside is returned by SafeJoin for paths escaping the root.
+var ErrOutside = errors.New("path escapes the repository root")
+
+// Root walks up from the working directory to the directory holding .git
+// or .strata (scripts run with the repository root as cwd, so this is
+// usually the working directory itself).
+func Root() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("working directory: %w", err)
+	}
+	for {
+		for _, marker := range []string{".strata", ".git"} {
+			if _, err := os.Stat(filepath.Join(dir, marker)); err == nil {
+				return dir, nil
+			}
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", errors.New("no repository root (.git or .strata) above the working directory")
+		}
+		dir = parent
+	}
+}
+
+// SafeJoin joins rel onto root, refusing absolute paths and any result
+// outside root after cleaning (symlinks are resolved when they exist).
+func SafeJoin(root, rel string) (string, error) {
+	if filepath.IsAbs(rel) {
+		return "", fmt.Errorf("%w: %s is absolute", ErrOutside, rel)
+	}
+	p := filepath.Join(root, rel)
+	if real, err := filepath.EvalSymlinks(p); err == nil {
+		p = real
+		if r, err := filepath.EvalSymlinks(root); err == nil {
+			root = r
+		}
+	}
+	r, err := filepath.Rel(root, p)
+	if err != nil || r == ".." || strings.HasPrefix(r, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("%w: %s", ErrOutside, rel)
+	}
+	return p, nil
+}

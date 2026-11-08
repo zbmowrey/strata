@@ -1,0 +1,31 @@
+"""Repository root discovery and path safety."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+
+class OutsideRootError(ValueError):
+    """Raised when a path escapes the repository root."""
+
+
+def root(start: Path | None = None) -> Path:
+    """Walk up to the directory holding .strata or .git."""
+    here = (start or Path.cwd()).resolve()
+    for candidate in (here, *here.parents):
+        if (candidate / ".strata").exists() or (candidate / ".git").exists():
+            return candidate
+    msg = "no repository root (.git or .strata) above the working directory"
+    raise FileNotFoundError(msg)
+
+
+def safe_join(base: Path, rel: str) -> Path:
+    """Join rel onto base, refusing results outside base."""
+    if Path(rel).is_absolute():
+        msg = f"{rel} is absolute"
+        raise OutsideRootError(msg)
+    path = (base / rel).resolve()
+    if not path.is_relative_to(base.resolve()):
+        msg = f"{rel} escapes {base}"
+        raise OutsideRootError(msg)
+    return path
