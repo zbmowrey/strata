@@ -1,0 +1,81 @@
+{
+ "version": "2.1.0",
+ "runs": [
+  {
+   "results": [
+    {
+     "fingerprints": {
+      "matchBasedId/v1": "requires login"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "bad.py",
+         "uriBaseId": "%SRCROOT%"
+        },
+        "region": {
+         "endColumn": 36,
+         "endLine": 5,
+         "snippet": {
+          "text": "    subprocess.call(cmd, shell=True)"
+         },
+         "startColumn": 32,
+         "startLine": 5
+        }
+       }
+      }
+     ],
+     "message": {
+      "text": "Found 'subprocess' function 'call' with 'shell=True'. This is dangerous because this call will spawn the command using a shell process. Doing so propagates current shell settings and variables, which makes it much easier for a malicious actor to execute commands. Use 'shell=False' instead."
+     },
+     "properties": {},
+     "ruleId": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true"
+    },
+    {
+     "ruleId": "strata.no-curl-pipe-sh",
+     "level": "warning",
+     "message": {
+      "text": "Never pipe a download into a shell."
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "scripts/install.sh"
+        },
+        "region": {
+         "startLine": 3,
+         "startColumn": 1
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "tool": {
+    "driver": {
+     "name": "Semgrep OSS",
+     "rules": [
+      {
+       "defaultConfiguration": {
+        "level": "error"
+       },
+       "fullDescription": {
+        "text": "Found 'subprocess' function '$FUNC' with 'shell=True'. This is dangerous because this call will spawn the command using a shell process. Doing so propagates current shell settings and variables, which makes it much easier for a malicious actor to execute commands. Use 'shell=False' instead."
+       },
+       "helpUri": "https://semgrep.dev/r/python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+       "id": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+       "name": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+       "shortDescription": {
+        "text": "Semgrep Finding: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true"
+       }
+      }
+     ],
+     "semanticVersion": "1.169.0"
+    }
+   }
+  }
+ ],
+ "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json"
+}

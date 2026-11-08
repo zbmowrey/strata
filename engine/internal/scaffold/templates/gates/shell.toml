@@ -1,0 +1,23 @@
+# --- profile: shell (docs/spec/06-gates.md §4.5) ---
+[[gate]]
+id = "sh-fmt"
+desc = "shfmt"
+applies_to = ["**/*.sh", "**/*.bash"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["shfmt", "-w", "-i", "2", "{targets}"]
+check_cmd = ["shfmt", "-l", "-i", "2", "{targets}"]
+parser = "lines"
+lines_regex = '^(?P<file>\S+\.(?:sh|bash))$'
+timeout = "30s"
+
+[[gate]]
+id = "sh-lint"
+desc = "shellcheck"
+applies_to = ["**/*.sh", "**/*.bash"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["shellcheck", "-f", "json", "{targets}"]
+parser = "shellcheck-json"
+timeout = "30s"

@@ -1,0 +1,4 @@
+{"rule":"SC2086","severity":"info","file":"bad.sh","message":"Double quote to prevent globbing and word splitting.","line":3,"col":4}
+{"rule":"SC2046","severity":"warning","file":"bad.sh","message":"Quote this to prevent word splitting.","line":4,"col":6}
+{"rule":"SC2005","severity":"info","file":"bad.sh","message":"Useless echo? Instead of 'echo $(cmd)', just use 'cmd'.","line":4,"col":6}
+{"rule":"SC2006","severity":"info","file":"bad.sh","message":"Use $(...) notation instead of legacy backticks `...`.","line":4,"col":6}

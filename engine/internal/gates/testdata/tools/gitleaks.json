@@ -1,0 +1,42 @@
+[
+ {
+  "RuleID": "aws-access-token",
+  "Description": "Identified a pattern that may indicate AWS credentials, risking unauthorized cloud resource access and data breaches on AWS platforms.",
+  "StartLine": 1,
+  "EndLine": 1,
+  "StartColumn": 19,
+  "EndColumn": 38,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "config.env",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.6841838,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "config.env:aws-access-token:1"
+ },
+ {
+  "RuleID": "github-pat",
+  "Description": "Uncovered a GitHub Personal Access Token, potentially leading to unauthorized repository access and sensitive content exposure.",
+  "StartLine": 2,
+  "EndLine": 2,
+  "StartColumn": 17,
+  "EndColumn": 56,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "config.env",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 5.0,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "config.env:github-pat:2"
+ }
+]

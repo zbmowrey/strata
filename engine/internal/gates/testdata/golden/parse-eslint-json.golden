@@ -1,0 +1,3 @@
+{"rule":"@typescript-eslint/no-floating-promises","severity":"error","file":"/work/plugin/hooks/register.ts","message":"Promises must be awaited, end with a call to .catch, or end with a call to .then with a rejection handler.","line":14,"col":5}
+{"rule":"sonarjs/cognitive-complexity","severity":"warning","file":"/work/plugin/hooks/register.ts","message":"Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.","line":30,"col":10}
+{"rule":"parse-error","severity":"error","file":"/work/plugin/hooks/register.ts","message":"Parsing error: ',' expected.","line":51,"col":3}

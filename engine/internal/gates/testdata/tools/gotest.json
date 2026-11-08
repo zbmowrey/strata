@@ -1,0 +1,13 @@
+{"Time":"2026-11-07T22:59:26.240397-05:00","Action":"start","Package":"example.com/bad/pkg"}
+{"Time":"2026-11-07T22:59:26.468597-05:00","Action":"run","Package":"example.com/bad/pkg","Test":"TestFails"}
+{"Time":"2026-11-07T22:59:26.468664-05:00","Action":"output","Package":"example.com/bad/pkg","Test":"TestFails","Output":"=== RUN   TestFails\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.468724-05:00","Action":"output","Package":"example.com/bad/pkg","Test":"TestFails","Output":"    bad_test.go:6: expected 1, got 2\n","OutputType":"error"}
+{"Time":"2026-11-07T22:59:26.46875-05:00","Action":"output","Package":"example.com/bad/pkg","Test":"TestFails","Output":"--- FAIL: TestFails (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.46876-05:00","Action":"fail","Package":"example.com/bad/pkg","Test":"TestFails","Elapsed":0}
+{"Time":"2026-11-07T22:59:26.46877-05:00","Action":"run","Package":"example.com/bad/pkg","Test":"TestPasses"}
+{"Time":"2026-11-07T22:59:26.468777-05:00","Action":"output","Package":"example.com/bad/pkg","Test":"TestPasses","Output":"=== RUN   TestPasses\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.468789-05:00","Action":"output","Package":"example.com/bad/pkg","Test":"TestPasses","Output":"--- PASS: TestPasses (0.00s)\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.468802-05:00","Action":"pass","Package":"example.com/bad/pkg","Test":"TestPasses","Elapsed":0}
+{"Time":"2026-11-07T22:59:26.468809-05:00","Action":"output","Package":"example.com/bad/pkg","Output":"FAIL\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.469364-05:00","Action":"output","Package":"example.com/bad/pkg","Output":"FAIL\texample.com/bad/pkg\t0.228s\n","OutputType":"frame"}
+{"Time":"2026-11-07T22:59:26.46938-05:00","Action":"fail","Package":"example.com/bad/pkg","Elapsed":0.229}

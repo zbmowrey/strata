@@ -1,0 +1,2 @@
+{"rule":"aws-access-token","severity":"error","file":"config.env","message":"possible secret (aws-access-token)","fix_hint":"remove it and rotate the credential; record only where it lives","line":1,"col":19}
+{"rule":"github-pat","severity":"error","file":"config.env","message":"possible secret (github-pat)","fix_hint":"remove it and rotate the credential; record only where it lives","line":2,"col":17}
