@@ -1,0 +1,58 @@
+# --- profile: python (docs/spec/06-gates.md §4.2) ---
+[[gate]]
+id = "py-fmt"
+desc = "ruff format"
+applies_to = ["**/*.py"]
+exclude = ["**/.venv/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["ruff", "format", "{targets}"]
+check_cmd = ["ruff", "format", "--check", "{targets}"]
+parser = "exitcode"
+timeout = "30s"
+
+[[gate]]
+id = "py-lint"
+desc = "ruff check (select ALL)"
+applies_to = ["**/*.py"]
+exclude = ["**/.venv/**"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["ruff", "check", "--output-format", "json", "{targets}"]
+config_files = ["pyproject.toml", "ruff.toml"]
+parser = "ruff-json"
+timeout = "60s"
+
+[[gate]]
+id = "py-types"
+desc = "pyright --strict"
+applies_to = ["**/*.py"]
+exclude = ["**/.venv/**"]
+stages = ["stop", "commit", "ci"]
+scope = "file"
+cmd = ["pyright", "--outputjson", "{targets}"]
+config_files = ["pyproject.toml", "pyrightconfig.json"]
+parser = "pyright-json"
+timeout = "120s"
+
+[[gate]]
+id = "py-audit"
+desc = "pip-audit over the uv lockfile"
+applies_to = ["**/uv.lock", "**/pyproject.toml"]
+stages = ["commit", "ci"]
+scope = "repo"
+cmd = ["uv", "run", "pip-audit"]
+parser = "exitcode"
+timeout = "300s"
+
+[[gate]]
+id = "py-test"
+desc = "pytest with coverage"
+applies_to = ["**/*.py"]
+exclude = ["**/.venv/**"]
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+cmd = ["uv", "run", "pytest", "-q"]
+parser = "exitcode"
+timeout = "600s"

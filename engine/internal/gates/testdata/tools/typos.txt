@@ -1,0 +1,2 @@
+typo.md:1:6: error: `sentance` should be `sentence`
+typo.md:1:21: error: `mispelled` should be `misspelled`

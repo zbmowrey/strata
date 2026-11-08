@@ -1,0 +1,19 @@
+# --- profile: docs (docs/spec/06-gates.md §4.5) ---
+[[gate]]
+id = "strata-lint"
+desc = "knowledge, manifests and projects: schema, size, links"
+builtin = "strata-lint"
+applies_to = ["knowledge/**/*.md", "scripts/**/script.yaml", "projects/*/*.md", ".claude/skills/*/SKILL.md"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+
+[[gate]]
+id = "typos"
+desc = "spelling in all text"
+exclude = ["**/*.golden", "**/testdata/**", "**/*.lock", "**/go.sum"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["typos", "--format", "brief", "{targets}"]
+parser = "lines"
+severity = "warning"
+timeout = "30s"

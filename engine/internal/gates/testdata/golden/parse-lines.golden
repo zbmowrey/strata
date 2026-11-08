@@ -1,0 +1,2 @@
+{"rule":"","severity":"error","file":"typo.md","message":"`sentance` should be `sentence`","line":1,"col":6}
+{"rule":"","severity":"error","file":"typo.md","message":"`mispelled` should be `misspelled`","line":1,"col":21}

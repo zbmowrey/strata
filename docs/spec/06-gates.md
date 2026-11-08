@@ -27,6 +27,21 @@ docs = "go-lint-standard"        # shard id explaining the gate (required for cu
 
 `{targets}` expands per `scope`: `file` → the changed files; `package` → their containing packages/modules; `repo` → `./...` or the tool's repo-wide default.
 
+Additional keys (recorded during the build):
+
+| Key | Meaning |
+|---|---|
+| `check_cmd` | for `mode = "fix"` gates: the non-modifying variant run when fixes are not allowed (e.g. `gofumpt -l`); without it a fix gate is skipped in that run |
+| `workdir` | repo-relative directory the command runs in (`{targets}` are relative to it; tool-reported paths are mapped back to repo-relative) |
+| `repo_target` | what `{targets}` expands to for `scope = "repo"` (default `.`; Go uses `./...`) |
+| `config_files` | extra files whose content is part of the results-cache key (e.g. `.golangci.yml`) |
+| `builtin` | `suppressions` or `strata-lint`: an engine-implemented gate with no `cmd` |
+| `lines_regex` | regex for the `lines` parser; named groups `file` (required), `line`, `col`, `severity`, `message` |
+| `severity` | default severity for findings whose parser carries none (`exitcode`, `lines`, `sarif`) |
+| `disabled` + `reason` | turn a gate off; `reason` is required |
+
+Defaults: `mode = "check"`, `scope = "file"`, `parser = "exitcode"`, `timeout = "60s"`, `stages = ["stop", "commit", "ci"]`, `blocking = true`. A blocking gate blocks on findings of severity `warning` or worse (`strata-lint`: `error` only). Infrastructure problems never block: a tool missing from `PATH` and a timeout are reported as advisory warnings (`tool-missing`, `timeout`); output that cannot be parsed from a failing tool is one blocking `tool-failed` finding.
+
 ## 2. Stages
 
 | Stage | Trigger | Targets | Time budget | Blocking mechanism |
@@ -117,7 +132,7 @@ Dropping Strata into an existing repo must not produce a wall of errors that blo
 
 - `strata gates baseline <gate>` records current findings as `{rule, file, fingerprint}` (fingerprint = hash of rule + normalized source line + enclosing symbol, stable under unrelated line shifts).
 - With a baseline, a gate **blocks only on findings not in the baseline**. Baselined findings are reported as a count (`+ 212 baselined`).
-- **Ratchet:** the baseline may only shrink. `strata check` rewrites the baseline file when findings disappear (fixed findings are removed); adding entries requires `strata gates baseline --accept` (a human/gardener-PR act, never done by the edit hook).
+- **Ratchet:** the baseline may only shrink. `strata check` rewrites the baseline file when findings disappear (fixed findings are removed, only for files the run covered; `--no-ratchet` disables this); hooks never rewrite baselines. Adding entries requires `strata gates baseline <gate> --accept` (a human/gardener-PR act, never done by the edit hook); without `--accept` the command reports what would be added.
 - A gate with an empty baseline for 14 days has its baseline file deleted by the gardener.
 - New gates proposed by the gardener start as `blocking = false` (advisory) or with a baseline, then are flipped to blocking only when the current codebase passes ([07](07-gardener.md) §5.2).
 
@@ -138,7 +153,7 @@ The built-in `suppressions` gate rejects bare suppressions, suppressions without
 ## 8. Performance and caching
 
 - Edit-stage gates must keep their *typical* latency under 2 s; gates with no fast mode are stage-restricted (`stages` without `edit`).
-- Results cache: `(gate, tool version, config hash, target content hash)` → findings, stored in `.strata/cache/gates/`. Unchanged inputs skip re-running (big win for Stop stage after edit stage already ran).
+- Results cache: `(gate, tool version, config hash, target content hash)` → findings, stored in `.strata/cache/gates/`. The tool version is approximated by the resolved binary's path, size and mtime (no extra `--version` process per run); the config hash covers the gate definition, the expanded argv and `config_files`; repo-scope gates hash every file in the repository. Fix-mode runs are never cached. Unchanged inputs skip re-running (big win for Stop stage after edit stage already ran).
 - `strata check --changed|--staged|--all|<paths>` is the manual entry point and is exactly what hooks call.
 
 ## 9. Engine repo gates

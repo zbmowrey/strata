@@ -1,0 +1,2 @@
+{"rule":"clippy::redundant_clone","severity":"warning","file":"src/main.rs","message":"redundant clone","line":7,"col":13}
+{"rule":"E0308","severity":"error","file":"src/main.rs","message":"mismatched types","line":12,"col":4}

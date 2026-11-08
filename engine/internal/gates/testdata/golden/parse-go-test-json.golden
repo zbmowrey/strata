@@ -1,0 +1,1 @@
+{"rule":"TestFails","severity":"error","file":"example.com/bad/pkg/bad_test.go","message":"TestFails: expected 1, got 2","line":6}

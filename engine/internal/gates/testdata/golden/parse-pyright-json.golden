@@ -1,0 +1,3 @@
+{"rule":"reportArgumentType","severity":"error","file":"/work/scripts/lib/py/strata_lib/out.py","message":"Argument of type \"str\" cannot be assigned to parameter \"n\" of type \"int\"","line":12,"col":15}
+{"rule":"reportMissingModuleSource","severity":"warning","file":"/work/scripts/lib/py/strata_lib/out.py","message":"Import \"yaml\" could not be resolved from source","line":3,"col":8}
+{"rule":"pyright","severity":"info","file":"/work/scripts/lib/py/strata_lib/out.py","message":"Unreachable code","line":21,"col":5}
