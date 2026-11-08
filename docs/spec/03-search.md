@@ -44,7 +44,7 @@ CREATE TABLE docs (
 );
 CREATE VIRTUAL TABLE docs_fts USING fts5(
   title, aliases, summary, tags, headings, body,
-  content='', tokenize='porter unicode61 remove_diacritics 2');
+  content='', contentless_delete=1, tokenize='porter unicode61 remove_diacritics 2');  -- contentless_delete: needed for incremental refresh
 CREATE VIRTUAL TABLE names_tri USING fts5(name, tokenize='trigram');  -- ids, titles, aliases: fuzzy/substring
 CREATE TABLE tags (doc INT, tag TEXT);              CREATE INDEX tags_tag ON tags(tag);
 CREATE TABLE aliases (alias TEXT PRIMARY KEY, doc INT);

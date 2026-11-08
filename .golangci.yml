@@ -1,0 +1,106 @@
+# Strata strict Go profile (docs/spec/06-gates.md §4.1). No baselines in this repo.
+version: "2"
+run:
+  timeout: 5m
+  tests: true
+linters:
+  default: none
+  enable:
+    - bodyclose
+    - contextcheck
+    - dupl
+    - errcheck
+    - errorlint
+    - exhaustive
+    - forcetypeassert
+    - funlen
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - nestif
+    - nilerr
+    - nilnil
+    - noctx
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - revive
+    - sqlclosecheck
+    - staticcheck
+    - testifylint
+    - thelper
+    - unparam
+    - unused
+    - wrapcheck
+  settings:
+    gocyclo:
+      min-complexity: 15
+    gocognit:
+      min-complexity: 20
+    funlen:
+      lines: 80
+      statements: 50
+    nestif:
+      min-complexity: 4
+    dupl:
+      threshold: 100
+    exhaustive:
+      default-signifies-exhaustive: true
+    goconst:
+      min-len: 3
+      min-occurrences: 4
+    paralleltest:
+      ignore-missing-subtests: true
+    gocritic:
+      enabled-tags: [diagnostic, performance, style]
+      disabled-checks: [whyNoLint, unnamedResult, hugeParam]
+    govet:
+      enable-all: true
+      disable: [shadow, fieldalignment]
+    revive:
+      rules:
+        - name: exported
+        - name: package-comments
+        - name: var-naming
+        - name: indent-error-flow
+        - name: errorf
+        - name: error-return
+        - name: error-strings
+        - name: receiver-naming
+        - name: unexported-return
+        - name: blank-imports
+        - name: context-as-argument
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+    wrapcheck:
+      ignore-sigs:
+        - .Errorf(
+        - errors.New(
+        - errors.Unwrap(
+        - errors.Join(
+        - fail.New(
+        - fail.Wrap(
+        - fmt.Fprint(
+        - fmt.Fprintf(
+        - fmt.Fprintln(
+        - .Encode(
+      ignore-package-globs:
+        - github.com/zbmowrey/strata/engine/*
+  exclusions:
+    generated: strict
+    rules:
+      - path: _test\.go
+        linters: [funlen, dupl, goconst, wrapcheck, gocognit]
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes: [github.com/zbmowrey/strata]

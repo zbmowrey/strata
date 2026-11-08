@@ -1,0 +1,49 @@
+name: ci
+on:
+  push:
+    branches: [main, "build/**"]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: engine/go.mod
+          cache-dependency-path: engine/go.sum
+      - uses: extractions/setup-just@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install gate tools
+        run: |
+          go install mvdan.cc/gofumpt@v0.12.0
+          go install golang.org/x/tools/cmd/goimports@v0.52.0
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
+          go install github.com/zricethezav/gitleaks/v8@v8.30.1
+          go install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1
+          pipx install semgrep==1.169.0
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          curl -fsSL -o typos.tgz https://github.com/crate-ci/typos/releases/download/v1.52.0/typos-v1.52.0-x86_64-unknown-linux-musl.tar.gz
+          mkdir -p "$HOME/.local/bin" && tar -xzf typos.tgz -C "$HOME/.local/bin" ./typos && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - run: just check
+      - run: just test
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: engine/go.mod
+          cache-dependency-path: engine/go.sum
+      - uses: extractions/setup-just@v2
+      - run: just bench
