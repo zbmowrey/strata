@@ -47,3 +47,5 @@ jobs:
           cache-dependency-path: engine/go.sum
       - uses: extractions/setup-just@v2
       - run: just bench
+        env:
+          STRATA_BUDGETS: report  # CI hardware differs from the baseline machine; budgets are enforced locally (01 §7)

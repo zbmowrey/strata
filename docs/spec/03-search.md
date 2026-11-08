@@ -35,11 +35,11 @@ CREATE TABLE files (path TEXT PRIMARY KEY, size INT, mtime_ns INT, hash BLOB, ki
 CREATE TABLE docs (
   rowid INTEGER PRIMARY KEY,
   id TEXT UNIQUE NOT NULL,          -- shard id / script id / playbook name / project slug / composite
-  kind TEXT NOT NULL, path TEXT NOT NULL, anchor TEXT,
+  kind TEXT NOT NULL, path TEXT NOT NULL, src TEXT NOT NULL, anchor TEXT,  -- src: source file (one file may yield many docs)
   domain TEXT, topic TEXT, type TEXT, status TEXT, trust TEXT,
   title TEXT NOT NULL, summary TEXT, created TEXT, updated TEXT, verified_at TEXT, review_after_days INT,
   side_effect TEXT, runtime TEXT,   -- scripts
-  bytes INT, lines INT, tokens_est INT,
+  bytes INT, lines INT, tokens_est INT, private INT NOT NULL DEFAULT 0,
   meta_json TEXT                    -- full frontmatter for --meta and filters on arbitrary keys
 );
 CREATE VIRTUAL TABLE docs_fts USING fts5(
@@ -77,7 +77,7 @@ Deterministic, explainable (`--explain` prints the score breakdown per hit).
 
 6. **Tie-break:** score desc, then `updated` desc, then id asc. Output is fully deterministic for a given corpus and query.
 
-Normalization: BM25 scores are min-max normalized within the candidate set (top 200) before multipliers, so multipliers have consistent effect. Scores printed are rounded to 2 decimals.
+Normalization: BM25 scores are normalized within the candidate set (top 200) by dividing by the best score, so scores lie in (0, 1] before multipliers and multipliers have consistent effect. (Min-max was replaced during the build: it pins the weakest candidate to 0.) Scores printed are rounded to 2 decimals.
 
 ## 5. Query language
 
