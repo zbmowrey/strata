@@ -1,0 +1,49 @@
+{
+  "session_id": "e7fb1a7c-8d1d-4c52-acac-a957e213986a",
+  "transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "cwd": "/work/repo",
+  "prompt_id": "7c95e97c-3fd4-4c76-a529-475a9886a415",
+  "permission_mode": "acceptEdits",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/work/repo/notes.txt",
+    "old_string": "x",
+    "new_string": "y",
+    "replace_all": false
+  },
+  "tool_response": {
+    "filePath": "/work/repo/notes.txt",
+    "oldString": "x",
+    "newString": "y",
+    "originalFile": "x\n",
+    "structuredPatch": [
+      {
+        "oldStart": 1,
+        "oldLines": 1,
+        "newStart": 1,
+        "newLines": 1,
+        "lines": [
+          "-x",
+          "+y"
+        ]
+      }
+    ],
+    "userModified": false,
+    "replaceAll": false,
+    "gitDiff": {
+      "filename": "notes.txt",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "patch": "@@ -1 +1 @@\n-x\n+y",
+      "repository": null
+    }
+  },
+  "tool_use_id": "toolu_01Rhakb1vLmkLXZQLw7wgsdJ",
+  "duration_ms": 42
+}

@@ -1,0 +1,13 @@
+[
+  "Bash(strata search:*)",
+  "Bash(strata show:*)",
+  "Bash(strata context:*)",
+  "Bash(strata related:*)",
+  "Bash(strata map:*)",
+  "Bash(strata capture:*)",
+  "Bash(strata check:*)",
+  "Bash(strata lint:*)",
+  "Bash(strata resume:*)",
+  "Bash(strata project:*)",
+  "Bash(strata questions list:*)"
+]

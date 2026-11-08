@@ -1,0 +1,40 @@
+rules:
+  - id: no-shell-interpolation
+    languages: [go]
+    severity: ERROR
+    message: Do not run commands through a shell; pass an explicit argv (docs/spec/11-security.md §4).
+    patterns:
+      - pattern-either:
+          - pattern: exec.Command("sh", "-c", ...)
+          - pattern: exec.Command("bash", "-c", ...)
+          - pattern: exec.CommandContext($CTX, "sh", "-c", ...)
+          - pattern: exec.CommandContext($CTX, "bash", "-c", ...)
+  - id: no-os-exit-outside-main
+    languages: [go]
+    severity: ERROR
+    message: Only cmd/ may call os.Exit; return an error carrying a fail code instead.
+    paths:
+      exclude: ["engine/cmd/**", "engine/tools/**", "*_test.go"]  # TestMain must os.Exit
+    pattern: os.Exit(...)
+  - id: no-direct-stdout-in-internal
+    languages: [go]
+    severity: ERROR
+    message: Write to an injected io.Writer, not os.Stdout/os.Stderr, so output is testable.
+    paths:
+      include: ["engine/internal/**"]
+      exclude: ["engine/internal/cli/cli.go"]
+    pattern-either:
+      - pattern: os.Stdout
+      - pattern: os.Stderr
+  - id: no-curl-pipe-sh
+    languages: [generic]
+    severity: ERROR
+    message: Never pipe a download into a shell.
+    pattern-regex: curl[^|\n]*\|\s*(?:bash|sh)\b
+  - id: no-private-tier-read-in-scripts
+    languages: [go, python]
+    severity: ERROR
+    message: Scripts must not read the sensitive tier (knowledge/_private/).
+    paths:
+      include: ["scripts/**"]
+    pattern-regex: knowledge/_private

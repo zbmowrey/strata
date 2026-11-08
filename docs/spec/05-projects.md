@@ -91,7 +91,9 @@ strata project close <slug>                       → done; queues a `distill` g
 (gardener distills, links shards in project.md)   → archived (moved to _archive/)
 ```
 
-- `strata resume` (alias used by the SessionStart hook) prints, for each `active` project: title, status age, and the `## Next` section of its handoff — compact (≤ 15 lines per project, ≤ 3 projects; more → counts only).
+- `strata resume` (alias used by the SessionStart hook) prints, for each `active` named project (not `_adhoc`), most recently active first: title, last activity and its age, and the `## Next` section of its handoff — compact (≤ 15 lines per project, ≤ 3 projects; the rest are summarized as a count line).
+- `strata project log` groups lines from the same session into the current entry while it is < 30 minutes old; otherwise it starts a new `## YYYY-MM-DD HH:MM · s:<session4>` entry (`s:cli` when no session id is known). Writes take a per-project lock (`projects/<slug>/.lock`).
+- `strata project activate <slug>` reverses `pause`.
 - `_adhoc` is always present; captures and logs without `--project` go there. The gardener distills `_adhoc/log.md` periodically and truncates entries older than 30 days after distillation.
 - A project with no log entry for `[projects] stale_after` (default 30 days) is flagged by `strata project list` and becomes a gardener task (ask: pause/close?). The gardener never closes a project autonomously — it raises a question (closing is a scope decision).
 

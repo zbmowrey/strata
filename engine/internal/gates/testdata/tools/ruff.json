@@ -1,0 +1,187 @@
+[
+  {
+    "cell": null,
+    "code": "E401",
+    "end_location": {
+      "column": 22,
+      "row": 1
+    },
+    "filename": "/work/src/bad.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import os\nimport subprocess",
+          "end_location": {
+            "column": 22,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Split imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Multiple imports on one line",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+  },
+  {
+    "cell": null,
+    "code": "D100",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Missing docstring in public module",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/undocumented-public-module"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 22,
+      "row": 1
+    },
+    "filename": "/work/src/bad.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import os\nimport subprocess\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 4
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 8,
+      "row": 4
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 4
+    },
+    "message": "Missing return type annotation for public function `run`",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "D103",
+    "end_location": {
+      "column": 8,
+      "row": 4
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 4
+    },
+    "message": "Missing docstring in public function",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 12,
+      "row": 4
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 4
+    },
+    "message": "Missing type annotation for function argument `cmd`",
+    "noqa_row": 4,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "S602",
+    "end_location": {
+      "column": 20,
+      "row": 5
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 5
+    },
+    "message": "`subprocess` call with `shell=True` identified, security issue",
+    "noqa_row": 5,
+    "url": "https://docs.astral.sh/ruff/rules/subprocess-popen-with-shell-equals-true"
+  },
+  {
+    "cell": null,
+    "code": "S101",
+    "end_location": {
+      "column": 11,
+      "row": 6
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 6
+    },
+    "message": "Use of `assert` detected",
+    "noqa_row": 6,
+    "url": "https://docs.astral.sh/ruff/rules/assert"
+  },
+  {
+    "cell": null,
+    "code": "PTH118",
+    "end_location": {
+      "column": 24,
+      "row": 7
+    },
+    "filename": "/work/src/bad.py",
+    "fix": null,
+    "location": {
+      "column": 12,
+      "row": 7
+    },
+    "message": "`os.path.join()` should be replaced by `Path` with `/` operator",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/os-path-join"
+  }
+]

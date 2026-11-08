@@ -1,0 +1,18 @@
+---
+id: new-gotcha
+title: TODO new gotcha
+summary: TODO one-line summary shown in search results
+type: gotcha
+tags: [newdom]
+status: draft
+trust: inferred
+created: 2026-11-07
+updated: 2026-11-07
+---
+TODO: state the trap plainly in ≤ 3 sentences.
+
+## Symptom
+
+## Cause
+
+## Fix

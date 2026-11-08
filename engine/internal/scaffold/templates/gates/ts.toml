@@ -1,0 +1,48 @@
+# --- profile: ts (docs/spec/06-gates.md §4.3) ---
+[[gate]]
+id = "ts-fmt"
+desc = "prettier"
+applies_to = ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs", "**/*.json"]
+exclude = ["**/node_modules/**", "**/dist/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["prettier", "--write", "{targets}"]
+check_cmd = ["prettier", "--check", "{targets}"]
+parser = "lines"
+lines_regex = '^\[warn\] (?P<file>\S+\.\w+)$'
+timeout = "30s"
+
+[[gate]]
+id = "ts-types"
+desc = "tsc --noEmit (strict)"
+applies_to = ["**/*.ts", "**/*.tsx", "**/tsconfig.json"]
+exclude = ["**/node_modules/**"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "repo"
+cmd = ["tsc", "--noEmit", "-p", "{targets}"]
+parser = "tsc-text"
+timeout = "120s"
+
+[[gate]]
+id = "ts-lint"
+desc = "eslint strictTypeChecked + sonarjs"
+applies_to = ["**/*.ts", "**/*.tsx"]
+exclude = ["**/node_modules/**", "**/dist/**"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["eslint", "-f", "json", "{targets}"]
+config_files = ["eslint.config.js", "eslint.config.mjs"]
+parser = "eslint-json"
+timeout = "120s"
+
+[[gate]]
+id = "ts-deadcode"
+desc = "knip"
+applies_to = ["**/*.ts", "**/package.json"]
+exclude = ["**/node_modules/**"]
+stages = ["ci"]
+scope = "repo"
+cmd = ["knip"]
+parser = "exitcode"
+timeout = "300s"

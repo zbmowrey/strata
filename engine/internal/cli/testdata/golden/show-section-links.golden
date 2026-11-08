@@ -1,0 +1,42 @@
+═══ pytest-fixture-teardown#fix · shard/gotcha · knowledge/testing/pytest/pytest-fixture-teardown.md
+trust: observed · updated 2026-10-01 · links: 3 out / 4 in
+## Fix
+Yield the connection and close it after the yield. Scan for offenders with the `find-leaked-fixtures` script; procedure in [[debug-hanging-tests]].
+
+═══ debug-hanging-tests · playbook · .claude/skills/debug-hanging-tests/SKILL.md [linked]
+links: 2 out / 1 in
+# Debugging a hanging test suite
+
+1. Confirm the hang happens after the last test (summary printed).
+2. `py-spy dump --pid <pid>`; look for non-daemon threads.
+3. Map the thread to a fixture; check [[pytest-fixture-teardown]].
+4. Run `strata run find-leaked-fixtures -- --path tests/`.
+
+═══ find-leaked-fixtures · script/read-only · scripts/testing/find-leaked-fixtures/ [linked]
+links: 1 out / 1 in
+Detect pytest fixtures that acquire resources without teardown.
+
+usage: find-leaked-fixtures [--path DIR] [--format text|json]
+runtime: python
+side effect: read-only
+requires: uv
+status: active
+examples:
+  strata run find-leaked-fixtures -- --help
+      Show usage.
+
+═══ postgres-connection-pool · shard/fact · knowledge/database/postgres/postgres-connection-pool.md [linked]
+trust: verified · updated 2026-10-01 · verified 2026-10-01 · links: 2 out / 1 in
+Every app instance opens a `psycopg_pool.ConnectionPool` with `max_size=20` and a non-daemon maintenance thread.
+
+## See also
+- [[pytest-fixture-teardown]]
+- [[pgbouncer-transaction-mode]]
+
+═══ hanging-test-diagnosis · shard/howto · knowledge/testing/debugging/hanging-test-diagnosis.md [linked]
+trust: observed · updated 2026-10-01 · links: 1 out / 1 in
+Run `py-spy dump --pid <pid>` while the suite hangs and look for non-daemon threads.
+
+1. Start the suite and wait for the hang.
+2. Run `py-spy dump`.
+3. Map the thread to its fixture; usually [[pytest-fixture-teardown]].

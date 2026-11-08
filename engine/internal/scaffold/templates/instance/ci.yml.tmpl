@@ -1,0 +1,21 @@
+# Written by strata init --ci — Strata gates on every push and PR. Yours to edit.
+name: strata
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go install github.com/zbmowrey/strata/engine/cmd/strata@v{{.Version}}
+      - run: strata doctor
+      - run: strata check --all --stage ci
+      - run: strata garden --plan

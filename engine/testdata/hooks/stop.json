@@ -1,0 +1,15 @@
+{
+  "session_id": "e7fb1a7c-8d1d-4c52-acac-a957e213986a",
+  "transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "cwd": "/work/repo",
+  "prompt_id": "7c95e97c-3fd4-4c76-a529-475a9886a415",
+  "permission_mode": "acceptEdits",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "Stop",
+  "stop_hook_active": false,
+  "last_assistant_message": "I did all four steps:\n\n1. **`hello.go`**: created with a Go program that prints \"Hello, world!\". I haven't compiled or run it.\n2. **`notes.txt`**: now says `y` instead of `x`.\n3. **`ls`**: the directory contains `.claude`, `.git`, `hello.go` and `notes.txt`.\n4. **Subagent**: there's no tool called \"Task\" here, so I used the Agent tool, which does the same job. The subagent ran `echo hi` and it printed `hi`.",
+  "background_tasks": [],
+  "session_crons": []
+}

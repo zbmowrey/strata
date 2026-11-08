@@ -1,0 +1,25 @@
+id: kb-first
+description: Retrieval precedes code reads for a question the knowledge base answers.
+files:
+  tests/conftest.py: |
+    import pytest
+
+    from app.db import pool
+
+
+    @pytest.fixture(scope="session")
+    def db_session():
+        conn = pool.getconn()
+        return conn
+  app/db.py: |
+    from psycopg_pool import ConnectionPool
+
+    pool = ConnectionPool("postgresql://localhost/app", max_size=20)
+prompt: "Why do our integration tests hang at the end of the run? Answer briefly; do not change any files."
+assert:
+  - first_of: [strata_search, strata_show, "Bash(strata search*)", "Bash(strata show*)", "Bash(strata context*)"]
+    before: [Read, Grep, Glob, WebSearch, WebFetch]
+  - called_any: [strata_show, "Bash(strata show*)"]
+  - answer_mentions: ["teardown"]
+budget: { max_turns: 12, max_cost_usd: 0.50 }
+runs: 3

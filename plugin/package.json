@@ -1,0 +1,21 @@
+{
+  "name": "strata-plugin",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p .",
+    "eslint": "eslint .",
+    "fmt": "prettier --write .",
+    "fmt-check": "prettier --check .",
+    "lint": "tsc -p . && eslint . && prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-sonarjs": "^3.0.7",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}

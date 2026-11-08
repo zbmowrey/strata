@@ -5,19 +5,6 @@
 *.out
 coverage.*
 
-# Strata local state (generated / machine-local)
-/projects/
-/knowledge/_private/
-/.strata/index.db*
-/.strata/index.lock
-/.strata/telemetry/
-/.strata/session/
-/.strata/garden/
-/.strata/garden.lock
-/.strata/worktrees/
-/.strata/cache/
-/.strata/bin/
-
 # Tooling
 node_modules/
 .venv/
@@ -25,3 +12,26 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# Claude Code agent worktrees (local)
+/.claude/worktrees/
+
+# >>> strata:local (GENERATED — machine-local state; see docs/spec/01-architecture.md §3)
+/.strata/index.db*
+/.strata/index.lock
+/.strata/knowledge.lock
+/.strata/garden.lock
+/.strata/telemetry/
+/.strata/session/
+/.strata/cache/
+/.strata/bin/
+/.strata/garden/
+/.strata/worktrees/
+/knowledge/_private/
+/scripts/.venv/
+# <<< strata:local
+
+# >>> strata:projects (GENERATED — edit `track:` in projects/<slug>/project.md)
+/projects/**
+!/projects/**/
+# <<< strata:projects

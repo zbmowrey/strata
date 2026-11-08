@@ -1,0 +1,18 @@
+{
+  "session_id": "e7fb1a7c-8d1d-4c52-acac-a957e213986a",
+  "transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "cwd": "/work/repo",
+  "prompt_id": "7c95e97c-3fd4-4c76-a529-475a9886a415",
+  "permission_mode": "acceptEdits",
+  "agent_id": "a80c991b9c85d3edb",
+  "agent_type": "general-purpose",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "SubagentStop",
+  "stop_hook_active": false,
+  "agent_transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "last_assistant_message": "I ran `echo hi` and it printed:\n\n```\nhi\n```",
+  "background_tasks": [],
+  "session_crons": []
+}

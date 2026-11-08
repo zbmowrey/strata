@@ -1,0 +1,30 @@
+id: find-leaked-fixtures
+summary: Detect pytest fixtures that acquire resources without teardown.
+description: |
+  Detect pytest fixtures that acquire resources without teardown.
+status: active
+runtime: python
+runtime_justification: >
+  Needs the Python ast module to parse Python sources faithfully; no Go equivalent exists.
+entry: main.py
+usage: find-leaked-fixtures [--path DIR] [--format text|json]
+examples:
+  - cmd: strata run find-leaked-fixtures -- --help
+    explain: Show usage.
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "results" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [uv]
+env: []
+timeout: 60s
+tags: [testing]
+aliases: []
+applies_to: ["tests/**"]
+shards: [pytest-fixture-teardown]
+tests: [test_main.py]
+owner: gardener

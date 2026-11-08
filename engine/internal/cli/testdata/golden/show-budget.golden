@@ -1,0 +1,7 @@
+═══ pytest-fixture-teardown · shard/gotcha · knowledge/testing/pytest/pytest-fixture-teardown.md
+trust: observed · updated 2026-10-01 · links: 3 out / 4 in
+Session-scoped database fixtures that open a connection without a `yield` teardown leak it; pytest then hangs after the last test.
+
+## Symptom
+The suite prints its summary and never exits. `--timeout` does not fire because no test is running.
+… [truncated: 63 more tokens — show pytest-fixture-teardown#cause]

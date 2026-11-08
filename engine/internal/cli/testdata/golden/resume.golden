@@ -1,0 +1,6 @@
+auth-rework — Rework the auth flow (active, last activity 2026-11-07, today)
+  Next:
+    1. Write the plan (plan.md).
+ci-flake — Eliminate CI flakiness in the integration suite (active, last activity 2026-10-22, 15d ago)
+  Next:
+    1. Finish find-leaked-fixtures (strata run find-leaked-fixtures -- --path tests/).

@@ -1,0 +1,6 @@
+title = "strata gitleaks config"
+[extend]
+useDefault = true
+[allowlist]
+description = "test fixtures that deliberately contain fake secrets"
+paths = ['''engine/testdata/secrets/.*''']

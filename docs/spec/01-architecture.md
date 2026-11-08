@@ -72,7 +72,7 @@ All paths are configurable in `.strata/config.toml`; these are defaults.
 ├── CLAUDE.md                     # user content + <!-- strata:begin --> managed block <!-- strata:end -->
 ├── knowledge/                    # Obsidian-compatible vault (open this folder or the repo root)
 │   ├── <domain>/<topic>/<id>.md  # shards; filename stem == id (globally unique)
-│   ├── _hubs/<domain>.md         # GENERATED domain maps (hand-written intro above marker preserved)
+│   ├── _hubs/hub-<domain>.md     # GENERATED domain maps (hand-written intro above marker preserved)
 │   ├── _inbox/<ts>-<slug>.md     # captures awaiting filing
 │   ├── _questions/<id>.md        # escalations awaiting a human answer
 │   ├── _archive/<domain>/...     # archived shards (excluded from default search)
@@ -171,7 +171,7 @@ Local, append-only JSONL under `.strata/telemetry/YYYY-MM.jsonl`; gitignored; re
 | `show` | ids, missing, bytes | hit counts, cold-shard detection |
 | `script_run` | id, exit, ms, side_effect | usage, flaky-script detection |
 | `gate` | gate, stage, files_n, result, rules[{id,count}] | recurring-failure promotion |
-| `hook` | event, ms, outcome | performance, protocol evals |
+| `hook` | hook (the hook event, e.g. `post-edit`; `event` is the envelope key), ms, outcome | performance, protocol evals |
 | `capture` | kind, type, project | capture rate |
 | `bash` | first_token, normalized_hash, length | repeated-command → scriptify candidates |
 | `correction` | shard_id? | mistake ledger |
@@ -210,7 +210,7 @@ members = [
 | `just release VERSION` | tag, goreleaser (darwin/linux × arm64/amd64), checksums, GitHub release |
 | `just doctor` | run `strata doctor` against this repo |
 
-End users install with `go install github.com/zbmowrey/strata/engine/cmd/strata@latest` (or a release binary / Homebrew tap later) and add the plugin with `/plugin install strata --marketplace zbmowrey/strata`.
+End users install with `go install github.com/zbmowrey/strata/engine/cmd/strata@latest` (or a release binary / Homebrew tap later) and add the plugin with `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata`.
 
 ## 12. Dependencies (engine)
 

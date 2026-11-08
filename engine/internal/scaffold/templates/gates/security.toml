@@ -1,0 +1,38 @@
+# --- profile: security (docs/spec/06-gates.md §4.6) ---
+[[gate]]
+id = "suppressions"
+desc = "suppressions need a rule id and a reason of at least 15 characters"
+builtin = "suppressions"
+exclude = ["**/testdata/**"]
+stages = ["edit", "commit", "ci"]
+scope = "file"
+
+[[gate]]
+id = "secrets"
+desc = "gitleaks over the working tree (knowledge/ and _private/ included)"
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+cmd = ["gitleaks", "dir", "{targets}", "--no-banner", "--redact", "--report-format", "json", "--report-path", "-", "--exit-code", "0"]
+parser = "gitleaks-json"
+timeout = "120s"
+
+[[gate]]
+id = "sast"
+desc = "semgrep default packs + .strata/semgrep custom rules"
+applies_to = ["**/*.go", "**/*.py", "**/*.ts", "**/*.js", "**/*.sh", "**/*.rs"]
+exclude = ["**/testdata/**", "**/node_modules/**"]
+stages = ["stop", "commit", "ci"]
+scope = "file"
+cmd = ["semgrep", "scan", "--quiet", "--metrics=off", "--sarif", "--config", "p/default", "--config", ".strata/semgrep/", "{targets}"]
+parser = "semgrep-sarif"
+timeout = "300s"
+
+[[gate]]
+id = "deps"
+desc = "osv-scanner across lockfiles"
+applies_to = ["**/go.sum", "**/uv.lock", "**/pnpm-lock.yaml", "**/package-lock.json", "**/Cargo.lock"]
+stages = ["commit", "ci"]
+scope = "repo"
+cmd = ["osv-scanner", "scan", "source", "--format", "sarif", "-r", "{targets}"]
+parser = "sarif"
+timeout = "300s"

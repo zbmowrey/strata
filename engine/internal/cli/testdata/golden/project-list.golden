@@ -1,0 +1,3 @@
+_adhoc       active    2026-11-07  Ad-hoc work
+auth-rework  active    2026-11-07  Rework the auth flow
+ci-flake     active    2026-10-22  Eliminate CI flakiness in the integration suite

@@ -1,0 +1,21 @@
+"""Safe subprocesses: explicit argv (never a shell) and a timeout."""
+
+from __future__ import annotations
+
+import subprocess
+from dataclasses import dataclass
+
+
+@dataclass
+class Result:
+    """A finished command."""
+
+    stdout: str
+    stderr: str
+    exit_code: int
+
+
+def run(argv: list[str], timeout: float = 60.0) -> Result:
+    """Run argv; a non-zero exit is reported, not raised."""
+    done = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)  # noqa: S603 -- explicit argv, no shell
+    return Result(stdout=done.stdout, stderr=done.stderr, exit_code=done.returncode)

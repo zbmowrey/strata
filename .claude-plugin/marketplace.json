@@ -1,0 +1,11 @@
+{
+  "name": "strata",
+  "owner": { "name": "zbmowrey" },
+  "plugins": [
+    {
+      "name": "strata",
+      "source": "./plugin",
+      "description": "Strata for Claude Code: knowledge base, script library, projects, gates and the gardener."
+    }
+  ]
+}

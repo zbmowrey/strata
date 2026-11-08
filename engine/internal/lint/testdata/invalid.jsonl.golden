@@ -1,0 +1,60 @@
+{"rule":"schema/required","severity":"error","file":".claude/skills/no-desc/SKILL.md","message":"missing required key \"description\"","fix_hint":"add `description:` to the frontmatter","line":1,"col":1}
+{"rule":"link/broken","severity":"warning","file":".claude/skills/no-desc/SKILL.md","message":"[[nope-link]]: no document with id \"nope-link\"","fix_hint":"fix the id, or create the shard (`strata new shard`)","line":4,"col":6}
+{"rule":"schema/required","severity":"error","file":"knowledge/_hubs/a.md","message":"missing required key \"summary\"","fix_hint":"add `summary:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/enum","severity":"error","file":"knowledge/_hubs/a.md","message":"type \"map\" is not allowed","fix_hint":"one of: index","line":4,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/_inbox/20260101-000000-x.md","message":"missing required key \"captured\"","fix_hint":"add `captured:` to the frontmatter","line":1,"col":1}
+{"rule":"id/mismatch","severity":"error","file":"knowledge/_questions/q-1.md","message":"id \"q-wrong\" does not match filename \"q-1\"","line":2,"col":1}
+{"rule":"schema/enum","severity":"error","file":"knowledge/_questions/q-1.md","message":"status \"pending\" is not allowed","fix_hint":"one of: open, answered, applied, withdrawn","line":3,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/_questions/q-1.md","message":"question has no ## Question section","fix_hint":"add a `## Question` section","line":7,"col":1}
+{"rule":"id/format","severity":"error","file":"knowledge/a/b/Bad_ID.md","message":"id \"Bad_ID\" is not lowercase kebab-case of 3–64 chars","fix_hint":"lowercase kebab-case, 3–64 chars","line":2,"col":1}
+{"rule":"frontmatter/syntax","severity":"error","file":"knowledge/a/b/bad-frontmatter.md","message":"invalid frontmatter: sequence end token ']' not found","fix_hint":"fix the YAML between the --- lines","line":3,"col":7}
+{"rule":"schema/enum","severity":"error","file":"knowledge/a/b/enums.md","message":"type \"rumor\" is not allowed","fix_hint":"one of: fact, gotcha, howto, decision, standard, reference, glossary, correction","line":5,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/enums.md","message":"tags must have at least one entry","fix_hint":"add at least one tag","line":6,"col":1}
+{"rule":"schema/enum","severity":"error","file":"knowledge/a/b/enums.md","message":"status \"alive\" is not allowed","fix_hint":"one of: draft, active, superseded, deprecated, archived","line":7,"col":1}
+{"rule":"schema/date","severity":"error","file":"knowledge/a/b/enums.md","message":"created \"01/02/2026\" is not an ISO date","fix_hint":"use YYYY-MM-DD","line":9,"col":1}
+{"rule":"schema/duration","severity":"error","file":"knowledge/a/b/enums.md","message":"review_after: invalid duration \"soon\" (want e.g. 180d, 2w, 12h, 30m, 5s)","fix_hint":"e.g. 180d, 2w, never","line":11,"col":1}
+{"rule":"schema/glob","severity":"error","file":"knowledge/a/b/enums.md","message":"applies_to: invalid glob \"/abs/**\"","fix_hint":"use a relative doublestar glob","line":12,"col":1}
+{"rule":"schema/unknown-key","severity":"warning","file":"knowledge/a/b/enums.md","message":"unknown key \"mystery_key\"","line":13,"col":1}
+{"rule":"schema/type","severity":"error","file":"knowledge/a/b/enums.md","message":"verify must name a script","fix_hint":"verify: { script: <id>, args: [...] }","line":14,"col":1}
+{"rule":"id/duplicate","severity":"error","file":"knowledge/a/b/good-shard.md","message":"id \"good-shard\" is also used by knowledge/a/c/good-shard.md","fix_hint":"ids are globally unique; rename one with `strata mv`","line":1,"col":1}
+{"rule":"status/superseded-by","severity":"error","file":"knowledge/a/b/lifecycle.md","message":"status superseded requires superseded_by","fix_hint":"set superseded_by: <id> (or use `strata supersede`)","line":7,"col":1}
+{"rule":"sensitive/location","severity":"error","file":"knowledge/a/b/lifecycle.md","message":"sensitive: true is only valid under knowledge/_private/","fix_hint":"move the shard under knowledge/_private/","line":11,"col":1}
+{"rule":"schema/type","severity":"error","file":"knowledge/a/b/lifecycle.md","message":"occurrences must be a non-negative integer","line":12,"col":1}
+{"rule":"ref/unresolved","severity":"warning","file":"knowledge/a/b/lifecycle.md","message":"scripts: \"missing-script\" does not resolve","line":13,"col":1}
+{"rule":"link/broken","severity":"error","file":"knowledge/a/b/links.md","message":"[[nope]]: no document with id \"nope\"","fix_hint":"fix the id, or create the shard (`strata new shard`)","line":12,"col":5}
+{"rule":"link/alias","severity":"warning","file":"knowledge/a/b/links.md","message":"[[old-name]] links to alias \"old-name\"; use the id \"good-shard\"","fix_hint":"run `strata lint --fix` to rewrite it","line":12,"col":15}
+{"rule":"link/anchor","severity":"warning","file":"knowledge/a/b/links.md","message":"[[good-shard#Missing Heading]]: \"good-shard\" has no heading \"Missing Heading\"","line":12,"col":29}
+{"rule":"link/anchor","severity":"warning","file":"knowledge/a/b/links.md","message":"no heading \"Nowhere\" in this document","line":12,"col":89}
+{"rule":"size/title","severity":"error","file":"knowledge/a/b/long-summary.md","message":"title has 90 chars > 80","line":3,"col":1}
+{"rule":"size/summary","severity":"error","file":"knowledge/a/b/long-summary.md","message":"summary has 170 chars > 160","fix_hint":"one line of at most 160 chars","line":4,"col":1}
+{"rule":"id/mismatch","severity":"error","file":"knowledge/a/b/mismatch.md","message":"id \"other-name\" does not match filename \"mismatch\"","fix_hint":"rename the file to other-name.md or fix the id (use `strata mv` to rename ids)","line":2,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"created\"","fix_hint":"add `created:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"status\"","fix_hint":"add `status:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"summary\"","fix_hint":"add `summary:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"tags\"","fix_hint":"add `tags:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"trust\"","fix_hint":"add `trust:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"type\"","fix_hint":"add `type:` to the frontmatter","line":1,"col":1}
+{"rule":"schema/required","severity":"error","file":"knowledge/a/b/missing-fields.md","message":"missing required key \"updated\"","fix_hint":"add `updated:` to the frontmatter","line":1,"col":1}
+{"rule":"frontmatter/missing","severity":"error","file":"knowledge/a/b/no-frontmatter.md","message":"missing frontmatter","fix_hint":"start the file with a --- frontmatter block","line":1,"col":1}
+{"rule":"trust/sources","severity":"error","file":"knowledge/a/b/observed-no-sources.md","message":"trust \"observed\" requires at least one source","fix_hint":"add sources, or lower trust to inferred","line":8,"col":1}
+{"rule":"size/body-lines","severity":"error","file":"knowledge/a/b/oversize.md","message":"body has 130.0 lines > 120","fix_hint":"split into focused shards; see `strata new shard --help`","line":12,"col":1}
+{"rule":"trust/sources","severity":"error","file":"knowledge/a/b/user-no-source.md","message":"trust \"user-stated\" requires at least one source","fix_hint":"add sources, or lower trust to inferred","line":8,"col":1}
+{"rule":"trust/evidence","severity":"error","file":"knowledge/a/b/weak-trust.md","message":"trust \"verified\" requires a script|file|commit|url source","fix_hint":"add a source of kind script|file|commit|url","line":8,"col":1}
+{"rule":"id/duplicate","severity":"error","file":"knowledge/a/c/good-shard.md","message":"id \"good-shard\" is also used by knowledge/a/b/good-shard.md","fix_hint":"ids are globally unique; rename one with `strata mv`","line":1,"col":1}
+{"rule":"layout/path","severity":"error","file":"knowledge/a/misplaced.md","message":"shards must live at <domain>/<topic>/<id>.md","fix_hint":"move it to knowledge/<domain>/<topic>/<id>.md","line":1,"col":1}
+{"rule":"project/handoff","severity":"warning","file":"projects/p1/handoff.md","message":"handoff has no ## Next section","fix_hint":"handoff shape: ## State, ## Next, ## Open threads, ## Don't redo","line":4,"col":1}
+{"rule":"project/handoff","severity":"warning","file":"projects/p1/handoff.md","message":"handoff has no ## State section","fix_hint":"handoff shape: ## State, ## Next, ## Open threads, ## Don't redo","line":4,"col":1}
+{"rule":"project/log-prefix","severity":"warning","file":"projects/p1/log.md","message":"log entry does not start with a known prefix","fix_hint":"start entries with one of: tried, failed, worked, learned, decided, blocked, next, note","line":5,"col":1}
+{"rule":"id/mismatch","severity":"error","file":"projects/p1/project.md","message":"project id \"p2\" does not match folder \"p1\"","line":2,"col":1}
+{"rule":"schema/enum","severity":"error","file":"projects/p1/project.md","message":"status \"running\" is not allowed","fix_hint":"one of: active, paused, done, archived","line":4,"col":1}
+{"rule":"schema/glob","severity":"error","file":"projects/p1/project.md","message":"track: invalid glob \"[\"","fix_hint":"use a relative doublestar glob","line":7,"col":1}
+{"rule":"frontmatter/syntax","severity":"error","file":"scripts/x/broken/script.yaml","message":"invalid frontmatter: sequence end token ']' not found","fix_hint":"fix the YAML between the --- lines","line":1,"col":5}
+{"rule":"id/mismatch","severity":"error","file":"scripts/x/net-tool/script.yaml","message":"script id \"wrong-id\" does not match its directory \"net-tool\"","line":1,"col":1}
+{"rule":"script/replaced-by","severity":"warning","file":"scripts/x/net-tool/script.yaml","message":"deprecated script has no replaced_by","fix_hint":"set replaced_by: <id>","line":3,"col":1}
+{"rule":"script/network","severity":"error","file":"scripts/x/net-tool/script.yaml","message":"side_effect network requires network hosts","fix_hint":"list hosts in network:","line":7,"col":1}
+{"rule":"schema/duration","severity":"error","file":"scripts/x/net-tool/script.yaml","message":"timeout: invalid duration \"forever\" (want e.g. 180d, 2w, 12h, 30m, 5s)","fix_hint":"e.g. 180d, 2w, never","line":8,"col":1}
+{"rule":"schema/enum","severity":"error","file":"scripts/x/net-tool/script.yaml","message":"owner \"robot\" is not allowed","fix_hint":"one of: gardener, user","line":9,"col":1}
+{"rule":"script/placeholder","severity":"error","file":"scripts/x/py-tool/script.yaml","message":"summary still contains a TODO placeholder","fix_hint":"replace the TODO with a real value","line":2,"col":1}
+{"rule":"script/runtime-justification","severity":"error","file":"scripts/x/py-tool/script.yaml","message":"runtime \"python\" requires runtime_justification of at least 40 chars","fix_hint":"explain why Go is not suitable (≥ 40 chars)","line":4,"col":1}
+{"rule":"script/writes","severity":"error","file":"scripts/x/py-tool/script.yaml","message":"side_effect \"writes-local\" requires writes globs","fix_hint":"list the globs it may write in writes:","line":7,"col":1}
+{"rule":"ref/unresolved","severity":"warning","file":"scripts/x/py-tool/script.yaml","message":"shards: \"nope\" does not resolve","line":10,"col":1}

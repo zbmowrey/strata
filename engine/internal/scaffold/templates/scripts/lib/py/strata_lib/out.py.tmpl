@@ -1,0 +1,21 @@
+"""Stable machine (json) and human (text) output."""
+
+from __future__ import annotations
+
+import json
+from typing import TextIO
+
+
+def write(stream: TextIO, fmt: str, value: object) -> None:
+    """Render value as indented JSON or as stable text (sorted keys)."""
+    if fmt == "json":
+        stream.write(json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n")
+        return
+    if isinstance(value, dict):
+        for key in sorted(value):
+            stream.write(f"{key}: {value[key]}\n")
+    elif isinstance(value, list):
+        for item in value:
+            stream.write(f"{item}\n")
+    else:
+        stream.write(f"{value}\n")

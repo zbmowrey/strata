@@ -1,0 +1,7 @@
+pytest-fixture-teardown  shard/gotcha  1.00  DB fixtures need explicit teardown — Session-scoped DB fixtures leak conne…
+    bm25=-6.2046 norm=1.0000 syn=0.00 fuzzy=0.00 × status 1.00 × trust 1.00 × stale 1.00 × kind 1.00 exact=false
+find-leaked-fixtures     script/ro     0.99  Detect pytest fixtures that acquire resources without teardown.
+    bm25=-6.1531 norm=0.9917 syn=0.00 fuzzy=0.00 × status 1.00 × trust 1.00 × stale 1.00 × kind 1.00 exact=false
+debug-hanging-tests      playbook      0.88  Procedure for diagnosing a test suite that hangs at exit — find the live t…
+    bm25=-5.4740 norm=0.8823 syn=0.00 fuzzy=0.00 × status 1.00 × trust 1.00 × stale 1.00 × kind 1.00 exact=false
+6 more results (use --limit)

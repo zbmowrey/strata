@@ -112,7 +112,7 @@ Global Definition of Done (applies to every phase):
 
 - goreleaser config; `just release`; README updated to reflect reality (install, quickstart, real command output, status badge); CHANGELOG; tag `v0.1.0` (ask the user before tagging/publishing a release).
 
-**Accept:** `go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.0` works on a clean machine path; `/plugin install strata --marketplace zbmowrey/strata` installs the plugin; README quickstart verified by actually running it in a fresh temp repo.
+**Accept:** `go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.0` works on a clean machine path; `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata` installs the plugin; README quickstart verified by actually running it in a fresh temp repo.
 
 ---
 

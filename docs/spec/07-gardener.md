@@ -15,6 +15,12 @@ The deterministic phase does every mechanical fix itself and produces a **plan**
 
 `strata garden [--plan] [--auto] [--format json]`:
 
+- no flag: run the analyses and write the plan; mechanical fixes are not applied (safe in the human's tree).
+- `--auto`: apply the mechanical fixes only. At SessionStart the hook runs it **incrementally** — only when the index refresh found changes, and only for what those paths can affect (per-file normalization of changed shards, hubs when shards changed, catalogs + allowlist when scripts changed, the projects block when a `project.md` changed) — so the hook stays within its 300 ms budget.
+- `--plan`: apply the mechanical fixes and write the plan (what `/garden` runs inside its worktree). Holds `.strata/garden.lock` (exit 6 when held).
+
+Sessions the gardener starts set `STRATA_GARDEN=1`; the `pre-edit` hook then refuses writes under `knowledge/_private/`, and the analyses never read the private tier.
+
 **Auto-applied mechanical fixes** (`--auto` applies them in the working tree; within `/garden` they are applied in the garden worktree):
 
 - Rebuild/refresh the index; prune telemetry past retention.
@@ -44,7 +50,9 @@ The deterministic phase does every mechanical fix itself and produces a **plan**
 | `deprecated-script-removal` | deprecated script, 0 runs in 90 days | low |
 | `bench-grow` | resolved `fill-gap` tasks → new bench queries | low |
 
-Each task: `{id, type, risk, targets[], evidence{…}, suggested_action}`. Plan output is deterministic and diffable.
+Each task: `{id, type, risk, targets[], evidence{…}, suggested_action, escalate?}`. Plan output is deterministic and diffable: tasks sorted by the table order above, then id; ids are `<type>:<targets joined by +>` (qualified with `#<detail>` when one target has several tasks of a type, e.g. `fix-broken-link:api-retries#old-id`). Telemetry-derived targets are `query:<normalized query>` and `bash:<hash>`; project targets are `project:<slug>`. A type listed in `[garden] escalate` gets `escalate: true` and risk `question`.
+
+Implementation notes (v0.1): duplicate titles use trigram Dice over lowercase titles via an inverted index (trigrams shared by > 400 titles are skipped), plus "alias equals the other's id"; bodies use 64-permutation MinHash over word 3-shingles with 16×4 LSH banding; a pair whose titles differ by negation is a `resolve-conflict` candidate, not a duplicate. `archive-cold` and `deprecated-script-removal` are only judged when telemetry reaches back over the whole window (a new instance has no usage history). `fill-gap` needs the zero-result query in telemetry (`[telemetry] store_queries`); `bench-grow` = a former gap query that now has results and is absent from `.strata/bench/retrieval.yaml`. Link repair rewrites only wikilinks with exactly one candidate at Dice ≥ 0.9 over ids; frontmatter link fields become tasks.
 
 ## 3. Judgment phase (`/garden`)
 
@@ -59,6 +67,13 @@ The plugin's `/garden` command runs:
 7. **PR.** Push the branch; open a **draft** PR via the forge adapter with the digest (§6) as the body. When verification is green and all commits are in, **mark the PR ready for review** (`gh pr ready` / Forgejo equivalent). The human reviews and merges; the gardener **never merges** (D-011).
 8. **Escalate.** Questions raised (§5) are written to `knowledge/_questions/` in the branch and listed at the top of the PR body.
 9. **Clean up.** Remove the worktree; release the lock; emit a summary to the session (and status line).
+
+**Engine helpers (v0.1).** Steps 1–3 and 7–9 are engine commands so the plugin stays a thin client:
+
+- `strata garden start [--format json]` — creates the run marker `.strata/garden.lock` (JSON `{branch, worktree, base, started}`, created exclusively; a marker younger than 2 h → exit 6; older → exit 6 with the `strata doctor --fix` hint), fetches `origin/<default>` when a remote exists, adds the worktree and branch, runs `garden --plan` inside it, drops tasks whose evidence paths are touched by open garden PRs (`forge.FindOpen(branch_prefix)`), and commits the mechanical fixes as `garden(fixes): …`. Output: `{"v":1,"tidy":bool,"worktree","branch","base","plan_file","counts":{…},"tasks":n,"skipped":[ids],"open_prs":[{number,url,branch}]}`. When tidy (no tasks, no fixes) it cleans up itself.
+- `strata garden finish [--title T] [--body-file F] [--no-ready] [--format json]` — from the main tree: if the branch has no commits beyond the base it cleans up and reports `nothing to propose`; otherwise pushes the branch, opens a **draft** PR via the forge adapter with the digest as the body, marks it ready unless `--no-ready`, removes the worktree and the marker. Missing forge CLI → pushes and prints the compare URL. Output: `{"v":1,"pr":{number,url},"compare_url":…,"ready":bool}`.
+- `strata garden abort` — removes the worktree, deletes the unpushed local branch, removes the marker.
+- Hooks treat any instance rooted under `.strata/worktrees/garden-*` (or `STRATA_GARDEN=1`) as a gardener session (private-tier guard).
 
 If a previous garden PR is still open: the new run bases on the default branch, and skips tasks whose targets are touched by the open PR (to avoid conflicting PRs), noting them in the digest.
 
@@ -135,3 +150,5 @@ Instances may tighten (never loosen beyond this) via `[garden] escalate = [...]`
 ## 8. Forge adapter
 
 `internal/forge` abstracts PR operations: `CreateDraft`, `MarkReady`, `Comment`, `FindOpen(prefix)`. Implementations: `gh` (GitHub) and `tea` (Forgejo/Gitea), selected by `[garden] forge = "auto"|"github"|"forgejo"` (auto = inspect the `origin` remote host). The adapter shells out to the CLI (no tokens handled by Strata). Missing CLI → the gardener pushes the branch and prints the compare URL instead.
+
+Implementation notes (Phase 9): `gh` runs `gh pr create --draft --head --base --title --body`, `gh pr ready`, `gh pr comment --body`, and `gh pr list --state open --json number,url,headRefName,files` (prefix-filtered in Go; `files` lets the gardener skip tasks touched by an open garden PR). `tea` runs `tea pulls create --draft …--description` (Gitea/Forgejo drafts are `WIP: `-prefixed titles), `tea pulls edit --ready <index>`, `tea comment <index> <body>`, and `tea pulls list --fields index,url,head --output json` (no file list). A missing CLI is the typed `forge.ErrNoCLI`; the caller then pushes and prints `forge.CompareURL(remote, base, branch)` (`https://<host>/<owner>/<repo>/compare/<base>...<branch>`, from https, ssh:// and scp-style remotes).

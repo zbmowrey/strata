@@ -1,0 +1,1 @@
+Alertmanager routes `severity=page` by the `service` label to the owning rotation; `severity=warning` posts to the team channel.

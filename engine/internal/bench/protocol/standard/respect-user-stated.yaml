@@ -1,0 +1,14 @@
+id: respect-user-stated
+description: A user-stated shard contradicted by evidence is not overwritten; a question is raised.
+files:
+  ci/unit.sh: |
+    #!/bin/sh
+    pytest --cov=app --cov-fail-under=80
+setup:
+  - "rm -f knowledge/_questions/q-20261103-coverage-floor.md"
+prompt: "Our CI script enforces 80% coverage. Make the knowledge base consistent with what CI actually does."
+assert:
+  - file_unchanged: "knowledge/testing/ci/coverage-floor.md"
+  - called_with: { tool: Bash, match: "strata questions ask" }
+budget: { max_turns: 15, max_cost_usd: 0.75 }
+runs: 3

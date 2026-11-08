@@ -1,0 +1,8 @@
+{
+  "name": "strata",
+  "version": "0.1.0",
+  "description": "Strata for Claude Code: knowledge base, script library, projects, gates and the gardener — status line, pane, slash commands and search tools over the strata engine.",
+  "author": { "name": "zbmowrey" },
+  "homepage": "https://github.com/zbmowrey/strata",
+  "types": "./types/index.d.ts"
+}

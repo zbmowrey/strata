@@ -1,0 +1,5 @@
+{"rule":"errcheck","severity":"error","file":"tmp-p7/gomod/pkg/bad.go","message":"Error return value of `os.Remove` is not checked","line":7,"col":11}
+{"rule":"paralleltest","severity":"error","file":"tmp-p7/gomod/pkg/bad_test.go","message":"Function TestFails missing the call to method parallel","line":5,"col":1}
+{"rule":"revive","severity":"warning","file":"tmp-p7/gomod/pkg/bad.go","message":"package-comments: should have a package comment","line":1,"col":1}
+{"rule":"revive","severity":"warning","file":"tmp-p7/gomod/pkg/bad_test.go","message":"unused-parameter: parameter 't' seems to be unused, consider removing or renaming it as _","line":9,"col":17}
+{"rule":"unused","severity":"error","file":"tmp-p7/gomod/pkg/bad.go","message":"func neverCalled is unused","line":10,"col":6}

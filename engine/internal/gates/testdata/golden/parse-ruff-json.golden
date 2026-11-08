@@ -1,0 +1,9 @@
+{"rule":"E401","severity":"error","file":"/work/src/bad.py","message":"Multiple imports on one line","fix_hint":"Split imports","docs":"https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line","line":1,"col":1}
+{"rule":"D100","severity":"error","file":"/work/src/bad.py","message":"Missing docstring in public module","docs":"https://docs.astral.sh/ruff/rules/undocumented-public-module","line":1,"col":1}
+{"rule":"I001","severity":"error","file":"/work/src/bad.py","message":"Import block is un-sorted or un-formatted","fix_hint":"Organize imports","docs":"https://docs.astral.sh/ruff/rules/unsorted-imports","line":1,"col":1}
+{"rule":"ANN201","severity":"error","file":"/work/src/bad.py","message":"Missing return type annotation for public function `run`","docs":"https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function","line":4,"col":5}
+{"rule":"D103","severity":"error","file":"/work/src/bad.py","message":"Missing docstring in public function","docs":"https://docs.astral.sh/ruff/rules/undocumented-public-function","line":4,"col":5}
+{"rule":"ANN001","severity":"error","file":"/work/src/bad.py","message":"Missing type annotation for function argument `cmd`","docs":"https://docs.astral.sh/ruff/rules/missing-type-function-argument","line":4,"col":9}
+{"rule":"S602","severity":"error","file":"/work/src/bad.py","message":"`subprocess` call with `shell=True` identified, security issue","docs":"https://docs.astral.sh/ruff/rules/subprocess-popen-with-shell-equals-true","line":5,"col":5}
+{"rule":"S101","severity":"error","file":"/work/src/bad.py","message":"Use of `assert` detected","docs":"https://docs.astral.sh/ruff/rules/assert","line":6,"col":5}
+{"rule":"PTH118","severity":"error","file":"/work/src/bad.py","message":"`os.path.join()` should be replaced by `Path` with `/` operator","docs":"https://docs.astral.sh/ruff/rules/os-path-join","line":7,"col":12}

@@ -1,0 +1,16 @@
+{
+  "machine": "darwin/arm64/14cpu",
+  "date": "2026-11-07",
+  "p95_ms": {
+    "freshness": 10.9,
+    "garden-plan": 2197.4,
+    "hook-post-edit": 8.1,
+    "hook-session-start": 25.4,
+    "rebuild-10k": 1569,
+    "refresh-10-changed": 34.5,
+    "search": 18.8,
+    "show-10": 17,
+    "show-links-1": 16,
+    "version": 3.4
+  }
+}

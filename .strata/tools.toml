@@ -1,0 +1,67 @@
+# Pinned tool versions checked by `strata doctor` (docs/spec/06-gates.md §4).
+
+[tools.eslint]
+profile = "ts"
+version = "9.39.0"
+check = ["pnpm", "--dir", "plugin", "exec", "eslint", "--version"]
+install = "pnpm add -D eslint typescript-eslint eslint-plugin-sonarjs"
+
+[tools.gitleaks]
+profile = "security"
+version = "8.30.1"
+check = ["gitleaks", "version"]
+install = "go install github.com/zricethezav/gitleaks/v8@v8.30.1"
+
+[tools.gofumpt]
+profile = "go"
+version = "0.12.0"
+check = ["gofumpt", "--version"]
+install = "go install mvdan.cc/gofumpt@v0.12.0"
+
+[tools.goimports]
+profile = "go"
+version = "0.52.0"
+check = ["go", "version", "-m", "goimports"]
+install = "go install golang.org/x/tools/cmd/goimports@v0.52.0"
+
+[tools.golangci-lint]
+profile = "go"
+version = "2.15.0"
+check = ["golangci-lint", "version"]
+install = "go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0"
+
+[tools.govulncheck]
+profile = "go"
+version = "1.1.4"
+check = ["govulncheck", "-version"]
+install = "go install golang.org/x/vuln/cmd/govulncheck@latest"
+
+[tools.osv-scanner]
+profile = "security"
+version = "2.7.0"
+check = ["osv-scanner", "--version"]
+install = "go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.7.0"
+
+[tools.prettier]
+profile = "ts"
+version = "3.6.2"
+check = ["pnpm", "--dir", "plugin", "exec", "prettier", "--version"]
+install = "pnpm add -D prettier"
+
+[tools.semgrep]
+profile = "security"
+version = "1.169.0"
+check = ["semgrep", "--version"]
+install = "uv tool install semgrep==1.169.0"
+
+[tools.tsc]
+profile = "ts"
+version = "5.9.3"
+check = ["tsc", "--version"]
+install = "pnpm add -D typescript"
+
+[tools.typos]
+profile = "docs"
+version = "1.52.0"
+check = ["typos", "--version"]
+install = "brew install typos-cli"

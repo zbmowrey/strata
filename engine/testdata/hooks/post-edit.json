@@ -1,0 +1,35 @@
+{
+  "session_id": "e7fb1a7c-8d1d-4c52-acac-a957e213986a",
+  "transcript_path": "/home/user/.claude/projects/repo/session.jsonl",
+  "cwd": "/work/repo",
+  "prompt_id": "7c95e97c-3fd4-4c76-a529-475a9886a415",
+  "permission_mode": "acceptEdits",
+  "effort": {
+    "level": "medium"
+  },
+  "hook_event_name": "PostToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/work/repo/hello.go",
+    "content": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"Hello, world!\")\n}\n"
+  },
+  "tool_response": {
+    "type": "create",
+    "filePath": "/work/repo/hello.go",
+    "content": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"Hello, world!\")\n}\n",
+    "structuredPatch": [],
+    "originalFile": null,
+    "userModified": false,
+    "gitDiff": {
+      "filename": "hello.go",
+      "status": "added",
+      "additions": 7,
+      "deletions": 0,
+      "changes": 7,
+      "patch": "@@ -0,0 +1,7 @@\n+package main\n+\n+import \"fmt\"\n+\n+func main() {\n+\tfmt.Println(\"Hello, world!\")\n+}",
+      "repository": null
+    }
+  },
+  "tool_use_id": "toolu_01118LVjghpBFDzpLxMBcWi9",
+  "duration_ms": 11
+}

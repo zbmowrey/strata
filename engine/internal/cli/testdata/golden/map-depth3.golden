@@ -1,0 +1,14 @@
+infra (10)
+  deploy (4)
+    deploy-flow — Merges to main build an image, deploy to staging, run smoke tests, then promote to production.
+    deploy-freeze-window — Production promotions are blocked from Friday 14:00 to Monday 08:00 local time.
+    image-tagging — Container images use the full git SHA as the tag; latest is never deployed.
+    rollback-procedure — Re-deploy the previous image tag with helm rollback; never revert migrations in the same step.
+  k8s (4)
+    helm-values-layering — Charts merge values.yaml, values-<env>.yaml, then secret references, in that order.
+    k8s-glossary-pdb — A PodDisruptionBudget caps how many replicas voluntary disruptions may take down at once.
+    k8s-liveness-probe-timeout — A 5 second liveness timeout restarted pods during cold start; use a startupProbe inste…
+    k8s-resource-limits — All Kubernetes containers set CPU and memory requests and limits; the admission policy reject…
+  observability (2)
+    alert-routing — Pages route by service label to the owning team; warnings go to the team channel only.
+    log-format-json — All services emit one JSON object per line with ts, level, msg, and request_id fields.

@@ -1,0 +1,139 @@
+# The engine repository's `just check`, expressed as Strata gates.
+# Phase 11 copies this to .strata/gates.toml (the dogfood switch).
+
+[[gate]]
+id = "go-fmt"
+desc = "gofumpt formatting (engine/)"
+applies_to = ["engine/**/*.go"]
+exclude = ["**/testdata/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+workdir = "engine"
+cmd = ["gofumpt", "-w", "{targets}"]
+check_cmd = ["gofumpt", "-l", "{targets}"]
+parser = "lines"
+lines_regex = '^(?P<file>\S+\.go)$'
+timeout = "30s"
+
+[[gate]]
+id = "go-imports"
+desc = "goimports with the local prefix"
+applies_to = ["engine/**/*.go"]
+exclude = ["**/testdata/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+workdir = "engine"
+cmd = ["goimports", "-local", "github.com/zbmowrey/strata", "-w", "{targets}"]
+check_cmd = ["goimports", "-local", "github.com/zbmowrey/strata", "-l", "{targets}"]
+parser = "lines"
+lines_regex = '^(?P<file>\S+\.go)$'
+timeout = "30s"
+
+[[gate]]
+id = "go-lint"
+desc = "golangci-lint v2, strict profile (.golangci.yml)"
+applies_to = ["engine/**/*.go"]
+exclude = ["**/testdata/**"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "package"
+workdir = "engine"
+cmd = ["golangci-lint", "run", "--config", "../.golangci.yml", "--output.json.path=stdout", "--output.text.path=stderr", "--show-stats=false", "{targets}"]
+edit_cmd = ["golangci-lint", "run", "--config", "../.golangci.yml", "--fast-only", "--output.json.path=stdout", "--output.text.path=stderr", "--show-stats=false", "{targets}"]
+config_files = [".golangci.yml"]
+parser = "golangci-json"
+timeout = "180s"
+docs = "go-complexity-limits"
+
+[[gate]]
+id = "go-test"
+desc = "go test -race -shuffle=on (affected packages)"
+applies_to = ["engine/**/*.go", "engine/**/testdata/**"]
+stages = ["stop", "commit", "ci"]
+scope = "package"
+workdir = "engine"
+cmd = ["go", "test", "-json", "-race", "-shuffle=on", "{targets}"]
+parser = "go-test-json"
+timeout = "600s"
+
+[[gate]]
+id = "go-vuln"
+desc = "govulncheck"
+applies_to = ["engine/**/*.go", "engine/go.mod", "engine/go.sum"]
+stages = ["commit", "ci"]
+scope = "repo"
+workdir = "engine"
+repo_target = "./..."
+cmd = ["govulncheck", "{targets}"]
+parser = "exitcode"
+timeout = "300s"
+
+[[gate]]
+id = "sast"
+desc = "semgrep: custom rules + Go/TS/secrets packs"
+applies_to = ["engine/**", "plugin/**", "scripts/**"]
+exclude = ["**/testdata/**", "**/node_modules/**"]
+stages = ["stop", "commit", "ci"]
+scope = "file"
+cmd = ["semgrep", "scan", "--quiet", "--metrics=off", "--sarif", "--config", ".semgrep/", "--config", "p/golang", "--config", "p/typescript", "--config", "p/secrets", "{targets}"]
+parser = "semgrep-sarif"
+timeout = "300s"
+
+[[gate]]
+id = "secrets"
+desc = "gitleaks over the repository"
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+cmd = ["gitleaks", "dir", "{targets}", "--no-banner", "--redact", "--config", ".gitleaks.toml", "--report-format", "json", "--report-path", "-", "--exit-code", "0"]
+config_files = [".gitleaks.toml"]
+parser = "gitleaks-json"
+timeout = "120s"
+
+[[gate]]
+id = "typos"
+desc = "typos over all text"
+exclude = ["**/*.golden", "**/testdata/fuzz/**", "engine/go.sum", "plugin/pnpm-lock.yaml"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["typos", "--force-exclude", "--format", "brief", "{targets}"]
+config_files = ["typos.toml"]
+parser = "lines"
+timeout = "30s"
+
+[[gate]]
+id = "shell"
+desc = "shellcheck"
+applies_to = ["**/*.sh", "**/*.bash"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"
+cmd = ["shellcheck", "-f", "json", "{targets}"]
+parser = "shellcheck-json"
+timeout = "30s"
+
+[[gate]]
+id = "plugin-lint"
+desc = "plugin: tsc + eslint + prettier (pnpm run lint)"
+applies_to = ["plugin/**/*.ts", "plugin/**/*.json"]
+exclude = ["plugin/node_modules/**"]
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+workdir = "plugin"
+cmd = ["pnpm", "run", "lint"]
+parser = "exitcode"
+timeout = "300s"
+
+[[gate]]
+id = "suppressions"
+desc = "suppressions carry a rule id and a reason"
+builtin = "suppressions"
+applies_to = ["engine/**", "plugin/**", "scripts/**"]
+exclude = ["**/testdata/**", "engine/internal/gates/suppressions_test.go", "engine/internal/gates/config_test.go"]
+stages = ["edit", "commit", "ci"]
+scope = "file"
+
+[[gate]]
+id = "strata-lint"
+desc = "knowledge, manifests and projects"
+builtin = "strata-lint"
+applies_to = ["knowledge/**/*.md", "scripts/**/script.yaml", "projects/*/*.md", ".claude/skills/*/SKILL.md"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "file"

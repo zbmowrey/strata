@@ -1,0 +1,21 @@
+"""{{.ID}} — TODO: one-line description (keep in sync with script.yaml)."""
+
+from __future__ import annotations
+
+import sys
+
+from strata_lib import cli, out
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run {{.ID}} and return the process exit code."""
+    try:
+        opts = cli.parse("{{.ID}}", "{{.ID}} [--format text|json]", sys.argv[1:] if argv is None else argv)
+    except cli.UsageError as err:
+        return cli.usage(err)
+    out.write(sys.stdout, opts.format, {"status": "TODO: implement {{.ID}}"})
+    return cli.OK
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

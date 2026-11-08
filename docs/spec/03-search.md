@@ -35,16 +35,16 @@ CREATE TABLE files (path TEXT PRIMARY KEY, size INT, mtime_ns INT, hash BLOB, ki
 CREATE TABLE docs (
   rowid INTEGER PRIMARY KEY,
   id TEXT UNIQUE NOT NULL,          -- shard id / script id / playbook name / project slug / composite
-  kind TEXT NOT NULL, path TEXT NOT NULL, anchor TEXT,
+  kind TEXT NOT NULL, path TEXT NOT NULL, src TEXT NOT NULL, anchor TEXT,  -- src: source file (one file may yield many docs)
   domain TEXT, topic TEXT, type TEXT, status TEXT, trust TEXT,
   title TEXT NOT NULL, summary TEXT, created TEXT, updated TEXT, verified_at TEXT, review_after_days INT,
   side_effect TEXT, runtime TEXT,   -- scripts
-  bytes INT, lines INT, tokens_est INT,
+  bytes INT, lines INT, tokens_est INT, private INT NOT NULL DEFAULT 0,
   meta_json TEXT                    -- full frontmatter for --meta and filters on arbitrary keys
 );
 CREATE VIRTUAL TABLE docs_fts USING fts5(
   title, aliases, summary, tags, headings, body,
-  content='', tokenize='porter unicode61 remove_diacritics 2');
+  content='', contentless_delete=1, tokenize='porter unicode61 remove_diacritics 2');  -- contentless_delete: needed for incremental refresh
 CREATE VIRTUAL TABLE names_tri USING fts5(name, tokenize='trigram');  -- ids, titles, aliases: fuzzy/substring
 CREATE TABLE tags (doc INT, tag TEXT);              CREATE INDEX tags_tag ON tags(tag);
 CREATE TABLE aliases (alias TEXT PRIMARY KEY, doc INT);
@@ -64,6 +64,7 @@ Deterministic, explainable (`--explain` prints the score breakdown per hit).
 1. **Exact short-circuit.** If the whole query equals an id or alias (case-insensitive), that document ranks first with score ∞.
 2. **Lexical.** FTS5 `bm25()` with column weights (configurable): `title 10, aliases 8, summary 5, tags 4, headings 3, body 1`.
 3. **Fuzzy assist.** If lexical results < `limit`, or the query contains a token with no FTS hits, trigram matches over `names_tri` are merged with a discounted score (0.5×) — catches typos and partial ids.
+3a. **Relaxation.** If the strict query (all terms, `AND`) yields fewer than `limit` candidates and it has ≥ 2 meaningful terms, the terms are `OR`ed (stopwords such as *how, the, is, after* dropped) and the extra matches merged at 0.6× — keeping only those within 30% of the best relaxed BM25 score. Natural-language questions ("keep claude working after stop") then find the shard that matches most of their words. (Added during dogfooding: MRR on the engine bench 0.57 → 0.94.)
 4. **Synonym expansion.** Query tokens are expanded via `.strata/synonyms.txt` (`k8s, kubernetes`, `pg, postgres, postgresql`) as FTS `OR` groups, original token weighted 1.0, synonyms 0.7.
 5. **Multipliers** (applied to the normalized lexical score):
 
@@ -77,7 +78,7 @@ Deterministic, explainable (`--explain` prints the score breakdown per hit).
 
 6. **Tie-break:** score desc, then `updated` desc, then id asc. Output is fully deterministic for a given corpus and query.
 
-Normalization: BM25 scores are min-max normalized within the candidate set (top 200) before multipliers, so multipliers have consistent effect. Scores printed are rounded to 2 decimals.
+Normalization: BM25 scores are normalized within the candidate set (top 200) by dividing by the best score, so scores lie in (0, 1] before multipliers and multipliers have consistent effect. (Min-max was replaced during the build: it pins the weakest candidate to 0.) Scores printed are rounded to 2 decimals.
 
 ## 5. Query language
 

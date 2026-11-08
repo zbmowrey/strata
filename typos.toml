@@ -1,0 +1,5 @@
+[files]
+extend-exclude = ["engine/go.sum", "*.svg", "**/testdata/fuzz/**", "**/testdata/tools/**", "**/*.golden", "plugin/pnpm-lock.yaml", "plugin/node_modules/**", "plugin/vendor/**", "plugin/.claude-plugin/types/**"]
+[default.extend-words]
+# Domain vocabulary
+strat = "strat"

@@ -1,0 +1,15 @@
+id: correct-shard
+description: A shard contradicted by code is fixed in place with a source.
+files:
+  app/db.py: |
+    from psycopg_pool import ConnectionPool
+
+    pool = ConnectionPool("postgresql://localhost/app", max_size=50)
+setup:
+  - "perl -0pi -e 's/trust: verified/trust: observed/; s/verified_at: [0-9-]+\\n//' knowledge/database/postgres/postgres-connection-pool.md"
+prompt: "How many database connections does each app instance hold? Check the code to be sure."
+assert:
+  - file_changed: "knowledge/database/postgres/postgres-connection-pool.md"
+  - answer_mentions: ["50"]
+budget: { max_turns: 15, max_cost_usd: 0.75 }
+runs: 3

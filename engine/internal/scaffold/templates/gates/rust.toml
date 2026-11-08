@@ -1,0 +1,55 @@
+# --- profile: rust (docs/spec/06-gates.md §4.4) ---
+[[gate]]
+id = "rust-fmt"
+desc = "rustfmt"
+applies_to = ["**/*.rs"]
+exclude = ["**/target/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["rustfmt", "--edition", "2021", "{targets}"]
+check_cmd = ["rustfmt", "--edition", "2021", "--check", "{targets}"]
+parser = "exitcode"
+timeout = "30s"
+
+[[gate]]
+id = "rust-clippy"
+desc = "cargo clippy -D warnings -W clippy::pedantic"
+applies_to = ["**/*.rs", "**/Cargo.toml"]
+exclude = ["**/target/**"]
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+cmd = ["cargo", "clippy", "--all-targets", "--message-format=json", "--", "-D", "warnings", "-W", "clippy::pedantic"]
+parser = "clippy-json"
+timeout = "600s"
+
+[[gate]]
+id = "rust-deny"
+desc = "cargo deny check"
+applies_to = ["**/Cargo.toml", "**/Cargo.lock"]
+stages = ["commit", "ci"]
+scope = "repo"
+cmd = ["cargo", "deny", "check"]
+parser = "exitcode"
+timeout = "300s"
+
+[[gate]]
+id = "rust-audit"
+desc = "cargo audit"
+applies_to = ["**/Cargo.lock"]
+stages = ["commit", "ci"]
+scope = "repo"
+cmd = ["cargo", "audit"]
+parser = "exitcode"
+timeout = "300s"
+
+[[gate]]
+id = "rust-test"
+desc = "cargo nextest"
+applies_to = ["**/*.rs"]
+exclude = ["**/target/**"]
+stages = ["stop", "commit", "ci"]
+scope = "repo"
+cmd = ["cargo", "nextest", "run"]
+parser = "exitcode"
+timeout = "600s"

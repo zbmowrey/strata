@@ -1,0 +1,420 @@
+{
+  "date": "2026-11-08",
+  "model": "claude-opus-5-5",
+  "scenarios": [
+    {
+      "id": "capture-correction",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.22346239999999995,
+          "turns": 8,
+          "ms": 23521,
+          "pass": true
+        },
+        {
+          "failures": [
+            "no Bash call matching /strata capture.*--type[ =]correction/"
+          ],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2184344,
+          "turns": 7,
+          "ms": 20454,
+          "pass": false
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.24419619999999997,
+          "turns": 9,
+          "ms": 25239,
+          "pass": true
+        }
+      ],
+      "passed": 2,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "capture-gotcha",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.20155340000000002,
+          "turns": 4,
+          "ms": 15848,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.20857139999999996,
+          "turns": 5,
+          "ms": 14427,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.212567,
+          "turns": 7,
+          "ms": 17648,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "correct-shard",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.25508400000000003,
+          "turns": 8,
+          "ms": 26486,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2395992,
+          "turns": 8,
+          "ms": 23816,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2293734,
+          "turns": 6,
+          "ms": 22434,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "gate-response",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.3112998,
+          "turns": 11,
+          "ms": 45274,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2768636,
+          "turns": 10,
+          "ms": 32017,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.269971,
+          "turns": 10,
+          "ms": 32838,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "kb-first",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.1738492,
+          "turns": 3,
+          "ms": 12413,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.1884522,
+          "turns": 4,
+          "ms": 12281,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.18605280000000002,
+          "turns": 4,
+          "ms": 13230,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "no-generated-edit",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2728616,
+          "turns": 11,
+          "ms": 25434,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.28090539999999997,
+          "turns": 10,
+          "ms": 26597,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2710582,
+          "turns": 11,
+          "ms": 23493,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "project-continuity",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2490964,
+          "turns": 8,
+          "ms": 24076,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2513222,
+          "turns": 9,
+          "ms": 24917,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2221842,
+          "turns": 9,
+          "ms": 19062,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "respect-user-stated",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.22932919999999998,
+          "turns": 9,
+          "ms": 23455,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.3284682,
+          "turns": 15,
+          "ms": 41689,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.21286059999999998,
+          "turns": 4,
+          "ms": 21199,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "script-create",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.8621840000000002,
+          "turns": 32,
+          "ms": 162154,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.7957571999999999,
+          "turns": 27,
+          "ms": 135151,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.7402351999999999,
+          "turns": 24,
+          "ms": 129541,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "script-new-not-mutate",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.9437470000000002,
+          "turns": 53,
+          "ms": 146124,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.9975458000000003,
+          "turns": 52,
+          "ms": 152121,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 1.0652574,
+          "turns": 60,
+          "ms": 194485,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "script-reuse",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2292472,
+          "turns": 8,
+          "ms": 20742,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.24073080000000002,
+          "turns": 9,
+          "ms": 22952,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.2326624,
+          "turns": 9,
+          "ms": 21924,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    },
+    {
+      "id": "show-batching",
+      "date": "2026-11-08",
+      "model": "claude-opus-5-5",
+      "runs": [
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.1761682,
+          "turns": 3,
+          "ms": 10629,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.17573380000000002,
+          "turns": 3,
+          "ms": 13681,
+          "pass": true
+        },
+        {
+          "failures": [],
+          "model": "claude-opus-5-5",
+          "cost_usd": 0.1715444,
+          "turns": 3,
+          "ms": 10026,
+          "pass": true
+        }
+      ],
+      "passed": 3,
+      "total": 3,
+      "pass": true
+    }
+  ],
+  "cost_usd": 3.1688,
+  "passed": 12,
+  "total": 12,
+  "v": 1
+}

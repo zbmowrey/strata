@@ -1,0 +1,29 @@
+id: {{.ID}}
+summary: TODO one-line summary of what {{.ID}} does (≤ 160 chars)
+description: |
+  TODO: what it reads, what it reports, and when to use it.
+status: draft
+replaced_by: null
+runtime: go
+entry: main.go
+usage: {{.ID}} [--format text|json]
+examples:
+  - cmd: strata run {{.ID}} -- --format json
+    explain: TODO explain what this invocation shows
+inputs: []
+outputs: [{ kind: stdout, format: "text|json", desc: "TODO describe the output" }]
+exit_codes: { 0: success, 1: findings present, 2: usage or runtime error }
+side_effect: read-only
+writes: []
+network: []
+idempotent: true
+deterministic: true
+requires: [go]
+env: []
+timeout: 60s
+tags: [{{.Domain}}]
+aliases: []
+applies_to: []
+shards: []
+tests: [main_test.go]
+owner: gardener

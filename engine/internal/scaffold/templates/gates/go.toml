@@ -1,0 +1,66 @@
+# --- profile: go (docs/spec/06-gates.md §4.1) ---
+[[gate]]
+id = "go-fmt"
+desc = "gofumpt formatting"
+applies_to = ["**/*.go"]
+exclude = ["**/testdata/**", "**/vendor/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["gofumpt", "-w", "{targets}"]
+check_cmd = ["gofumpt", "-l", "{targets}"]
+parser = "lines"
+lines_regex = '^(?P<file>\S+\.go)$'
+timeout = "30s"
+
+[[gate]]
+id = "go-imports"
+desc = "goimports grouping"
+applies_to = ["**/*.go"]
+exclude = ["**/testdata/**", "**/vendor/**"]
+stages = ["edit", "stop", "commit", "ci"]
+mode = "fix"
+scope = "file"
+cmd = ["goimports", "-w", "{targets}"]
+check_cmd = ["goimports", "-l", "{targets}"]
+parser = "lines"
+lines_regex = '^(?P<file>\S+\.go)$'
+timeout = "30s"
+
+[[gate]]
+id = "go-lint"
+desc = "golangci-lint with the strict profile"
+applies_to = ["**/*.go"]
+exclude = ["**/testdata/**", "**/*_gen.go", "**/vendor/**"]
+stages = ["edit", "stop", "commit", "ci"]
+scope = "package"
+module = "go.mod"
+cmd = ["golangci-lint", "run", "--output.json.path=stdout", "--output.text.path=stderr", "--show-stats=false", "{targets}"]
+edit_cmd = ["golangci-lint", "run", "--fast-only", "--output.json.path=stdout", "--output.text.path=stderr", "--show-stats=false", "{targets}"]
+config_files = [".golangci.yml"]
+parser = "golangci-json"
+timeout = "120s"
+
+[[gate]]
+id = "go-test"
+desc = "go test -race -shuffle=on on affected packages"
+applies_to = ["**/*.go"]
+exclude = ["**/testdata/**", "**/vendor/**"]
+stages = ["stop", "commit", "ci"]
+scope = "package"
+module = "go.mod"
+cmd = ["go", "test", "-json", "-race", "-shuffle=on", "{targets}"]
+parser = "go-test-json"
+timeout = "300s"
+
+[[gate]]
+id = "go-vuln"
+desc = "govulncheck"
+applies_to = ["**/*.go", "**/go.mod", "**/go.sum"]
+stages = ["commit", "ci"]
+scope = "repo"
+module = "go.mod"
+repo_target = "./..."
+cmd = ["govulncheck", "{targets}"]
+parser = "exitcode"
+timeout = "300s"

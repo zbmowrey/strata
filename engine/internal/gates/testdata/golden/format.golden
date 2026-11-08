@@ -1,0 +1,9 @@
+strata gates ✗ 4 blocking findings (stop stage) + 3 baselined
+engine/a.go
+  12:1   go-lint/gocyclo    cyclomatic complexity 22 — split the function   [standard: go-complexity-limits]
+  40:7   go-lint/errcheck   unchecked error
+engine/b_test.go
+  9      go-test            TestX: nope more
+(no file)
+  -      go-vuln/exit       vulnerable
+Fix these, then continue. Explain a gate: strata gates explain go-lint/gocyclo

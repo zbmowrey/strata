@@ -1,0 +1,10 @@
+id: py-tool
+summary: TODO one-line summary
+status: active
+runtime: python
+entry: main.py
+usage: py-tool
+side_effect: writes-local
+timeout: 60s
+owner: gardener
+shards: [nope]
