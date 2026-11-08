@@ -1,0 +1,11 @@
+# user content
+*.log
+
+# >>> strata:projects (GENERATED — edit `track:` in projects/<slug>/project.md)
+/projects/**
+!/projects/**/
+!/projects/ci-flake/out/report.md
+!/projects/ci-flake/plan.md
+!/projects/ci-flake/out/deep/**/*.csv
+!/projects/legacy-one/out/ok.md
+# <<< strata:projects
