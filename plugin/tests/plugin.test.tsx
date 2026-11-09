@@ -1,6 +1,8 @@
 import { expect, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
+import { PLUGIN_VERSION } from '../hooks/engine'
+
 type Answer = { exitCode: number; stdout: string; stderr?: string }
 
 /** A slash command as the person types it. */
@@ -20,7 +22,7 @@ const STATUS = JSON.stringify({
 })
 
 const DEFAULTS: Record<string, Answer> = {
-  version: { exitCode: 0, stdout: '{"v":1,"version":"0.1.0-dev"}\n' },
+  version: { exitCode: 0, stdout: `{"v":1,"version":"${PLUGIN_VERSION}-dev"}\n` },
   status: { exitCode: 0, stdout: STATUS },
   resume: {
     exitCode: 0,
@@ -98,6 +100,7 @@ function engine(
     }
   })
   on('session.id', () => ({ value: 'sess-1' }))
+  on('ui.log', () => ({ value: undefined }))
   on('command.register', (_, e) =>
     refuse.includes(e.name)
       ? { deny: `"/${e.name}" refused: it is the built-in /${e.name}` }
@@ -135,7 +138,7 @@ test('session start: version mismatch', async ($, on) => {
     version: { exitCode: 0, stdout: '{"v":1,"version":"0.2.0"}' },
   })
   await $.session.start(start)
-  expect(seen.at(-1)).toBe('⛬ strata engine 0.2.0 ≠ plugin 0.1.0')
+  expect(seen.at(-1)).toBe(`⛬ strata engine 0.2.0 ≠ plugin ${PLUGIN_VERSION}`)
 })
 
 test('session start: engine missing', async ($, on) => {
