@@ -56,7 +56,7 @@ Strata is organized like an organism. Each arm has one job, one owner directory,
 | **Search** | recall | Sub-50 ms ranked retrieval over every corpus, batched multi-id fetch, link-graph traversal | [03](03-search.md) |
 | **Scriptorium** | procedural memory (hard) | Catalogued, tested, side-effect-classified scripts | [04](04-scriptorium.md) |
 | **Playbooks** | procedural memory (soft) | Claude Code skills for procedures that need judgment; indexed alongside shards | [02](02-knowledge.md) §9, [08](08-claude-integration.md) |
-| **Projects** | episodic memory / working memory | Local-only active work: plan, chronicle log, handoff | [05](05-projects.md) |
+| **Projects** | episodic memory / working memory | One folder per epic: request, requirements, design, tests, decisions, chronicle, outcome; version control per instance mode | [05](05-projects.md) |
 | **Gates** | immune system | Deterministic, blocking quality enforcement at edit, stop, commit, and CI time, with ratcheting baselines | [06](06-gates.md) |
 | **Gardener** | metabolism / sleep | Autonomous consolidation, repair, and promotion; delivers changes as PRs | [07](07-gardener.md) |
 | **Telemetry** | proprioception | Local event log feeding the gardener and the bench | [01](01-architecture.md) §8 |
@@ -114,7 +114,7 @@ Strata is organized like an organism. Each arm has one job, one owner directory,
 | [02-knowledge.md](02-knowledge.md) | Shard schema, types, sizing, hubs, inbox, questions, archive, writing rules, playbooks |
 | [03-search.md](03-search.md) | Index schema, refresh, ranking, query language, `search`/`show`/`related`/`context`/`map`, output formats |
 | [04-scriptorium.md](04-scriptorium.md) | Script layout, manifest, runtimes, shared libraries, catalogs, run/build, reuse-vs-create rules |
-| [05-projects.md](05-projects.md) | Project layout, lifecycle, chronicle format, handoff, tracking opt-in, `.gitignore` generation |
+| [05-projects.md](05-projects.md) | Project record family and per-file standards, profiles, lifecycle, decisions and ratification, vcs modes, `.gitignore` generation |
 | [06-gates.md](06-gates.md) | Gate model, stages, per-language toolchains, baselines/ratchet, suppressions, tool pinning |
 | [07-gardener.md](07-gardener.md) | Deterministic and judgment phases, task catalog, autonomy matrix, worktrees, PR flow, digest |
 | [08-claude-integration.md](08-claude-integration.md) | `CLAUDE.md` protocol (full text), hook adapters, the plugin (commands, agents, skills, status, pane, tools), permissions |

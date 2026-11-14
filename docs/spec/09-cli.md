@@ -62,7 +62,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 `strata new playbook <name>` · indexed automatically; found via `search kind:playbook`.
 
 ### Projects
-`strata project new <slug> "<title>" --goal "…"` · `project list [--all]` · `project show <slug>` · `project log <slug> [--tried\|--failed\|--worked\|--learned\|--decided\|--blocked\|--next\|--note] "<text>"` · `project handoff <slug>` · `project pause|close <slug>` · `project track <slug> <glob>…` · `resume [<slug>]` · `gitignore sync`.
+`strata project new <slug> "<title>" --type feature\|bugfix\|audit\|research\|initiative --goal "…" [--spawned-from <slug>]` · `project list [--all]` · `project show <slug>` · `project set <slug> key=value… [--reason "…"]` · `project log <slug> [--tried\|--failed\|--worked\|--learned\|--decided\|--blocked\|--next\|--note] "<text>"` · `project handoff <slug>` · `project decide <slug> "<title>" --by user\|claude\|joint [--key] [--status …] [--supersedes D-n]` · `project ratify <slug> D-n [--reject]` · `project approve <slug> requirements\|spec` · `project source <slug> "<title>" --type … --ref … --reliability …` · `project add <slug> <file\|kind>` · `project renumber <slug> <ID> --to <ID>` · `project pause\|activate\|close [--force] <slug>` · `project track <slug> <glob>…` · `resume [<slug>]` · `gitignore sync`. See [05](05-projects.md).
 
 ### Gates
 `strata check [--changed\|--staged\|--all\|<paths…>] [--stage edit\|stop\|commit\|ci] [--fix]` · `gates list` · `gates explain <gate>[/<rule>]` · `gates baseline <gate> [--accept]`.
@@ -79,9 +79,9 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 `telemetry stats` reports event counts, distinct sessions, the top 10 bash programs (`first_token`), search count and zero-result rate, hook latency p50/p95 per hook, and pass/fail/other per gate (`--format json`: `{"v":1,"since":…,"stats":{…}}`). `telemetry prune` deletes events older than `[telemetry] retention` and reports the count on stderr only.
 
 ### Lifecycle
-`strata status [--session id] [--format json]` — cheap snapshot for status lines (counts, last edit/stop gate result of the session, active `/garden` run). `strata init [--profile go,python,ts,…] [--ci] [--scripts] [--no-hooks] [--dry-run]` · `strata upgrade [--dry-run]` · `strata doctor [--fix]` · `strata version [--format json]` · `strata completion <shell>`.
+`strata status [--session id] [--format json]` — cheap snapshot for status lines (counts, last edit/stop gate result of the session, active `/garden` run). `strata init [--profile go,python,ts,…] [--projects-vcs local|records|all] [--ci] [--scripts] [--no-hooks] [--dry-run]` · `strata upgrade [--dry-run]` · `strata doctor [--fix]` · `strata version [--format json]` · `strata completion <shell>`.
 
-`init` is idempotent: re-running it adds missing pieces and never overwrites user-owned files (it prints what it skipped). `--dry-run` prints the full change list.
+`init` is idempotent: re-running it adds missing pieces and never overwrites user-owned files (it prints what it skipped). `--dry-run` prints the full change list. Without `--projects-vcs` and with no configured value, `init` prompts on a TTY and otherwise defaults to `local` with a notice; Claude must ask the user before running `init` ([05](05-projects.md) §5.1).
 
 ## 4. `strata doctor` checks
 
@@ -126,6 +126,10 @@ catalog_split_at = 50
 [projects]
 stale_after = "30d"
 adhoc_retention = "30d"
+vcs = "local"                # local | records | all (05 §5)
+max_tracked_source = "1MiB"
+assumed_stale_after = "7d"
+# [projects.profiles.<name>] required = […], optional = […]   (05 §9)
 
 [gates]
 stop_max_blocks = 3

@@ -63,11 +63,13 @@ Edits are checked as you make them; failing checks block. Fix the root cause. Do
 suppress a finding without a rule id and a reason; never weaken gate config to pass.
   strata check --changed        strata gates explain <gate>/<rule>
 
-### 6. Projects hold multi-session work
-For work spanning sessions: `strata project new <slug>`; keep `plan.md` current; log
-tried/failed/learned/decided steps (`strata project log <slug> --tried "…"`); update
-`handoff.md` before stopping or when context is about to be compacted. `strata resume`
-shows where active work stands.
+### 6. Projects hold epic-sized work
+A feature, bug-fixing session, audit, research question or initiative is a project:
+`strata project new <slug> --type <profile>`. Record the request verbatim in `request.md`;
+draft requirements for approval; give every user call, assumption and key (architectural or
+pivotal) decision a D-n (`strata project decide`), and surface key decisions you made for
+ratification. Keep `plan.md` current; log tried/failed/learned/decided steps; update
+`handoff.md` before stopping or compaction. Status lives only in `project.md`.
 
 ### 7. Leave it better
 Don't hand-edit generated files (hubs, catalogs, managed blocks). `/garden` runs the

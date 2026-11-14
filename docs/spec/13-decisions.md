@@ -16,7 +16,7 @@ Decisions made during design (2026-11-07). Each is binding for the build unless 
 | D-010 | **Autonomous gardener.** Acts on its own; escalates only true conflict, risk, or ambiguity (autonomy matrix, [07](07-gardener.md) §5). | user |
 | D-011 | **Gardener delivers via PRs it never merges.** Works in a git worktree on a `garden/` branch; opens a draft PR; marks it ready for review when verified; the user reviews and merges. | user |
 | D-012 | **No migration tooling.** Migrating existing systems (e.g., panopticon) is one-off engineering. | user |
-| D-013 | **`projects/` is local-only;** version control is a rare, explicit per-project opt-in (`track:` globs → generated `.gitignore` re-includes). | user (mechanism: design) |
+| D-013 | ~~**`projects/` is local-only;** version control is a rare, explicit per-project opt-in (`track:` globs → generated `.gitignore` re-includes).~~ **Superseded by D-029.** | user (mechanism: design) |
 | D-014 | **`strata show` takes many ids and returns them in one response, in the order given.** | user |
 | D-015 | **Dogfooding.** The engine repo is itself a Strata instance and passes its own strictest gates. | design |
 | D-016 | **One implementation of logic.** Hooks and the plugin are thin callers of the `strata` binary (`--format json`). | design |
@@ -29,3 +29,8 @@ Decisions made during design (2026-11-07). Each is binding for the build unless 
 | D-023 | **Name: Strata.** Knowledge settles in layers and hardens toward determinism (the hardening ladder). CLI `strata`. | user |
 | D-024 | **Trust levels with precedence** (`user-stated > verified > observed > inferred`); only user-stated/verified normative shards bind. | design |
 | D-025 | **Ratcheting baselines** let Strata drop into existing repos without a wall of errors: baselined findings don't block; baselines only shrink. | design |
+| D-026 | **A project is an epic.** One project per coherent, goal-bearing body of work (feature, bug-fixing session, audit, research, initiative); tasks live in its plan; work a project produces that has its own goal (e.g. an audit's remediation) is a new project linked by `spawned_from`. ([05](05-projects.md) §1) | user |
+| D-027 | **Standard project record family.** Every project carries project, request (verbatim), decisions, log, handoff and outcome; profiles add requirements, spec, test-plan, findings, sources. Stories and their acceptance criteria share one file (`requirements.md`). Stable IDs; declared mutation modes; extensible via registered kinds. ([05](05-projects.md) §2–§9) | user (taxonomy: design) |
+| D-028 | **Status lives only in `project.md`** (`status`, `phase`, `health`); its history is the log; no separate status file. | user |
+| D-029 | **Project version control is a per-instance mode** — `local` (default) \| `records` \| `all` — chosen at `strata init` (Claude asks the user before running it), overridable per project; `records` tracks low-churn record files and keeps session-churn files local to avoid merge conflicts in large teams. Supersedes D-013. ([05](05-projects.md) §5) | user (modes: design) |
+| D-030 | **Key Claude decisions require user ratification.** Decisions are attributed (`by: user\|claude\|joint`); those marked `key` (architectural or pivotal) made by Claude start `ratified: pending` and are surfaced at checkpoints; close lists any left pending. ([05](05-projects.md) §3.10) | user |
