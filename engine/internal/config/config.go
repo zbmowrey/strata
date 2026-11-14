@@ -102,6 +102,8 @@ type Garden struct {
 	BranchPrefix   string   `toml:"branch_prefix"`
 	Escalate       []string `toml:"escalate"`
 	BenchTolerance float64  `toml:"bench_tolerance"`
+	// OrphanMinAgeDays keeps young shards out of fix-orphan (D-033).
+	OrphanMinAgeDays int `toml:"orphan_min_age_days"`
 }
 
 // Telemetry holds local telemetry settings.
@@ -145,7 +147,7 @@ func Default() Config {
 		Projects:  Projects{StaleAfter: Days(30), AdhocRetention: Days(30)},
 		Gates:     Gates{StopMaxBlocks: 3, EditBudget: Duration{Seconds: 2}},
 		Hooks:     Hooks{PreEditContext: true, StopNudge: "once", SessionStartGardenAuto: true},
-		Garden:    Garden{Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02},
+		Garden:    Garden{Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02, OrphanMinAgeDays: 30},
 		Telemetry: Telemetry{Enabled: true, Retention: Days(180), StoreQueries: true},
 	}
 }
@@ -249,6 +251,9 @@ func (c *Config) Validate() error {
 	}
 	if !oneOf(c.Hooks.StopNudge, "once", "off") {
 		errs = append(errs, fmt.Errorf("hooks.stop_nudge must be once|off, got %q", c.Hooks.StopNudge))
+	}
+	if c.Garden.OrphanMinAgeDays < 0 {
+		errs = append(errs, fmt.Errorf("garden.orphan_min_age_days must be >= 0, got %d", c.Garden.OrphanMinAgeDays))
 	}
 	if !oneOf(c.Garden.Forge, "auto", "github", "forgejo") {
 		errs = append(errs, fmt.Errorf("garden.forge must be auto|github|forgejo, got %q", c.Garden.Forge))

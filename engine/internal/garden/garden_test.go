@@ -242,3 +242,35 @@ func must[T any](v T, err error) T {
 	}
 	return v
 }
+
+func TestOrphanMinAge(t *testing.T) {
+	t.Parallel()
+	inst := seeded(t)
+	k := "knowledge/"
+	// today is 2026-11-07: one unlinked shard 6 days old, one 60 days old.
+	testutil.WriteFile(t, inst.Root, k+"infra/k8s/k8s-fresh-note.md", shard("k8s-fresh-note", "Fresh cluster note", "fact", "2026-11-01", "", "Brand new and not linked yet."))
+	testutil.WriteFile(t, inst.Root, k+"infra/k8s/k8s-aged-note.md", shard("k8s-aged-note", "Aged cluster note", "fact", "2026-09-08", "", "Old enough to be linked by now."))
+	orphan := func(p *Plan, id string) bool {
+		return slices.ContainsFunc(p.Tasks, func(x Task) bool { return x.Type == FixOrphan && slices.Contains(x.Targets, id) })
+	}
+	for _, tc := range []struct {
+		minAge      int
+		fresh, aged bool
+	}{
+		{minAge: 30, fresh: false, aged: true},
+		{minAge: 0, fresh: true, aged: true},
+		{minAge: 90, fresh: false, aged: false},
+	} {
+		inst.Config.Garden.OrphanMinAgeDays = tc.minAge
+		p, err := Run(context.Background(), inst, Options{Now: now, Plan: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := orphan(p, "k8s-fresh-note"); got != tc.fresh {
+			t.Errorf("min age %d: fresh orphan = %v, want %v", tc.minAge, got, tc.fresh)
+		}
+		if got := orphan(p, "k8s-aged-note"); got != tc.aged {
+			t.Errorf("min age %d: aged orphan = %v, want %v", tc.minAge, got, tc.aged)
+		}
+	}
+}

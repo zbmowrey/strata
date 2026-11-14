@@ -46,15 +46,38 @@ func (r *run) oversize() error {
 	return nil
 }
 
-// orphans: shards nothing links to (hubs excluded — they list everything).
+// orphans: shards nothing links to (hubs excluded — they list everything),
+// once they are older than [garden] orphan_min_age_days (D-033): a young
+// shard has had no chance to be linked yet.
 func (r *run) orphans() error {
+	minAge := r.inst.Config.Garden.OrphanMinAgeDays
 	for _, rec := range r.data.shards {
+		if r.tooYoung(rec, minAge) {
+			continue
+		}
 		if r.data.inboundFrom(rec.ID, kindHub) == 0 {
 			r.add(newTask(FixOrphan, Low, "link it from related shards (See also) or merge it into one", []string{rec.ID},
 				map[string]any{evPath: rec.Src, "domain": rec.Domain, "topic": rec.Topic}))
 		}
 	}
 	return nil
+}
+
+// tooYoung reports whether rec was created (or, lacking created, updated)
+// fewer than minAge days ago. Undated shards count as old.
+func (r *run) tooYoung(rec *index.Record, minAge int) bool {
+	if minAge <= 0 {
+		return false
+	}
+	base := rec.Created
+	if base == "" {
+		base = rec.Updated
+	}
+	t, err := time.Parse(time.DateOnly, dateOnly(base))
+	if err != nil {
+		return false
+	}
+	return r.today.Before(t.AddDate(0, 0, minAge))
 }
 
 // stale: review_after elapsed since verified_at (or updated).
@@ -67,11 +90,11 @@ func (r *run) stale() error {
 		if base == "" {
 			base = rec.Updated
 		}
-		t, err := time.Parse(time.DateOnly, firstN(base, 10))
+		t, err := time.Parse(time.DateOnly, dateOnly(base))
 		if err != nil || !r.today.After(t.AddDate(0, 0, rec.ReviewAfterDays)) {
 			continue
 		}
-		ev := map[string]any{evPath: rec.Src, "since": firstN(base, 10), "review_after_days": rec.ReviewAfterDays, "trust": rec.Trust}
+		ev := map[string]any{evPath: rec.Src, "since": dateOnly(base), "review_after_days": rec.ReviewAfterDays, "trust": rec.Trust}
 		action := "re-check against sources and code; bump verified_at or correct it"
 		if v, ok := rec.Meta["verify"].(map[string]any); ok && v["script"] != nil {
 			ev["verify_script"] = v["script"]
@@ -82,9 +105,10 @@ func (r *run) stale() error {
 	return nil
 }
 
-func firstN(s string, n int) string {
-	if len(s) > n {
-		return s[:n]
+// dateOnly trims a date or timestamp to its YYYY-MM-DD prefix.
+func dateOnly(s string) string {
+	if len(s) > len(time.DateOnly) {
+		return s[:len(time.DateOnly)]
 	}
 	return s
 }
@@ -115,7 +139,7 @@ func (r *run) cold() error {
 		}
 	}
 	for _, rec := range r.data.shards {
-		created, err := time.Parse(time.DateOnly, firstN(rec.Created, 10))
+		created, err := time.Parse(time.DateOnly, dateOnly(rec.Created))
 		if seen[rec.ID] || r.data.inboundFrom(rec.ID, kindHub) > 0 || err != nil || created.After(cutoff) {
 			continue
 		}
