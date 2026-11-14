@@ -6,6 +6,20 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-13
+
+### Documentation
+
+- **Project records specified (not yet implemented):** `docs/spec/05-projects.md` now defines the
+  standard file family every project carries — `request` (verbatim ask), `requirements` (stories with
+  nested acceptance criteria), `spec`, `test-plan`, `decisions` (attributed, with ratification of key
+  Claude decisions), `findings`, `sources` and `outcome`, alongside the existing `project`, `plan`,
+  `log` and `handoff` — with per-file structure, mutation rules and validation, plus profiles
+  (`feature`, `bugfix`, `audit`, `research`, `initiative`). Decisions D-026–D-030.
+- **`projects/` version control becomes a per-instance choice** (`local`, `records` or `all`, asked
+  at `strata init`); this supersedes D-013 in the spec. The engine still behaves as `local` until
+  the implementation lands.
+
 ## [0.1.2] - 2026-11-13
 
 ### Fixed
