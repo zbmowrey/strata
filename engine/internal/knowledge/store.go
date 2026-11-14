@@ -101,11 +101,12 @@ func validID(id string) error {
 
 var slugRE = regexp.MustCompile(`[^a-z0-9]+`)
 
-// Slugify turns free text into a short kebab-case slug (≤ maxLen chars).
+// Slugify lowercases text into a hyphenated slug of about maxLen bytes. A long slug is
+// cut at the word break nearest maxLen, before or after it, so no word is split.
 func Slugify(text string, maxLen int) string {
 	s := strings.Trim(slugRE.ReplaceAllString(strings.ToLower(text), "-"), "-")
 	if len(s) > maxLen {
-		s = strings.TrimRight(s[:maxLen], "-")
+		s = s[:wordBreak(s, maxLen)]
 	}
 	if s == "" {
 		s = "note"
@@ -169,4 +170,22 @@ func appendUnique(list []string, v string) []string {
 		return list
 	}
 	return append(list, v)
+}
+
+// wordBreak returns the index of the hyphen in s nearest to maxLen, preferring the
+// earlier one on a tie. With no hyphen it falls back to a hard cut at maxLen.
+func wordBreak(s string, maxLen int) int {
+	back := strings.LastIndexByte(s[:maxLen+1], '-')
+	fwd := -1
+	if i := strings.IndexByte(s[maxLen:], '-'); i >= 0 {
+		fwd = maxLen + i
+	}
+	switch {
+	case back > 0 && (fwd < 0 || maxLen-back <= fwd-maxLen):
+		return back
+	case fwd > 0:
+		return fwd
+	default:
+		return maxLen
+	}
 }

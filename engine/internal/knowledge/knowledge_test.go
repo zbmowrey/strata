@@ -296,3 +296,30 @@ func TestHelpers(t *testing.T) {
 		t.Fatal("helpers")
 	}
 }
+
+func TestSlugifyCutsAtWordBreak(t *testing.T) {
+	t.Parallel()
+	for _, c := range []struct {
+		text string
+		max  int
+		want string
+	}{
+		// The capture that split "checker": the next break is closer, so the word is kept whole.
+		{"user decision 2026-11-13: the yard checker making traffic wait", 40, "user-decision-2026-11-13-the-yard-checker"},
+		// The previous break is closer: drop the partial word.
+		{"the deps gate fails with exit 128", 21, "the-deps-gate-fails"},
+		// A tie goes to the shorter slug.
+		{"aaa bbbb", 5, "aaa"},
+		// The cut already lands on a break.
+		{"Hello, World of Go", 11, "hello-world"},
+		// One long word has no break: hard cut.
+		{"abcdefghijklmnop", 5, "abcde"},
+		// The first word runs past maxLen: extend to its end.
+		{"abcdefgh ij", 5, "abcdefgh"},
+		{"short", 40, "short"},
+	} {
+		if got := Slugify(c.text, c.max); got != c.want {
+			t.Errorf("Slugify(%q, %d) = %q, want %q", c.text, c.max, got, c.want)
+		}
+	}
+}
