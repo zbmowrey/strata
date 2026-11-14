@@ -6,6 +6,36 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-11-14
+
+### Added
+
+- **The gardener can run on its own (D-031).** With `[garden] auto_launch = "on"` (opt-in per
+  repository), session start launches a detached, headless garden run when garden debt is due: the
+  oldest inbox item is 3 or more days old, the plan has 10 or more actionable tasks, or the last run
+  was 7 or more days ago with work waiting. It launches at most once a day and waits while a garden PR
+  awaits review. The run's result is still a pull request you review; the gardener never merges.
+- **`strata garden launch`** starts a supervisor that runs `claude -p` on Opus at medium effort
+  (D-032) in the garden worktree. It uses `acceptEdits` and a minimal allowlist: no push, no forge
+  CLI, and no garden finish/abort/resume. The supervisor kills a hung agent, verifies with
+  `check --all` and `bench retrieval`, and opens the PR only when both pass.
+- **Garden runs survive being lost.** The run marker becomes a lease with an owner, a heartbeat, a
+  30-minute expiry and a fence. A gardener that lost its lease is refused with the new exit code 7,
+  including at commit time. `strata garden resume` takes over a lost run, salvages its uncommitted
+  work, and escalates a task that crashed the run twice. A run is marked stuck after 3 attempts.
+- **`strata garden status`** shows the lease, progress, recent history and garden debt.
+  **`strata garden task start|done|skip|escalate`** records progress, and the engine renders the PR
+  digest from it.
+- **Garden debt** appears in `strata status` (`garden_debt`), in the status line (`garden due`,
+  `garden lost`) and at session start.
+
+### Changed
+
+- **`fix-orphan` skips shards younger than 30 days** (`[garden] orphan_min_age_days`, D-033). Before
+  this, every shard in a young knowledge base was flagged as an orphan.
+- The plugin's gardener agent is pinned to `model: opus` instead of inheriting the session's model.
+- `strata doctor --fix` no longer deletes a garden run that can be resumed.
+
 ## [0.1.3] - 2026-11-13
 
 ### Documentation
@@ -105,7 +135,9 @@ First release: the full v1 design in `docs/spec/` (Phases 0–12 of the build pl
 - Retrieval bench (engine repo, 34 queries): MRR 0.944, recall@5 0.956, nDCG@10 0.947.
 - Protocol suite (claude-opus-5-5, 3 runs each): 12/12 scenarios pass (11 at 3/3).
 
-[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/zbmowrey/strata/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/zbmowrey/strata/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/zbmowrey/strata/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/zbmowrey/strata/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/zbmowrey/strata/releases/tag/v0.1.0
