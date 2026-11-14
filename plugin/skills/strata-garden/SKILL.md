@@ -66,7 +66,11 @@ One per category, conventional, body = task ids + evidence, repo attribution tra
 (0.02), recall@5 not lower. Failure → fix, or `git revert` the offending commit and record
 why under Skipped / deferred.
 
-## Digest (`.strata/garden/digest.md` → PR body)
+## Digest (PR body)
+
+The engine renders the PR body from your `strata garden task … --note` lines, grouped by
+outcome, plus `.strata/garden-summary.md` if you write one. In an interactive `/garden`
+your final report becomes the body instead. Either way it follows this shape:
 
 ```markdown
 ## Garden 2026-11-08 06:00
@@ -95,3 +99,8 @@ why under Skipped / deferred.
 Strata installs no schedules. When asked, create a scheduled task (cloud routine or local
 cron/loop) whose prompt is `/garden`. `strata garden --auto` (mechanical fixes only)
 already runs at SessionStart.
+
+With `[garden] auto_launch = "on"` (opt-in, D-031) the SessionStart hook also launches a
+detached headless run (`strata garden launch`) when garden debt is due, and resumes a lost
+run. `strata garden status` shows the lease, progress and history; `strata garden resume
+--force` or `strata garden abort` settle a run marked stuck.

@@ -17,6 +17,7 @@ const (
 	Usage       = 4
 	NotInstance = 5
 	Locked      = 6
+	Fenced      = 7 // a garden writer lost its lease (docs/spec/07 §9.2)
 )
 
 // Error is an error with an exit code and an optional hint.

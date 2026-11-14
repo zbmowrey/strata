@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/zbmowrey/strata/engine/internal/config"
+	"github.com/zbmowrey/strata/engine/internal/garden"
 )
 
 // instance opens the instance selected by --root or discovered from cwd.
@@ -21,6 +22,11 @@ func (a *app) instance() (*config.Instance, error) {
 		for _, w := range inst.Warnings {
 			a.warnf("%s", w)
 		}
+	}
+	// Any command run in a garden worktree is progress for its run. A stale
+	// fence is reported to writers by garden.CheckFence, not here.
+	if err := garden.Heartbeat(inst, a.now()); err != nil && a.g.verbose {
+		a.warnf("garden heartbeat: %v", err)
 	}
 	return inst, nil
 }

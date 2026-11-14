@@ -7,7 +7,7 @@ The gardener is Strata's metabolism: the process that consolidates, repairs, reo
 | Phase | Who | Cost | Trigger |
 |---|---|---|---|
 | **Deterministic** (`strata garden`) | the Go engine | free (no model calls), ≤ 5 s | every `/garden`; also its safe subset (`--auto`) at SessionStart when the index refreshes, and in CI |
-| **Judgment** (`/garden`) | the `strata:gardener` subagent, driven by the plugin command | tokens | on demand via `/garden`; optionally on a schedule the user sets up |
+| **Judgment** (`/garden`) | the `strata:gardener` subagent, driven by the plugin command | tokens | on demand via `/garden`; optionally on a schedule the user sets up; or auto-launched as a detached headless run at SessionStart when garden debt is due and `[garden] auto_launch = "on"` (§9, D-031) |
 
 The deterministic phase does every mechanical fix itself and produces a **plan** (`.strata/garden/plan.json`) of tasks that need judgment. The judgment phase executes the plan.
 
@@ -17,7 +17,7 @@ The deterministic phase does every mechanical fix itself and produces a **plan**
 
 - no flag: run the analyses and write the plan; mechanical fixes are not applied (safe in the human's tree).
 - `--auto`: apply the mechanical fixes only. At SessionStart the hook runs it **incrementally** — only when the index refresh found changes, and only for what those paths can affect (per-file normalization of changed shards, hubs when shards changed, catalogs + allowlist when scripts changed, the projects block when a `project.md` changed) — so the hook stays within its 300 ms budget.
-- `--plan`: apply the mechanical fixes and write the plan (what `/garden` runs inside its worktree). Holds `.strata/garden.lock` (exit 6 when held).
+- `--plan`: apply the mechanical fixes and write the plan (what `/garden` runs inside its worktree). Requires the run lease (§9.2); exit 6 when another run holds it.
 
 Sessions the gardener starts set `STRATA_GARDEN=1`; the `pre-edit` hook then refuses writes under `knowledge/_private/`, and the analyses never read the private tier.
 
@@ -36,7 +36,7 @@ Sessions the gardener starts set `STRATA_GARDEN=1`; the `pre-edit` hook then ref
 | `file-inbox` | each `_inbox/` item | low |
 | `merge-duplicates` | title/alias trigram similarity ≥ 0.8 **or** body MinHash Jaccard ≥ 0.6 between two shards | low (medium if either is `user-stated`) |
 | `split-oversize` | size-limit warnings/errors | low |
-| `fix-orphan` | shard with no inbound links and not in a hub section | low |
+| `fix-orphan` | shard with no inbound links other than from generated hubs, created more than `[garden] orphan_min_age_days` (default 30) days ago (D-033) | low |
 | `reverify-stale` | stale per [02](02-knowledge.md) §7; includes `verify.script` if present | low (high if verification fails on `user-stated`) |
 | `archive-cold` | cold per [02](02-knowledge.md) §7 | low |
 | `fill-gap` | zero-result queries recurring ≥ 2× in 30 days | low |
@@ -58,21 +58,21 @@ Implementation notes (v0.1): duplicate titles use trigram Dice over lowercase ti
 
 The plugin's `/garden` command runs:
 
-1. **Lock.** Acquire `.strata/garden.lock` (one garden at a time per repo); abort with a message if held.
+1. **Lease.** Acquire the run lease `.strata/garden.lock` (one garden at a time per repo, §9.2). A live lease → stop with a message; an expired one → resume that run instead of starting a new one (§9.3).
 2. **Plan.** `strata garden --plan --format json`. If the plan is empty and no mechanical fixes were applied, report "garden is tidy" and stop.
 3. **Worktree.** Create a git worktree at `.strata/worktrees/garden-<YYYYMMDD-HHMM>` on a new branch `garden/<YYYYMMDD-HHMM>` from the default branch's latest remote head. The human's working tree is never touched (D-011).
-4. **Execute.** Spawn the `strata:gardener` subagent in the worktree with the plan. It works task by task under the autonomy matrix (§5), using the same CLI, scripts, and gates as any session.
+4. **Execute.** Spawn the `strata:gardener` subagent in the worktree with the plan; it is pinned to `[garden] model` (default Opus, effort `[garden] effort`, default `medium`; D-032) whatever model the calling session runs. It records each task's outcome with `strata garden task` (§9.3), which also refreshes the lease heartbeat. It works task by task under the autonomy matrix (§5), using the same CLI, scripts, and gates as any session.
 5. **Commit.** One commit per task category, conventional style: `garden(knowledge): file 7 inbox items`, `garden(scripts): add find-leaked-fixtures`, `garden(gates): promote fixture-teardown rule (advisory)`. Each body lists task ids and evidence. Attribution trailers per the repository's convention.
 6. **Verify.** `strata check --all` (all blocking gates green) and `strata bench retrieval` (MRR must not drop by more than `[garden] bench_tolerance`, default 0.02; recall@5 must not drop). Failures → fix or drop the offending commit (revert within the branch) and record why in the digest.
 7. **PR.** Push the branch; open a **draft** PR via the forge adapter with the digest (§6) as the body. When verification is green and all commits are in, **mark the PR ready for review** (`gh pr ready` / Forgejo equivalent). The human reviews and merges; the gardener **never merges** (D-011).
 8. **Escalate.** Questions raised (§5) are written to `knowledge/_questions/` in the branch and listed at the top of the PR body.
 9. **Clean up.** Remove the worktree; release the lock; emit a summary to the session (and status line).
 
-**Engine helpers (v0.1).** Steps 1–3 and 7–9 are engine commands so the plugin stays a thin client:
+**Engine helpers.** Steps 1–3 and 7–9 are engine commands so the plugin stays a thin client (lease, resume and launch are specified in §9):
 
-- `strata garden start [--format json]` — creates the run marker `.strata/garden.lock` (JSON `{branch, worktree, base, started}`, created exclusively; a marker younger than 2 h → exit 6; older → exit 6 with the `strata doctor --fix` hint), fetches `origin/<default>` when a remote exists, adds the worktree and branch, runs `garden --plan` inside it, drops tasks whose evidence paths are touched by open garden PRs (`forge.FindOpen(branch_prefix)`), and commits the mechanical fixes as `garden(fixes): …`. Output: `{"v":1,"tidy":bool,"worktree","branch","base","plan_file","counts":{…},"tasks":n,"skipped":[ids],"open_prs":[{number,url,branch}]}`. When tidy (no tasks, no fixes) it cleans up itself.
-- `strata garden finish [--title T] [--body-file F] [--no-ready] [--format json]` — from the main tree: if the branch has no commits beyond the base it cleans up and reports `nothing to propose`; otherwise pushes the branch, opens a **draft** PR via the forge adapter with the digest as the body, marks it ready unless `--no-ready`, removes the worktree and the marker. Missing forge CLI → pushes and prints the compare URL. Output: `{"v":1,"pr":{number,url},"compare_url":…,"ready":bool}`.
-- `strata garden abort` — removes the worktree, deletes the unpushed local branch, removes the marker.
+- `strata garden start [--launcher manual|headless] [--format json]` — acquires the lease (§9.2; live → exit 6; expired → exit 6 with the hint `strata garden resume`), fetches `origin/<default>` when a remote exists, adds the worktree and branch, runs `garden --plan` inside it, drops tasks whose evidence paths are touched by open garden PRs (`forge.FindOpen(branch_prefix)`), and commits the mechanical fixes as `garden(fixes): …`. Output: `{"v":2,"run":id,"fence":n,"tidy":bool,"worktree","branch","base","plan_file","counts":{…},"tasks":n,"skipped":[ids],"open_prs":[{number,url,branch}]}`. When tidy (no tasks, no fixes) it cleans up itself.
+- `strata garden finish [--fence N] [--title T] [--body-file F] [--no-ready] [--format json]` — from the main tree. The supervisor and the plugin pass the fence they got from `start`/`resume`; a stale one is refused with exit 7 (§9.2). First looks for an open PR on the branch and reuses it, so a retried finish is safe. If the branch has no commits beyond the base it cleans up and reports `nothing to propose`; otherwise pushes the branch, opens a **draft** PR via the forge adapter with the digest as the body, marks it ready unless `--no-ready`, removes the worktree and the marker. Missing forge CLI → pushes and prints the compare URL. Output: `{"v":1,"pr":{number,url},"compare_url":…,"ready":bool}`.
+- `strata garden abort` — removes the worktree, deletes the unpushed local branch, removes the lease and marks the run `aborted` in history. Explicit only: nothing calls it automatically on a run that has commits.
 - Hooks treat any instance rooted under `.strata/worktrees/garden-*` (or `STRATA_GARDEN=1`) as a gardener session (private-tier guard).
 
 If a previous garden PR is still open: the new run bases on the default branch, and skips tasks whose targets are touched by the open PR (to avoid conflicting PRs), noting them in the digest.
@@ -147,8 +147,107 @@ Instances may tighten (never loosen beyond this) via `[garden] escalate = [...]`
 
 `/garden` is the interface. Strata does not install schedules itself. The user may ask Claude to create a scheduled task (cloud routine or local cron/loop) that runs `/garden`; the `strata-garden` skill documents how. The deterministic subset (`strata garden --auto`) is cheap enough to run at SessionStart (configurable; default on) and in CI (report-only).
 
+**Auto-launch (D-031, amends D-018).** An instance may opt in with `[garden] auto_launch = "on"` (default `"off"`; the engine repo sets it on). The SessionStart hook then launches a detached, headless garden run when garden debt is due (§9). This is not a schedule: nothing runs while no session starts, it is driven by measured debt, and it fires at most `[garden] launch_per_day` times a day. Its output is still a PR the human reviews (D-011).
+
 ## 8. Forge adapter
 
 `internal/forge` abstracts PR operations: `CreateDraft`, `MarkReady`, `Comment`, `FindOpen(prefix)`. Implementations: `gh` (GitHub) and `tea` (Forgejo/Gitea), selected by `[garden] forge = "auto"|"github"|"forgejo"` (auto = inspect the `origin` remote host). The adapter shells out to the CLI (no tokens handled by Strata). Missing CLI → the gardener pushes the branch and prints the compare URL instead.
 
 Implementation notes (Phase 9): `gh` runs `gh pr create --draft --head --base --title --body`, `gh pr ready`, `gh pr comment --body`, and `gh pr list --state open --json number,url,headRefName,files` (prefix-filtered in Go; `files` lets the gardener skip tasks touched by an open garden PR). `tea` runs `tea pulls create --draft …--description` (Gitea/Forgejo drafts are `WIP: `-prefixed titles), `tea pulls edit --ready <index>`, `tea comment <index> <body>`, and `tea pulls list --fields index,url,head --output json` (no file list). A missing CLI is the typed `forge.ErrNoCLI`; the caller then pushes and prints `forge.CompareURL(remote, base, branch)` (`https://<host>/<owner>/<repo>/compare/<base>...<branch>`, from https, ssh:// and scp-style remotes).
+
+## 9. Autonomous runs: debt, lease, resume, launch
+
+A garden run must be able to start without a human, survive being lost (crash, killed terminal, sleep, reboot), and never run twice at once. Progress lives on disk and in git, never only in an agent's context. Decisions: D-031 (detached headless launch), D-032 (model), D-033 (orphans).
+
+### 9.1 Garden debt
+
+Garden debt is computed cheaply enough for the SessionStart budget (no forge calls, no plan run): the inbox directory scan, the counts in the last written plan (`.strata/garden/plan.json`), and the run history (`.strata/garden/history.jsonl`, one line per attempt: `{run, attempt, launcher, model, started, ended, outcome, pr, tasks_done, tasks_left}`; local, gitignored).
+
+Debt is **due** when any of:
+
+| Signal | Default |
+|---|---|
+| oldest `_inbox/` item older than `[garden] debt_inbox_days` | 3 days |
+| actionable plan tasks (excluding `escalate`/question tasks) ≥ `[garden] debt_tasks` | 10 |
+| last finished run older than `[garden] debt_days`, and inbox or actionable tasks > 0 | 7 days |
+
+A plan generated before the last finished run is spent and contributes no tasks. An instance with no finished run is judged on the first two signals only, so a single fresh capture never triggers a garden.
+
+`strata status --format json` reports `garden_debt: {due, reasons[], inbox, inbox_oldest_days, tasks, last_run_days}`. The session-start line and the status line show it (08 §4.1, §5.3).
+
+### 9.2 The run lease
+
+`.strata/garden.lock` is a lease, not a bare marker (JSON, `v: 2`):
+
+```json
+{"v":2,"run":"20261114-1210","fence":3,"attempt":2,
+ "owner":{"pid":48211,"host":"zm-mbp","launcher":"headless","model":"opus","session":"…"},
+ "started":"…","heartbeat_at":"…","ttl":"30m",
+ "branch":"garden/20261114-1210","worktree":"/abs/.strata/worktrees/garden-20261114-1210-a2",
+ "base":"main","base_ref":"…","plan_hash":"…"}
+```
+
+- **Mutation.** Every read-modify-write of the lease (acquire, heartbeat, takeover, release) happens under a short-held mutex: the exclusively created file `.strata/garden.lock.mu`. Waiters poll for up to 2 s, then exit 6. A mutex file older than 10 s is debris from a crashed holder and is removed. This works where flock does not (the engine's flock is a no-op on Windows).
+- **Acquire.** Under the mutex: no lease → write one (`fence 1`, `attempt 1`). Present and live → exit 6. Present and expired → exit 6 with the `strata garden resume` hint.
+- **Live** means `now − heartbeat_at < ttl` (`[garden] lease_ttl`, default 30 min). On the same host, a dead `owner.pid` also makes the lease expired, without waiting for the ttl.
+- **Heartbeat.** Every `strata` command whose instance root is the run's worktree refreshes `heartbeat_at` (atomic temp-file + rename) when its fence matches. The heartbeat therefore measures *progress*: a hung agent stops producing it, no matter how long its process lives. The headless supervisor (§9.4) does not heartbeat on its own behalf.
+- **Fence.** A number that increases on every takeover. The worktree's fence (`{run, main, fence}`) lives in its git directory (`.git/worktrees/<name>/strata-garden.json`, found through the worktree's `.git` file). Git never tracks it, the gardener's `git add -A` never sees it, and it disappears with the worktree. Every gardener write through the engine (`garden task`, `garden --plan`, `garden finish --fence N`) is refused with **exit 7** when its fence is not the lease's current fence. Commits go through the worktree's git pre-commit hook (`strata check --staged`), which applies the same fence check, so a stale gardener's commit is aborted. Resume also removes the stale worktree (§9.3). A gardener that wakes up after its lease was taken over cannot write, so two gardeners never commit to the same branch.
+- **Takeover.** Under the mutex, the taker re-reads the lease, confirms it is still expired with the same fence, and writes the new lease (`fence+1`, `attempt+1`, new owner) by atomic rename. Two takers therefore serialize: the second sees a live lease.
+- **Scope.** The lease is local to one clone (gitignored). Across machines and clones, the open-PR check in `garden start` remains the guard: tasks touching paths in an open garden PR are dropped.
+
+### 9.3 Durable progress and resume
+
+Run state lives outside the worktree, in `.strata/garden/runs/<run>/`: `plan.json` (the plan at start), `progress.json` (`{task_id: {status: pending|in_progress|done|skipped|escalated, tries, note}}`), the run log, `verify.json` (the last verification result) and any salvage patches. Losing the worktree loses only uncommitted edits. The PR digest (§6) is **rendered by the engine** at finish from `progress.json` notes, the branch's commits and raised questions, plus an optional summary the gardener writes to `.strata/garden-summary.md` in the worktree. The gardener needs no write access outside its worktree.
+
+- `strata garden task start|done|skip|escalate <task-id> [--note …]` updates `progress.json` and heartbeats the lease. Tasks must be **idempotent**: before acting, the gardener checks whether the target state already holds (inbox item already filed, link already fixed), so redoing an interrupted task is safe.
+- `strata garden resume [--force]` (the hook and `launch` call it for an expired lease; `--force` lets a human take over a live one):
+  1. Take over the lease (§9.2). If the old owner's pid is alive on this host, SIGTERM it and wait up to 10 s.
+  2. Create a fresh worktree from the run's branch (`…-a<attempt>`). The branch is the durable record; the old worktree may be missing.
+  3. **Salvage** uncommitted changes from the old worktree, if it still exists: apply the diff to the new worktree and run `edit`/`stop`-stage gates on those files. Clean → commit `garden(resume): salvage <n> files`. Not clean → save `runs/<run>/salvage-a<attempt>.patch` and record it in the digest. Then remove the old worktree.
+  4. Reset any `in_progress` task to `pending` and increment its `tries`. A task with `tries ≥ 2` is **poison**: mark it `skipped`, raise a question citing it, and list it in the digest.
+  5. Emit the same JSON as `garden start`, plus `"resumed": true` and the remaining tasks. The gardener continues from there.
+- **Already pushed or PR'd.** `finish` reuses an existing open PR for the branch. A run whose PR exists and whose tasks are all settled is just finished.
+- **Give up.** When `attempt > [garden] max_attempts` (default 3), the run is marked `stuck` in history with `.strata/garden/last-failure` (last log tail, poison tasks, salvage files). Auto-launch stops for this run, and session start shows `garden stuck — strata garden status`. A human resumes (`garden resume --force`) or aborts.
+- `strata doctor --fix` never deletes a resumable run. Expired lease with commits or salvageable changes → report "resumable: strata garden resume". Nothing to salvage → clear the lease and remove the worktree.
+
+`strata garden status [--format json]` shows the lease (owner, fence, attempt, heartbeat age), progress counts, the last history lines, and the debt.
+
+### 9.4 Headless launch
+
+`strata garden launch [--resume] [--dry-run] [--format json]` starts a detached supervisor (`strata garden supervise`, new session/process group, output to `runs/<run>/run.log`) and returns immediately. The supervisor:
+
+1. Exits with outcome `deferred` (recorded in history, no lease taken) when ≥ `[garden] max_open_prs` (default 1) garden PRs are already open, so unreviewed PRs never pile up.
+2. Runs `garden start --launcher headless`, or `garden resume` with `--resume`. Tidy → records `tidy` and exits.
+3. Runs the agent in the worktree (its working directory): `claude -p <prompt> --model <[garden] model> --effort <[garden] effort> --permission-mode acceptEdits [--agent <[garden] agent>] --allowedTools <generated>`. The flags were verified against Claude Code 2.1.325. `[garden] agent` defaults to `strata:gardener`, so the plugin's agent and skills drive the session; set it to `""` when the plugin is not installed. The environment carries `STRATA_GARDEN=1`, `STRATA_GARDEN_RUN` and `STRATA_NO_AUTOLAUNCH=1`. The prompt is rendered from an engine template: the plan file, the remaining tasks and any previous verification failures, and the rule to record each task with `strata garden task`. Unattended `bypassPermissions` is refused by Claude Code, so this permission mode is the supported form.
+4. **Allowlist (generated, minimal):** the instance's `perms.Allowlist` (read and capture commands, read-only scripts by id) plus `Read`, `Glob`, `Grep`, `strata new|questions ask|garden task|scripts list|gates explain`, and the local git subcommands `status|diff|log|show|add|commit|mv|rm`. `Edit`/`Write` are deliberately *not* allowlisted: `acceptEdits` approves edits inside the working directory (the worktree) only, so an edit elsewhere needs a prompt that a headless run cannot answer. There is no `git push`, no forge CLI and no `strata garden finish|abort|resume`: publishing is the supervisor's job.
+5. Kills the agent when the lease heartbeat is older than `lease_ttl` (hung) or the run exceeds `[garden] max_run` (default 90 min). Records outcome `timeout`. A later session resumes the run.
+6. On agent exit 0 with no `pending` tasks: runs verification (§3 step 6) by calling the `strata` binary itself in the worktree (`check --all`, `bench retrieval`). Green → `garden finish --fence <n>` with the rendered digest; records outcome `pr` and the PR number. Red → writes `runs/<run>/verify.json`, records `failed-verify` and publishes nothing. The resumed run's prompt starts with the verification failures, so the gardener fixes them or drops the offending commit (§3 step 6). On any other exit: records `failed` and leaves the lease to expire, so the next session start resumes it.
+
+The supervisor never merges (D-011), and it is the only process that pushes.
+
+### 9.5 SessionStart decision
+
+The `session-start` hook (08 §4.1) runs this within its 300 ms budget. Launching forks the supervisor and does not wait for it.
+
+1. Skip entirely in gardener sessions (`STRATA_GARDEN=1` or a root under `.strata/worktrees/garden-*`), when `STRATA_NO_AUTOLAUNCH=1` (set by `bench protocol` and CI), and when `auto_launch = "off"`. With it off, the debt line is still printed when debt is due.
+2. Lease live → print `garden ▸ running <age> (<n>/<m> tasks) — strata garden status`.
+3. Lease expired, run not stuck → `garden launch --resume`; print `garden ▸ resuming run <id> (attempt <k>)`.
+4. Run stuck → print the stuck line; launch nothing.
+5. Debt due and fewer than `launch_per_day` launches today (history) → `garden launch`; print `garden ▸ launched (<model>, <reasons>)`.
+6. Otherwise print nothing about the garden.
+
+### 9.6 Failure modes
+
+| Failure | Result |
+|---|---|
+| Two sessions start at once | One wins the exclusive create; the other sees a live lease. |
+| Two sessions find the same expired lease | One wins the takeover file; the other sees a live lease. |
+| Agent hangs (no strata calls) | Heartbeat ages past `lease_ttl`; the supervisor kills it; the next session resumes. |
+| Machine sleeps or reboots mid-run | Lease expires; pid is gone; resume salvages the worktree and continues. |
+| Old gardener wakes after a takeover | Every write is fenced out (exit 7); it can no longer commit or publish. |
+| Worktree deleted by hand | Resume recreates it from the branch; only uncommitted edits are lost. |
+| Same task crashes the run twice | Poison: skipped, escalated as a question, listed in the digest. |
+| Run keeps failing | Stuck after `max_attempts`; auto-launch stops for it; a human decides. |
+| Push succeeded, PR creation failed | `finish` retries; an existing PR is reused. |
+| PRs awaiting review | Launch defers while `max_open_prs` are open. |
+| Forge CLI missing | As §8: push, print the compare URL, record it in history. |

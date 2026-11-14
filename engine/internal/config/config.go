@@ -102,6 +102,24 @@ type Garden struct {
 	BranchPrefix   string   `toml:"branch_prefix"`
 	Escalate       []string `toml:"escalate"`
 	BenchTolerance float64  `toml:"bench_tolerance"`
+	// OrphanMinAgeDays keeps young shards out of fix-orphan (D-033).
+	OrphanMinAgeDays int `toml:"orphan_min_age_days"`
+	// LeaseTTL is the heartbeat age after which a run is lost (07 §9.2).
+	LeaseTTL Duration `toml:"lease_ttl"`
+	// MaxAttempts bounds resumes before a run is marked stuck (07 §9.3).
+	MaxAttempts int `toml:"max_attempts"`
+	// Headless runs (07 §9.4, D-031, D-032).
+	AutoLaunch   string   `toml:"auto_launch"` // off | on
+	Model        string   `toml:"model"`
+	Effort       string   `toml:"effort"`
+	Agent        string   `toml:"agent"` // Claude Code agent for headless runs ("" = none)
+	MaxRun       Duration `toml:"max_run"`
+	MaxOpenPRs   int      `toml:"max_open_prs"`
+	LaunchPerDay int      `toml:"launch_per_day"`
+	// Garden debt thresholds (docs/spec/07 §9.1).
+	DebtInboxDays int `toml:"debt_inbox_days"`
+	DebtTasks     int `toml:"debt_tasks"`
+	DebtDays      int `toml:"debt_days"`
 }
 
 // Telemetry holds local telemetry settings.
@@ -141,11 +159,15 @@ func Default() Config {
 			KindBoost:    map[string]float64{"shard": 1.0, "playbook": 1.0, "script": 1.0, "hub": 0.6, "project": 0.9, "inbox": 0.8, "question": 0.7},
 			Synonyms:     ".strata/synonyms.txt",
 		},
-		Scripts:   Scripts{DefaultRuntime: "go", CatalogSplitAt: 50},
-		Projects:  Projects{StaleAfter: Days(30), AdhocRetention: Days(30)},
-		Gates:     Gates{StopMaxBlocks: 3, EditBudget: Duration{Seconds: 2}},
-		Hooks:     Hooks{PreEditContext: true, StopNudge: "once", SessionStartGardenAuto: true},
-		Garden:    Garden{Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02},
+		Scripts:  Scripts{DefaultRuntime: "go", CatalogSplitAt: 50},
+		Projects: Projects{StaleAfter: Days(30), AdhocRetention: Days(30)},
+		Gates:    Gates{StopMaxBlocks: 3, EditBudget: Duration{Seconds: 2}},
+		Hooks:    Hooks{PreEditContext: true, StopNudge: "once", SessionStartGardenAuto: true},
+		Garden: Garden{
+			Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02, OrphanMinAgeDays: 30, LeaseTTL: Duration{Seconds: 1800}, MaxAttempts: 3,
+			AutoLaunch: "off", Model: "opus", Effort: "medium", Agent: "strata:gardener", MaxRun: Duration{Seconds: 5400},
+			MaxOpenPRs: 1, LaunchPerDay: 1, DebtInboxDays: 3, DebtTasks: 10, DebtDays: 7,
+		},
 		Telemetry: Telemetry{Enabled: true, Retention: Days(180), StoreQueries: true},
 	}
 }
@@ -249,6 +271,27 @@ func (c *Config) Validate() error {
 	}
 	if !oneOf(c.Hooks.StopNudge, "once", "off") {
 		errs = append(errs, fmt.Errorf("hooks.stop_nudge must be once|off, got %q", c.Hooks.StopNudge))
+	}
+	for _, kv := range []struct {
+		k string
+		v int
+	}{
+		{"orphan_min_age_days", c.Garden.OrphanMinAgeDays},
+		{"debt_inbox_days", c.Garden.DebtInboxDays},
+		{"debt_days", c.Garden.DebtDays},
+	} {
+		if kv.v < 0 {
+			errs = append(errs, fmt.Errorf("garden.%s must be >= 0, got %d", kv.k, kv.v))
+		}
+	}
+	if c.Garden.DebtTasks < 1 {
+		errs = append(errs, fmt.Errorf("garden.debt_tasks must be >= 1, got %d", c.Garden.DebtTasks))
+	}
+	if !oneOf(c.Garden.AutoLaunch, "off", "on") {
+		errs = append(errs, fmt.Errorf("garden.auto_launch must be off|on, got %q", c.Garden.AutoLaunch))
+	}
+	if !oneOf(c.Garden.Effort, "low", "medium", "high", "xhigh", "max") {
+		errs = append(errs, fmt.Errorf("garden.effort must be low|medium|high|xhigh|max, got %q", c.Garden.Effort))
 	}
 	if !oneOf(c.Garden.Forge, "auto", "github", "forgejo") {
 		errs = append(errs, fmt.Errorf("garden.forge must be auto|github|forgejo, got %q", c.Garden.Forge))

@@ -35,7 +35,7 @@ var LocalMarkers = fsutil.Markers{
 
 // LocalIgnores are the gitignored machine-local paths of an instance.
 func LocalIgnores(p config.Paths) string {
-	return "/.strata/index.db*\n/.strata/index.lock\n/.strata/knowledge.lock\n/.strata/garden.lock\n/.strata/telemetry/\n/.strata/session/\n" +
+	return "/.strata/index.db*\n/.strata/index.lock\n/.strata/knowledge.lock\n/.strata/garden.lock\n/.strata/garden.lock.mu\n/.strata/telemetry/\n/.strata/session/\n" +
 		"/.strata/cache/\n/.strata/bin/\n/.strata/garden/\n/.strata/worktrees/\n/" + p.Knowledge + "/_private/\n" +
 		"/" + p.Scripts + "/.venv/\n"
 }

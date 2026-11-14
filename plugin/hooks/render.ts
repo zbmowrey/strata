@@ -110,6 +110,8 @@ export type GardenStart = {
   base: string
   planFile: string
   tasks: number
+  /** The run's lease fence; passed back to `garden finish` (0: none). */
+  fence: number
   counts: string
   skipped: string[]
 }
@@ -123,6 +125,7 @@ export function parseGardenStart(raw: unknown): GardenStart {
     base: asStr(s.base),
     planFile: asStr(s.plan_file),
     tasks: asNum(s.tasks),
+    fence: asNum(s.fence),
     counts: countsLine(s.counts),
     skipped: asArr(s.skipped).map(asStr),
   }

@@ -96,6 +96,33 @@ func TestSessionStartGardenError(t *testing.T) {
 	}
 }
 
+func TestSessionStartGardenLine(t *testing.T) {
+	t.Parallel()
+	for _, tc := range []struct {
+		err  error
+		line string
+		want string
+	}{
+		{line: "garden ▸ debt due (inbox oldest 6d) — run /garden", want: "garden ▸ debt due (inbox oldest 6d) — run /garden"},
+		{err: errors.New("boom"), want: "⚠ garden: boom"},
+		{want: ""},
+	} {
+		root := fixture(t)
+		r := run(t, "session-start", payload(t, "session-start", root), Env{GardenLine: func(context.Context, *config.Instance, time.Time) (string, error) {
+			return tc.line, tc.err
+		}})
+		if r.code != 0 {
+			t.Fatalf("code %d", r.code)
+		}
+		if tc.want == "" && strings.Contains(r.out, "garden") {
+			t.Errorf("unexpected garden line:\n%s", r.out)
+		}
+		if tc.want != "" && !strings.Contains(r.out, tc.want) {
+			t.Errorf("missing %q:\n%s", tc.want, r.out)
+		}
+	}
+}
+
 func TestPreEditGuards(t *testing.T) {
 	t.Parallel()
 	root := fixture(t)
