@@ -4,7 +4,7 @@
 import type { ProcessRunInit, ProcessRunResult } from 'claude-code'
 
 /** The plugin's version; moves together with the engine's. */
-export const PLUGIN_VERSION = '0.1.1'
+export const PLUGIN_VERSION = '0.1.2'
 
 /** The engine executable, looked up on PATH. */
 export const ENGINE = 'strata'
