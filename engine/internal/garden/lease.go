@@ -268,3 +268,9 @@ func Resumable(ctx context.Context, inst *config.Instance, s *Session) bool {
 	out, err := git(ctx, s.Worktree, "status", "--porcelain")
 	return err == nil && out != ""
 }
+
+// InWorktree reports whether root is a garden worktree.
+func InWorktree(root string) bool {
+	_, ok := worktreeFence(root)
+	return ok
+}

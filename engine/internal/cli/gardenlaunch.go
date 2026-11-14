@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -321,4 +322,79 @@ func gardenerTask(res *garden.StartResult, runDir string) string {
 	}
 	b.WriteString("Do not push, open or merge PRs, run `strata garden finish|abort|resume`, or touch files outside the worktree: the supervisor verifies and publishes when you exit. Exit when every task is settled.")
 	return b.String()
+}
+
+// sessionLine is the SessionStart garden decision (docs/spec/07 §9.5). It
+// never waits on a run: launching forks the supervisor and returns.
+func (l launcher) sessionLine(ctx context.Context, inst *config.Instance, now time.Time) (string, error) {
+	if os.Getenv(envGarden) == "1" || os.Getenv(envNoAutolaunch) == "1" || garden.InWorktree(inst.Root) {
+		return "", nil // a gardener session, an eval or CI: never garden from here
+	}
+	auto := inst.Config.Garden.AutoLaunch == "on"
+	if s, err := garden.LoadSession(inst); err == nil {
+		return l.runLine(ctx, inst, s, now, auto)
+	}
+	d, err := garden.ComputeDebt(inst, now)
+	if err != nil || !d.Due {
+		return "", err //nolint:wrapcheck // garden errors are descriptive
+	}
+	why := strings.Join(d.Reasons, ", ")
+	if !auto {
+		return "garden ▸ debt due (" + why + ") — run /garden", nil
+	}
+	if n := launchesOn(inst, now); n >= max(1, inst.Config.Garden.LaunchPerDay) {
+		return "garden ▸ debt due (" + why + "); today's launch is spent — run /garden", nil
+	}
+	if _, _, err := l.launch(ctx, inst, false, false); err != nil {
+		return "", err
+	}
+	return "garden ▸ launched (" + inst.Config.Garden.Model + ", " + why + ") — strata garden status", nil
+}
+
+// runLine reports an existing run, resuming it when it is lost.
+func (l launcher) runLine(ctx context.Context, inst *config.Instance, s *garden.Session, now time.Time, auto bool) (string, error) {
+	progress := ""
+	if p, err := garden.LoadProgress(inst.Root, s.Run); err == nil {
+		c := p.Counts()
+		progress = fmt.Sprintf(" (%d/%d tasks)", len(p.Order)-c[garden.TaskPending]-c[garden.TaskInProgress], len(p.Order))
+	}
+	switch {
+	case garden.LeaseLive(inst, s, now):
+		return fmt.Sprintf("garden ▸ running %s%s — strata garden status", now.Sub(startedAt(s)).Round(time.Minute), progress), nil
+	case s.Attempt >= max(1, inst.Config.Garden.MaxAttempts):
+		return "garden ▸ stuck: run " + s.Run + " failed " + strconv.Itoa(s.Attempt) + " times — strata garden status", nil
+	case !auto:
+		return "garden ▸ run " + s.Run + " lost its lease" + progress + " — strata garden resume", nil
+	}
+	if _, _, err := l.launch(ctx, inst, true, false); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("garden ▸ resuming run %s (attempt %d)%s — strata garden status", s.Run, s.Attempt+1, progress), nil
+}
+
+func startedAt(s *garden.Session) time.Time {
+	t, err := time.Parse(time.RFC3339, s.Started)
+	if err != nil {
+		return time.Time{}
+	}
+	return t
+}
+
+// launchesOn counts today's headless launches (started or deferred).
+func launchesOn(inst *config.Instance, now time.Time) int {
+	h, err := garden.ReadHistory(inst)
+	if err != nil {
+		return 0
+	}
+	day, n := now.Format(time.DateOnly), 0
+	for _, e := range h {
+		t, err := time.Parse(time.RFC3339, e.Started)
+		if err != nil || e.Launcher != "headless" || t.In(now.Location()).Format(time.DateOnly) != day {
+			continue
+		}
+		if (e.Outcome == garden.OutcomeStarted && e.Attempt <= 1) || strings.HasPrefix(e.Outcome, garden.OutcomeDeferred) {
+			n++
+		}
+	}
+	return n
 }

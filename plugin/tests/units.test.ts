@@ -48,9 +48,21 @@ test('status text formatting', () => {
       worktree: '/r/.strata/worktrees/g',
       started: '2026-11-08T01:02:00-05:00',
     },
+    garden_live: true,
   })
   expect(formatStatus(null, running)).toBe(
     '⛬ 1,204 · inbox 3 · ? 1 · gates ✓ · garden running since 01:02',
+  )
+  const lost = parseStatus({
+    ...RAW_STATUS,
+    garden_run: { started: 'x' },
+    garden_debt: { due: true },
+  })
+  expect(formatStatus(null, lost)).toBe(
+    '⛬ 1,204 · inbox 3 · ? 1 · gates ✓ · garden lost (strata garden resume)',
+  )
+  expect(formatStatus(null, parseStatus({ ...RAW_STATUS, garden_debt: { due: true } }))).toBe(
+    '⛬ 1,204 · inbox 3 · ? 1 · gates ✓ · garden due',
   )
   expect(formatStatus({ kind: 'missing', message: 'x' }, ok)).toBe('⛬ strata engine not found')
   expect(formatStatus({ kind: 'mismatch', version: '0.2.0', plugin: '0.1.0' }, ok)).toBe(

@@ -38,7 +38,13 @@ export function formatStatus(engine: StrataEngine | null, status: StrataStatus |
     status.gates === 'blocked' ? `gates ✗${status.blocking}` : 'gates ✓',
   ]
   if (status.gardenRun !== null) {
-    parts.push(`garden running since ${clock(status.gardenRun.started)}`)
+    parts.push(
+      status.gardenRun.live
+        ? `garden running since ${clock(status.gardenRun.started)}`
+        : 'garden lost (strata garden resume)',
+    )
+  } else if (status.gardenDue) {
+    parts.push('garden due')
   }
   return parts.join(' · ')
 }
@@ -68,7 +74,13 @@ export function parseStatus(raw: unknown): StrataStatus {
     gardenRun:
       run === null
         ? null
-        : { branch: str(run.branch), worktree: str(run.worktree), started: str(run.started) },
+        : {
+            branch: str(run.branch),
+            worktree: str(run.worktree),
+            started: str(run.started),
+            live: r.garden_live === true,
+          },
+    gardenDue: obj(r.garden_debt)?.due === true,
   }
 }
 

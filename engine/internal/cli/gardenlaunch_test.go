@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -210,5 +211,78 @@ func TestLaunchDryRun(t *testing.T) {
 	out, _, code := run(t, "--root", dir, "garden", "launch", "--resume", "--dry-run")
 	if code != 0 || !strings.Contains(out, "garden supervise --resume") || !strings.Contains(out, "--root "+dir) {
 		t.Fatalf("dry run: %d %q", code, out)
+	}
+}
+
+// recordingLauncher records the supervisor argv it would start.
+func recordingLauncher(calls *[][]string) launcher {
+	return launcher{
+		self: func() (string, error) { return "/bin/strata", nil },
+		exec: func(ctx context.Context, dir string, env []string, out io.Writer, name string, args ...string) (*exec.Cmd, error) {
+			*calls = append(*calls, append([]string{name}, args...))
+			return startProcess(ctx, dir, env, out, "true")
+		},
+	}
+}
+
+func TestSessionLine(t *testing.T) { //nolint:paralleltest // sets environment variables
+	at := launchNow
+	lease := func(beat time.Time, attempt int) string {
+		return `{"v":2,"run":"r1","fence":1,"attempt":` + fmt.Sprint(attempt) + `,"started":"2026-11-07T11:00:00Z","heartbeat_at":"` +
+			beat.UTC().Format(time.RFC3339) + `","branch":"garden/r1","worktree":"/w","base":"main","base_ref":"main"}`
+	}
+	for _, tc := range []struct {
+		files map[string]string
+		env   string
+		name  string
+		want  string
+		argv  string
+		auto  bool
+	}{
+		{name: "gardener session", env: envGarden, want: ""},
+		{name: "evals and CI", env: envNoAutolaunch, want: ""},
+		{name: "due, auto off", want: "debt due (inbox oldest 6d) — run /garden"},
+		{name: "due, auto on", auto: true, want: "garden ▸ launched (opus, inbox oldest 6d)", argv: "garden supervise"},
+		{
+			name: "due, today's launch spent", auto: true, want: "today's launch is spent",
+			files: map[string]string{garden.HistoryFile: `{"run":"r0","attempt":1,"launcher":"headless","started":"2026-11-07T08:00:00Z","outcome":"started"}` + "\n"},
+		},
+		{name: "live run", auto: true, files: map[string]string{garden.RunMarker: lease(at.Add(-time.Minute), 1)}, want: "garden ▸ running 1h0m0s"},
+		{name: "lost run, auto off", files: map[string]string{garden.RunMarker: lease(at.Add(-time.Hour), 1)}, want: "lost its lease — strata garden resume"},
+		{name: "lost run, auto on", auto: true, files: map[string]string{garden.RunMarker: lease(at.Add(-time.Hour), 1)}, want: "resuming run r1 (attempt 2)", argv: "garden supervise --resume"},
+		{name: "stuck run", auto: true, files: map[string]string{garden.RunMarker: lease(at.Add(-time.Hour), 3)}, want: "garden ▸ stuck: run r1 failed 3 times"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.env != "" {
+				t.Setenv(tc.env, "1")
+			}
+			dir := testutil.CopyFixture(t, "instance-basic")
+			for p, body := range tc.files {
+				testutil.WriteFile(t, dir, p, body)
+			}
+			inst, err := config.Open(dir, "")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if tc.auto {
+				inst.Config.Garden.AutoLaunch = "on"
+			}
+			// The fixture's oldest inbox item dates from 2026-11-01: 6 days old.
+			var calls [][]string
+			line, err := recordingLauncher(&calls).sessionLine(context.Background(), inst, at)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if (tc.want == "") != (line == "") || !strings.Contains(line, tc.want) {
+				t.Fatalf("line %q, want %q", line, tc.want)
+			}
+			got := ""
+			if len(calls) > 0 {
+				got = strings.Join(calls[0], " ")
+			}
+			if (tc.argv == "") != (got == "") || !strings.Contains(got, tc.argv) {
+				t.Fatalf("launch %q, want %q", got, tc.argv)
+			}
+		})
 	}
 }

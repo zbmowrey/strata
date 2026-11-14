@@ -12,12 +12,12 @@ import (
 
 func init() { register(newHookCmd) }
 
-// hookGates, hookGardenAuto and hookGardenDebt are wired by the gates and
+// hookGates, hookGardenAuto and hookGardenLine are wired by the gates and
 // garden commands.
 var (
 	hookGates      hooks.Gates
 	hookGardenAuto hooks.GardenAuto
-	hookGardenDebt hooks.GardenDebt
+	hookGardenLine hooks.GardenLine
 )
 
 func newHookCmd(a *app) *cobra.Command {
@@ -34,7 +34,7 @@ func newHookCmd(a *app) *cobra.Command {
 			}
 			code := hooks.Run(cmd.Context(), args[0], a.io.In, hooks.Env{
 				Now: a.now, Out: a.io.Out, Err: a.io.Err, Root: a.g.root, Subagent: subagent,
-				Gates: hookGates, GardenAuto: hookGardenAuto, GardenDebt: hookGardenDebt,
+				Gates: hookGates, GardenAuto: hookGardenAuto, GardenLine: hookGardenLine,
 			})
 			return fail.Silent(code)
 		},

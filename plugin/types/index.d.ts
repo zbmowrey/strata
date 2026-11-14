@@ -19,8 +19,10 @@ export type StrataStatus = {
   /** The session's last gate outcome (hook state). */
   gates: 'ok' | 'blocked' | 'unknown'
   blocking: number
-  /** A /garden run in progress (the run marker), if any. */
-  gardenRun: { branch: string; worktree: string; started: string } | null
+  /** A garden run (the lease), if any; `live` is false once it lost its lease. */
+  gardenRun: { branch: string; worktree: string; started: string; live: boolean } | null
+  /** Garden debt is due and no run is active. */
+  gardenDue: boolean
 }
 
 export type StrataProject = { slug: string; title: string; next: string }
