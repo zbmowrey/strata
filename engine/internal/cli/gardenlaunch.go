@@ -38,6 +38,7 @@ var gardenerTools = []string{
 	"Read", "Glob", "Grep",
 	"Bash(strata new:*)", "Bash(strata questions ask:*)", "Bash(strata questions show:*)",
 	"Bash(strata garden task:*)", "Bash(strata scripts list:*)", "Bash(strata gates explain:*)",
+	"Bash(strata bench retrieval:*)",
 	"Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git show:*)",
 	"Bash(git add:*)", "Bash(git commit:*)", "Bash(git mv:*)", "Bash(git rm:*)",
 }
@@ -272,7 +273,12 @@ func (l launcher) publish(ctx context.Context, inst *config.Instance, res *garde
 		return "garden ▸ run " + res.Run + " failed verification — the next session resumes it with the failures", nil
 	}
 	_ = os.Remove(filepath.Join(runDir, "verify.json"))
-	fr, err := garden.Finish(ctx, inst, garden.FinishOptions{Fence: res.Fence})
+	s, err := garden.LoadSession(inst)
+	if err != nil {
+		return "", err //nolint:wrapcheck // garden errors are descriptive
+	}
+	body := garden.RenderDigest(inst.Root, s) + "\nVerified by the supervisor: `strata check --all` ✓ · `strata bench retrieval` ✓\n"
+	fr, err := garden.Finish(ctx, inst, garden.FinishOptions{Fence: res.Fence, Body: body})
 	if err != nil {
 		return "", err //nolint:wrapcheck // garden errors are descriptive
 	}
