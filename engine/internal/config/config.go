@@ -106,6 +106,8 @@ type Garden struct {
 	OrphanMinAgeDays int `toml:"orphan_min_age_days"`
 	// LeaseTTL is the heartbeat age after which a run is lost (07 §9.2).
 	LeaseTTL Duration `toml:"lease_ttl"`
+	// MaxAttempts bounds resumes before a run is marked stuck (07 §9.3).
+	MaxAttempts int `toml:"max_attempts"`
 	// Garden debt thresholds (docs/spec/07 §9.1).
 	DebtInboxDays int `toml:"debt_inbox_days"`
 	DebtTasks     int `toml:"debt_tasks"`
@@ -153,7 +155,7 @@ func Default() Config {
 		Projects:  Projects{StaleAfter: Days(30), AdhocRetention: Days(30)},
 		Gates:     Gates{StopMaxBlocks: 3, EditBudget: Duration{Seconds: 2}},
 		Hooks:     Hooks{PreEditContext: true, StopNudge: "once", SessionStartGardenAuto: true},
-		Garden:    Garden{Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02, OrphanMinAgeDays: 30, LeaseTTL: Duration{Seconds: 1800}, DebtInboxDays: 3, DebtTasks: 10, DebtDays: 7},
+		Garden:    Garden{Forge: "auto", BranchPrefix: "garden/", BenchTolerance: 0.02, OrphanMinAgeDays: 30, LeaseTTL: Duration{Seconds: 1800}, MaxAttempts: 3, DebtInboxDays: 3, DebtTasks: 10, DebtDays: 7},
 		Telemetry: Telemetry{Enabled: true, Retention: Days(180), StoreQueries: true},
 	}
 }

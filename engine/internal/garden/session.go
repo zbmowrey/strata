@@ -52,8 +52,14 @@ type StartResult struct {
 	Tasks    int            `json:"tasks"`
 	Fixes    int            `json:"fixes"`
 	Fence    int            `json:"fence,omitempty"`
-	V        int            `json:"v"`
-	Tidy     bool           `json:"tidy"`
+	Attempt  int            `json:"attempt,omitempty"`
+	// Resume only: the run continues; Remaining lists its open tasks and
+	// Salvage names a patch of uncommitted work that could not be committed.
+	Remaining []string `json:"remaining,omitempty"`
+	Salvage   string   `json:"salvage,omitempty"`
+	Resumed   bool     `json:"resumed,omitempty"`
+	V         int      `json:"v"`
+	Tidy      bool     `json:"tidy"`
 }
 
 // git runs git in dir and returns trimmed stdout.
@@ -154,7 +160,7 @@ func Start(ctx context.Context, inst *config.Instance, now func() time.Time, own
 		return nil, err
 	}
 	if res.Tidy {
-		if err := Abort(ctx, inst); err != nil {
+		if err := abortWith(ctx, inst, OutcomeTidy, t); err != nil {
 			return nil, err
 		}
 		return &StartResult{V: 2, Tidy: true, Counts: map[string]int{}, Skipped: []string{}, OpenPRs: res.OpenPRs}, nil
@@ -218,6 +224,15 @@ func planInWorktree(ctx context.Context, inst *config.Instance, s *Session, now 
 		res.Fixes = len(p.Fixes)
 	}
 	res.Tidy = res.Tasks == 0 && !committed
+	if res.Tidy {
+		return res, nil
+	}
+	// The run's plan and ledger live in the main tree (07 §9.3).
+	if err := initRun(inst.Root, s.Run, p); err != nil {
+		return nil, err
+	}
+	res.PlanFile = filepath.Join(RunDir(inst.Root, s.Run), runPlanFile)
+	record(inst.Root, s, OutcomeStarted, now(), nil)
 	return res, nil
 }
 
@@ -323,7 +338,10 @@ func Finish(ctx context.Context, inst *config.Instance, opt FinishOptions) (*Fin
 		return nil, err
 	}
 	if n, _ := strconv.Atoi(ahead); n == 0 {
-		return &FinishResult{V: 1, Message: "nothing to propose"}, Abort(ctx, inst)
+		return &FinishResult{V: 1, Message: "nothing to propose"}, abortWith(ctx, inst, OutcomeTidy, time.Now())
+	}
+	if opt.Body == "" {
+		opt.Body = RenderDigest(inst.Root, s)
 	}
 	if _, err := git(ctx, inst.Root, "push", "--quiet", "-u", "origin", s.Branch); err != nil {
 		return nil, fail.Wrap(fail.Runtime, "the branch and worktree are kept; fix the remote and rerun `strata garden finish`", err)
@@ -332,6 +350,11 @@ func Finish(ctx context.Context, inst *config.Instance, opt FinishOptions) (*Fin
 	if err := openPR(ctx, inst, s, opt, res); err != nil {
 		return nil, err
 	}
+	record(inst.Root, s, OutcomePR, time.Now(), func(e *HistoryEntry) {
+		if res.PR != nil {
+			e.PR = res.PR.Number
+		}
+	})
 	return res, cleanup(ctx, inst, s, false)
 }
 
@@ -353,9 +376,12 @@ func openPR(ctx context.Context, inst *config.Instance, s *Session, opt FinishOp
 	if err != nil {
 		return err //nolint:wrapcheck // forge errors are descriptive
 	}
-	pr, err := f.CreateDraft(ctx, s.Branch, s.Base, title, opt.Body)
-	if err != nil {
-		return err //nolint:wrapcheck // forge errors are descriptive
+	// A retried finish reuses the PR an earlier attempt already opened.
+	pr, found := existingPR(ctx, f, s.Branch)
+	if !found {
+		if pr, err = f.CreateDraft(ctx, s.Branch, s.Base, title, opt.Body); err != nil {
+			return err //nolint:wrapcheck // forge errors are descriptive
+		}
 	}
 	res.PR = &pr
 	if opt.NoReady {
@@ -368,14 +394,36 @@ func openPR(ctx context.Context, inst *config.Instance, s *Session, opt FinishOp
 	return nil
 }
 
-// Abort removes the worktree, the unpushed local branch and the marker.
+// existingPR finds an open PR whose head is exactly branch.
+func existingPR(ctx context.Context, f forge.Forge, branch string) (forge.PR, bool) {
+	prs, err := f.FindOpen(ctx, branch)
+	if err != nil {
+		return forge.PR{}, false
+	}
+	for _, pr := range prs {
+		if pr.Branch == branch {
+			return pr, true
+		}
+	}
+	return forge.PR{}, false
+}
+
+// Abort removes the worktree, the unpushed local branch and the lease, and
+// records the run as aborted.
 func Abort(ctx context.Context, inst *config.Instance) error {
+	return abortWith(ctx, inst, OutcomeAborted, time.Now())
+}
+
+func abortWith(ctx context.Context, inst *config.Instance, outcome string, now time.Time) error {
 	s, err := LoadSession(inst)
 	if fail.CodeOf(err) == fail.Locked {
 		return os.Remove(inst.Path(filepath.FromSlash(RunMarker))) //nolint:wrapcheck // os errors carry the path
 	}
 	if err != nil {
 		return err
+	}
+	if s.Run != "" {
+		record(inst.Root, s, outcome, now, nil)
 	}
 	return cleanup(ctx, inst, s, true)
 }
