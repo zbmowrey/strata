@@ -24,7 +24,8 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 | 3 | Partial result (e.g., `show` with some ids missing) |
 | 4 | Usage error (bad flags, query parse error) |
 | 5 | Not an instance / config invalid |
-| 6 | Lock held (garden, index strict mode) |
+| 6 | Lock held (garden lease live, index strict mode) |
+| 7 | Fenced: the caller's garden fence is not the lease's current fence ([07](07-gardener.md) §9.2) |
 
 ## 3. Commands
 
@@ -68,7 +69,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 `strata check [--changed\|--staged\|--all\|<paths…>] [--stage edit\|stop\|commit\|ci] [--fix]` · `gates list` · `gates explain <gate>[/<rule>]` · `gates baseline <gate> [--accept]`.
 
 ### Gardener
-`strata garden [--plan] [--auto] [--format json]` (deterministic phase; judgment phase is `/garden` in the plugin).
+`strata garden [--plan] [--auto] [--format json]` (deterministic phase; judgment phase is `/garden` in the plugin). Run control ([07](07-gardener.md) §3, §9): `garden start [--launcher manual|headless]` · `garden finish --fence N […]` · `garden abort` · `garden resume [--force]` · `garden task start|done|skip|escalate <task-id> [--note …]` · `garden status` · `garden launch [--resume] [--dry-run]` (`garden supervise` is internal).
 
 ### Claude integration
 `strata hook <session-start\|pre-edit\|post-edit\|post-bash\|stop\|pre-compact> [--subagent]` (reads stdin JSON) · `strata perms sync`.
@@ -85,7 +86,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 
 ## 4. `strata doctor` checks
 
-Engine version ≥ `min_version`; plugin installed and version-matched (from Claude Code's `plugins/installed_plugins.json`; a warning, since the hooks enforce without the plugin); hooks present in `.claude/settings.json`; `CLAUDE.md` managed block present and current; required tools present at pinned versions (`tools.toml`); index healthy; git pre-commit hook installed; `.gitignore` managed blocks current; no disabled gates without reasons; lint summary (counts by severity); open questions; garden lock not stale (> 2 h → offer to clear). `--fix` applies safe fixes (regenerate managed blocks, install missing git hook, clear stale lock) and prints install commands for missing tools (it never installs system tools itself).
+Engine version ≥ `min_version`; plugin installed and version-matched (from Claude Code's `plugins/installed_plugins.json`; a warning, since the hooks enforce without the plugin); hooks present in `.claude/settings.json`; `CLAUDE.md` managed block present and current; required tools present at pinned versions (`tools.toml`); index healthy; git pre-commit hook installed; `.gitignore` managed blocks current; no disabled gates without reasons; lint summary (counts by severity); open questions; garden lease: live, resumable (expired with commits or salvageable changes → "resumable: strata garden resume"), or debris (expired, nothing to salvage → offer to clear); a `stuck` run is reported with `.strata/garden/last-failure`. `--fix` applies safe fixes (regenerate managed blocks, install missing git hook, clear stale lock) and prints install commands for missing tools (it never installs system tools itself).
 
 ## 5. Output conventions
 
@@ -145,6 +146,18 @@ forge = "auto"               # auto | github | forgejo
 branch_prefix = "garden/"
 bench_tolerance = 0.02
 escalate = []                # extra task types to always escalate
+auto_launch = "off"          # off | on — debt-driven headless launch at SessionStart (D-031)
+model = "opus"               # gardener model (D-032); effort below
+effort = "medium"
+lease_ttl = "30m"            # heartbeat age after which a run is considered lost
+max_run = "90m"              # supervisor kills the agent after this
+max_attempts = 3             # resumes before a run is marked stuck
+max_open_prs = 1             # launch defers while this many garden PRs are open
+launch_per_day = 1
+orphan_min_age_days = 30     # D-033
+debt_inbox_days = 3          # debt is due when any threshold is crossed (07 §9.1)
+debt_tasks = 10
+debt_days = 7
 
 [telemetry]
 enabled = true

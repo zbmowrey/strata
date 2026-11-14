@@ -98,12 +98,13 @@ No `UserPromptSubmit` hook is installed (no auto-injection; D-006).
 All hook adapters: read JSON from stdin (fields such as `session_id`, `cwd`, `hook_event_name`, `tool_name`, `tool_input`, `tool_response`, `stop_hook_active` — verify current names); never crash (any internal error → exit 0 with a one-line stderr warning, except where blocking is the intended outcome); write a `hook` telemetry event with duration; keep per-session state in `.strata/session/<session_id>.json`.
 
 ### 4.1 `session-start`
-Refresh the index; run `garden --auto` if enabled; then print (stdout → added to context), ≤ 25 lines:
+Refresh the index; run `garden --auto` if enabled; take the garden decision ([07](07-gardener.md) §9.5: report a live run, resume a lost one, or launch on due debt when `[garden] auto_launch = "on"`; launching forks and never waits); then print (stdout → added to context), ≤ 25 lines:
 ```
 strata ▸ 1,204 shards · 37 scripts · 9 playbooks · index fresh (12 ms)
 Active projects:
   ci-flake — Next: 1. write find-leaked-fixtures (strata new script testing/find-leaked-fixtures)
 Inbox 3 · Open questions 1 (strata questions list) · Stale 4 · Garden PR #41 awaiting review
+garden ▸ launched (opus, inbox oldest 6d) — strata garden status
 ⚠ doctor: semgrep 1.80 < pinned 1.95 (strata doctor)
 ```
 
@@ -150,7 +151,7 @@ The plugin is a Claude Code mod (function-hooks module in TypeScript) plus markd
 
 ### 5.3 Status line
 
-`$.ui.status(...)`, updated at `session.start`, after each `strata` invocation the plugin observes, and after hook-relevant tool calls: `⛬ 1,204 · inbox 3 · ? 1 · gates ✓` (gates ✗N when the last edit/stop gate run had blocking findings; `garden PR #41` when one is open).
+`$.ui.status(...)`, updated at `session.start`, after each `strata` invocation the plugin observes, and after hook-relevant tool calls: `⛬ 1,204 · inbox 3 · ? 1 · gates ✓` (gates ✗N when the last edit/stop gate run had blocking findings; `garden PR #41` when one is open; `garden ▸ 12m 4/9` while a run holds a live lease; `garden due` when debt is due and nothing is running; `garden stuck` for a run past `max_attempts`).
 
 ### 5.4 Pane
 
@@ -164,7 +165,7 @@ Register `strata_search` and `strata_show` via `$.tool.register` as typed tools 
 
 | Agent | Purpose | Tools | Notes |
 |---|---|---|---|
-| `gardener` | Executes garden plans under the autonomy matrix | all | Loads `strata-garden` skill; never merges; escalates per [07](07-gardener.md) §5.3 |
+| `gardener` | Executes garden plans under the autonomy matrix | all | Loads `strata-garden` skill; never merges; escalates per [07](07-gardener.md) §5.3; frontmatter pins `model: opus` (D-032) rather than `inherit`; headless runs pass `[garden] model`/`effort` explicitly ([07](07-gardener.md) §9.4) |
 | `scout` | KB-first read-only research: answers a question using search → show → code, returns ids + conclusion | read-only + Bash(strata search/show/context) | Terse returns with shard ids, not dumps |
 | `scribe` | Turns raw findings/logs into well-formed shards (schema, size, links) | Read, Write, Edit, Bash(strata …) | Used by gardener for filing/distillation |
 | `scriptsmith` | Writes or extends scripts per [04](04-scriptorium.md) §9 | all | Must leave all gates green |
