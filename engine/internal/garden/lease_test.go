@@ -196,3 +196,29 @@ func TestWorktreeGitDir(t *testing.T) {
 		t.Fatal("malformed .git file")
 	}
 }
+
+func TestAcquireLeaseRace(t *testing.T) {
+	t.Parallel()
+	inst := leaseInstance(t)
+	at := time.Date(2026, 11, 14, 12, 0, 0, 0, time.UTC)
+	const racers = 8
+	errs := make(chan error, racers)
+	for i := range racers {
+		go func() {
+			_, err := acquireLease(inst, at, "r"+string(rune('a'+i)), Owner{})
+			errs <- err
+		}()
+	}
+	won := 0
+	for range racers {
+		switch err := <-errs; {
+		case err == nil:
+			won++
+		case fail.CodeOf(err) != fail.Locked:
+			t.Errorf("unexpected error: %v", err)
+		}
+	}
+	if won != 1 {
+		t.Fatalf("%d racers acquired the lease, want exactly 1", won)
+	}
+}
