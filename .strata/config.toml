@@ -3,3 +3,11 @@
 
 [engine]
 min_version = "0.1.0"
+
+[garden]
+# D-031: this repo opts in to debt-driven headless gardening.
+auto_launch = "on"
+# The published plugin's gardener agent predates headless runs, so its
+# --root/-C instructions don't match the headless allowlist. Remove this
+# line once a plugin with the D-032 gardener is installed.
+agent = ""
