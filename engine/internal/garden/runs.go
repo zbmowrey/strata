@@ -242,9 +242,16 @@ func RenderDigest(mainRoot string, s *Session) string {
 		return ""
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "## Garden %s\n\n", s.Run)
+	summary := ""
 	if raw, err := os.ReadFile(filepath.Join(s.Worktree, filepath.FromSlash(summaryFile))); err == nil { //nolint:gosec // G304: the run's own worktree
-		b.WriteString(strings.TrimSpace(string(raw)) + "\n\n")
+		summary = strings.TrimSpace(string(raw))
+	}
+	// The gardener's summary usually brings its own "## Garden …" heading.
+	if !strings.HasPrefix(summary, "## ") {
+		fmt.Fprintf(&b, "## Garden %s\n\n", s.Run)
+	}
+	if summary != "" {
+		b.WriteString(summary + "\n\n")
 	}
 	c := p.Counts()
 	fmt.Fprintf(&b, "%d done · %d skipped · %d escalated · attempt %d\n", c[TaskDone], c[TaskSkipped], c[TaskEscalated], s.Attempt)
