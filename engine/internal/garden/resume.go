@@ -136,7 +136,7 @@ func takeOver(inst *config.Instance, seen *Session, now time.Time, opt ResumeOpt
 // stopOwner terminates the previous holder when it is a live process on
 // this host (a hung supervisor), waiting briefly for it to exit.
 func stopOwner(s *Session) {
-	if s.Owner.PID <= 0 || s.Owner.Host != hostname() || !pidAlive(s.Owner.PID) {
+	if s.Owner.PID <= 0 || s.Owner.PID == os.Getpid() || s.Owner.Host != hostname() || !pidAlive(s.Owner.PID) {
 		return
 	}
 	terminate(s.Owner.PID)

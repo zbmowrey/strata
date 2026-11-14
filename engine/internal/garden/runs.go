@@ -37,12 +37,14 @@ const (
 
 // Outcomes beyond OutcomePR and OutcomeTidy.
 const (
-	OutcomeStarted  = "started"
-	OutcomeLost     = "lost"
-	OutcomeAborted  = "aborted"
-	OutcomeStuck    = "stuck"
-	OutcomeFailed   = "failed"
-	OutcomeDeferred = "deferred"
+	OutcomeStarted      = "started"
+	OutcomeLost         = "lost"
+	OutcomeAborted      = "aborted"
+	OutcomeStuck        = "stuck"
+	OutcomeFailed       = "failed"
+	OutcomeFailedVerify = "failed-verify"
+	OutcomeTimeout      = "timeout"
+	OutcomeDeferred     = "deferred"
 )
 
 // TaskState is one task's progress.
@@ -264,4 +266,24 @@ func RenderDigest(mainRoot string, s *Session) string {
 		}
 	}
 	return b.String()
+}
+
+// RecordOutcome appends an outcome for the current lease holder's attempt
+// (the supervisor's view of how its agent ended).
+func RecordOutcome(inst *config.Instance, outcome string, now time.Time, pr int) {
+	s, err := LoadSession(inst)
+	if err != nil {
+		return
+	}
+	record(inst.Root, s, outcome, now, func(e *HistoryEntry) { e.PR = pr })
+}
+
+// RecordDeferred notes a launch that did not start because garden PRs
+// await review; it counts toward launch_per_day.
+func RecordDeferred(inst *config.Instance, now time.Time, why string) {
+	stamp := now.UTC().Format(time.RFC3339)
+	_ = appendHistory(inst.Root, HistoryEntry{
+		Run: "deferred-" + now.Format("20060102-1504"), Launcher: "headless", Started: stamp, Ended: stamp,
+		Outcome: OutcomeDeferred + ": " + why,
+	})
 }

@@ -90,7 +90,8 @@ func newGardenCmd(a *app) *cobra.Command {
 	cmd.Flags().BoolVar(&auto, "auto", false, "apply mechanical fixes only")
 	cmd.MarkFlagsMutuallyExclusive("plan", "auto")
 	cmd.AddCommand(newGardenStartCmd(a), newGardenFinishCmd(a), newGardenAbortCmd(a),
-		newGardenResumeCmd(a), newGardenTaskCmd(a), newGardenStatusCmd(a))
+		newGardenResumeCmd(a), newGardenTaskCmd(a), newGardenStatusCmd(a),
+		newGardenLaunchCmd(a), newGardenSuperviseCmd(a))
 	return cmd
 }
 

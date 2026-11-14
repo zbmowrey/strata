@@ -148,7 +148,8 @@ bench_tolerance = 0.02
 escalate = []                # extra task types to always escalate
 auto_launch = "off"          # off | on — debt-driven headless launch at SessionStart (D-031)
 model = "opus"               # gardener model (D-032); effort below
-effort = "medium"
+effort = "medium"            # low | medium | high | xhigh | max
+agent = "strata:gardener"    # Claude Code agent for headless runs ("" = none)
 lease_ttl = "30m"            # heartbeat age after which a run is considered lost
 max_run = "90m"              # supervisor kills the agent after this
 max_attempts = 3             # resumes before a run is marked stuck

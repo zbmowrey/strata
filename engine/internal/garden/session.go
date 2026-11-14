@@ -207,7 +207,7 @@ func planInWorktree(ctx context.Context, inst *config.Instance, s *Session, now 
 		V: 2, Run: s.Run, Fence: s.Fence, Worktree: s.Worktree, Branch: s.Branch, Base: s.Base,
 		PlanFile: wt.Path(filepath.FromSlash(PlanFile)), Skipped: []string{},
 	}
-	res.OpenPRs = openGardenPRs(ctx, inst)
+	res.OpenPRs = OpenGardenPRs(ctx, inst)
 	if touched := touchedFiles(res.OpenPRs); len(touched) > 0 {
 		res.Skipped = p.dropTouching(touched)
 		p.finish(wt.Config.Garden.Escalate)
@@ -236,7 +236,8 @@ func planInWorktree(ctx context.Context, inst *config.Instance, s *Session, now 
 	return res, nil
 }
 
-func openGardenPRs(ctx context.Context, inst *config.Instance) []forge.PR {
+// OpenGardenPRs lists open PRs on garden branches (none without a forge CLI).
+func OpenGardenPRs(ctx context.Context, inst *config.Instance) []forge.PR {
 	f, err := forge.Open(ctx, inst.Root, inst.Config.Garden.Forge)
 	if err != nil {
 		return []forge.PR{}
