@@ -43,6 +43,8 @@ export type StrataGardenRun = {
   worktree: string
   branch: string
   tasks: number
+  /** Lease fence from `garden start`; `garden finish --fence` refuses a stale one. */
+  fence?: number
 }
 
 declare module 'claude-code' {

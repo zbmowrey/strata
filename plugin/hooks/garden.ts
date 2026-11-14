@@ -71,6 +71,7 @@ export async function startGarden($: GardenHost): Promise<GardenStarted> {
       worktree: start.worktree,
       branch: start.branch,
       tasks: start.tasks,
+      fence: start.fence,
     },
   }
 }
@@ -87,6 +88,7 @@ export async function finishGarden(
   digest: string,
 ): Promise<string> {
   const args = ['garden', 'finish', '--title', `Garden: ${run?.branch ?? 'run'}`]
+  if (run?.fence !== undefined && run.fence > 0) args.push('--fence', String(run.fence))
   if (run !== null && digest.trim() !== '') {
     const path = digestPath(run.worktree)
     await $.fs.write(path, digest.trim() + '\n')

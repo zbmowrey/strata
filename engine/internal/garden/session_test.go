@@ -61,7 +61,7 @@ func gardenRepo(t *testing.T) (*config.Instance, string) {
 func TestGardenStartFinish(t *testing.T) { //nolint:paralleltest // sets PATH and git identity
 	inst, log := gardenRepo(t)
 	ctx := context.Background()
-	res, err := Start(ctx, inst, now)
+	res, err := Start(ctx, inst, now, Owner{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,7 +71,7 @@ func TestGardenStartFinish(t *testing.T) { //nolint:paralleltest // sets PATH an
 	if _, err := os.Stat(res.PlanFile); err != nil {
 		t.Fatalf("plan file: %v", err)
 	}
-	if _, err := Start(ctx, inst, now); fail.CodeOf(err) != fail.Locked {
+	if _, err := Start(ctx, inst, now, Owner{}); fail.CodeOf(err) != fail.Locked {
 		t.Fatalf("second start: %v", err)
 	}
 	// The gardener's work in the worktree.
@@ -107,7 +107,7 @@ func TestGardenStartFinish(t *testing.T) { //nolint:paralleltest // sets PATH an
 func TestGardenAbortAndNothingToPropose(t *testing.T) { //nolint:paralleltest // sets PATH and git identity
 	inst, _ := gardenRepo(t)
 	ctx := context.Background()
-	res, err := Start(ctx, inst, now)
+	res, err := Start(ctx, inst, now, Owner{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +121,7 @@ func TestGardenAbortAndNothingToPropose(t *testing.T) { //nolint:paralleltest //
 		t.Fatalf("branch kept: %q", out)
 	}
 	// A run whose branch has no commits beyond the base proposes nothing.
-	res, err = Start(ctx, inst, now)
+	res, err = Start(ctx, inst, now, Owner{})
 	if err != nil {
 		t.Fatal(err)
 	}

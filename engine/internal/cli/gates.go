@@ -10,6 +10,7 @@ import (
 
 	"github.com/zbmowrey/strata/engine/internal/config"
 	"github.com/zbmowrey/strata/engine/internal/fail"
+	"github.com/zbmowrey/strata/engine/internal/garden"
 	"github.com/zbmowrey/strata/engine/internal/gates"
 	"github.com/zbmowrey/strata/engine/internal/render"
 	"github.com/zbmowrey/strata/engine/internal/search"
@@ -89,6 +90,13 @@ func (a *app) runCheck(ctx context.Context, f checkFlags, args []string) error {
 	inst, err := a.instance()
 	if err != nil {
 		return err
+	}
+	if sel == gates.SelectStaged {
+		// The pre-commit hook: a garden worktree that lost its run must not
+		// commit (docs/spec/07 §9.2).
+		if err := garden.CheckFence(inst, a.now()); err != nil {
+			return err
+		}
 	}
 	if sel == gates.SelectPaths {
 		if args, err = relPaths(inst.Root, args); err != nil {

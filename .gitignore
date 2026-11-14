@@ -21,6 +21,7 @@ __pycache__/
 /.strata/index.lock
 /.strata/knowledge.lock
 /.strata/garden.lock
+/.strata/garden.lock.mu
 /.strata/telemetry/
 /.strata/session/
 /.strata/cache/

@@ -69,7 +69,7 @@ Binary: `strata`. All commands run from anywhere inside an instance (repo root d
 `strata check [--changed\|--staged\|--all\|<paths…>] [--stage edit\|stop\|commit\|ci] [--fix]` · `gates list` · `gates explain <gate>[/<rule>]` · `gates baseline <gate> [--accept]`.
 
 ### Gardener
-`strata garden [--plan] [--auto] [--format json]` (deterministic phase; judgment phase is `/garden` in the plugin). Run control ([07](07-gardener.md) §3, §9): `garden start [--launcher manual|headless]` · `garden finish --fence N […]` · `garden abort` · `garden resume [--force]` · `garden task start|done|skip|escalate <task-id> [--note …]` · `garden status` · `garden launch [--resume] [--dry-run]` (`garden supervise` is internal).
+`strata garden [--plan] [--auto] [--format json]` (deterministic phase; judgment phase is `/garden` in the plugin). Run control ([07](07-gardener.md) §3, §9): `garden start [--launcher manual|headless]` · `garden finish [--fence N] […]` · `garden abort` · `garden resume [--force]` · `garden task start|done|skip|escalate <task-id> [--note …]` · `garden status` · `garden launch [--resume] [--dry-run]` (`garden supervise` is internal).
 
 ### Claude integration
 `strata hook <session-start\|pre-edit\|post-edit\|post-bash\|stop\|pre-compact> [--subagent]` (reads stdin JSON) · `strata perms sync`.

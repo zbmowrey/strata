@@ -260,6 +260,8 @@ test('renderers', () => {
     counts: { 'fix-orphan': 3 },
     skipped: ['a'],
   })
+  expect(start.fence).toBe(0)
+  expect(parseGardenStart({ fence: 3 }).fence).toBe(3)
   expect(gardenerPrompt(start)).toContain('/r/.strata/worktrees/garden-1')
   expect(gardenerPrompt(start)).toContain('3 tasks: fix-orphan 3')
   expect(digestPath('/r/w/')).toBe('/r/w/.strata/garden/digest.md')

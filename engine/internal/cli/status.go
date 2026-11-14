@@ -19,13 +19,15 @@ const cmdStatus = "status"
 
 // statusReport is the cheap snapshot behind the plugin status line.
 type statusReport struct {
-	Garden   *garden.Session `json:"garden_run,omitempty"`
-	Debt     *garden.Debt    `json:"garden_debt,omitempty"`
-	Counts   hooks.Counts    `json:"counts"`
-	Session  string          `json:"session,omitempty"`
-	Gates    string          `json:"gates"` // "ok" | "blocked" | "unknown"
-	Blocking int             `json:"blocking"`
-	V        int             `json:"v"`
+	Garden *garden.Session `json:"garden_run,omitempty"`
+	Debt   *garden.Debt    `json:"garden_debt,omitempty"`
+	// GardenLive is false when the run lost its lease (07 §9.2).
+	GardenLive bool         `json:"garden_live,omitempty"`
+	Counts     hooks.Counts `json:"counts"`
+	Session    string       `json:"session,omitempty"`
+	Gates      string       `json:"gates"` // "ok" | "blocked" | "unknown"
+	Blocking   int          `json:"blocking"`
+	V          int          `json:"v"`
 }
 
 func newStatusCmd(a *app) *cobra.Command {
@@ -60,7 +62,7 @@ func newStatusCmd(a *app) *cobra.Command {
 				}
 			}
 			if s, err := garden.LoadSession(inst); err == nil {
-				rep.Garden = s
+				rep.Garden, rep.GardenLive = s, garden.LeaseLive(inst, s, a.now())
 			}
 			if d, err := garden.ComputeDebt(inst, a.now()); err == nil {
 				rep.Debt = &d
@@ -97,8 +99,10 @@ func statusLine(r statusReport) string {
 		line += " · gates ✗" + strconv.Itoa(r.Blocking)
 	}
 	switch {
-	case r.Garden != nil:
+	case r.Garden != nil && r.GardenLive:
 		line += " · garden running since " + shortTime(r.Garden.Started)
+	case r.Garden != nil:
+		line += " · garden lost (strata garden resume)"
 	case r.Debt != nil && r.Debt.Due:
 		line += " · garden due"
 	}

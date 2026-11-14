@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -46,9 +47,6 @@ const (
 	checkGitHook = "git-hook"
 	checkLint    = "lint"
 )
-
-// StaleGardenLock is the age after which garden.lock is considered stale.
-const StaleGardenLock = 2 * time.Hour
 
 // Run executes every check (and safe fixes with Fix).
 func Run(ctx context.Context, inst *config.Instance, opt Options) []Check {
@@ -105,16 +103,23 @@ func (d *doctor) engine() []Check {
 }
 
 func (d *doctor) gardenLock() []Check {
-	p := d.inst.Path(".strata", "garden.lock")
-	fi, err := os.Stat(p)
-	if err != nil {
+	p := d.inst.Path(filepath.FromSlash(garden.RunMarker))
+	if _, err := os.Stat(p); err != nil {
 		return nil
 	}
-	age := d.opt.Now().Sub(fi.ModTime())
-	if age < StaleGardenLock {
-		return []Check{{Name: "garden-lock", Status: Info, Message: "a gardener run holds garden.lock (" + age.Round(time.Minute).String() + ")"}}
+	now := d.opt.Now()
+	s, err := garden.LoadSession(d.inst)
+	if err == nil && garden.LeaseLive(d.inst, s, now) {
+		return []Check{{Name: "garden-lock", Status: Info, Message: fmt.Sprintf("garden run %s holds the lease (heartbeat %s ago)", s.Run, s.HeartbeatAge(now).Round(time.Minute))}}
 	}
-	c := Check{Name: "garden-lock", Status: Warn, Message: "garden.lock is stale (" + age.Round(time.Minute).String() + " old)", Fix: "strata doctor --fix clears it"}
+	if err == nil && garden.Resumable(d.ctx, d.inst, s) {
+		// Never discard work a resume can finish (docs/spec/07 §9.3).
+		return []Check{{
+			Name: "garden-lock", Status: Warn, Fix: "strata garden resume (or strata garden abort to discard it)",
+			Message: fmt.Sprintf("garden run %s lost its lease and is resumable", s.Run),
+		}}
+	}
+	c := Check{Name: "garden-lock", Status: Warn, Message: "garden lease is stale with nothing to salvage", Fix: "strata doctor --fix clears it"}
 	if d.opt.Fix {
 		// Abort also removes the run's worktree and unpushed branch.
 		if garden.Abort(d.ctx, d.inst) == nil || os.Remove(p) == nil {

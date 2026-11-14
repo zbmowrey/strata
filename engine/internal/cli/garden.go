@@ -67,6 +67,12 @@ func newGardenCmd(a *app) *cobra.Command {
 				return err
 			}
 			opt := garden.Options{Now: a.now, Apply: plan || auto, Plan: plan || !auto}
+			if opt.Apply {
+				// In a garden worktree, a writer must still own the run.
+				if err := garden.CheckFence(inst, a.now()); err != nil {
+					return err
+				}
+			}
 			p, err := garden.Run(cmd.Context(), inst, opt)
 			if err != nil {
 				return err
@@ -88,9 +94,10 @@ func newGardenCmd(a *app) *cobra.Command {
 }
 
 func newGardenStartCmd(a *app) *cobra.Command {
-	return &cobra.Command{
+	var launcher string
+	cmd := &cobra.Command{
 		Use:   "start",
-		Short: "Begin a /garden run: marker, worktree + branch, plan, mechanical-fix commit",
+		Short: "Begin a garden run: lease, worktree + branch, plan, mechanical-fix commit",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			format, err := a.formatOr("line", "line", fmtJSON)
@@ -101,7 +108,10 @@ func newGardenStartCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			res, err := garden.Start(cmd.Context(), inst, a.now)
+			if launcher != "manual" && launcher != "headless" {
+				return fail.New(fail.Usage, "use manual or headless", "unknown launcher %q", launcher)
+			}
+			res, err := garden.Start(cmd.Context(), inst, a.now, garden.Owner{Launcher: launcher, Session: sessionFromEnv()})
 			if err != nil {
 				return err
 			}
@@ -111,9 +121,11 @@ func newGardenStartCmd(a *app) *cobra.Command {
 			if res.Tidy {
 				return a.printf("garden is tidy\n")
 			}
-			return a.printf("%s\n%s · %s · plan: %s\n", res.Worktree, res.Branch, render.Plural(res.Tasks, "task"), res.PlanFile)
+			return a.printf("%s\n%s · fence %d · %s · plan: %s\n", res.Worktree, res.Branch, res.Fence, render.Plural(res.Tasks, "task"), res.PlanFile)
 		},
 	}
+	cmd.Flags().StringVar(&launcher, "launcher", "manual", "who started the run: manual | headless")
+	return cmd
 }
 
 func newGardenFinishCmd(a *app) *cobra.Command {
@@ -158,6 +170,7 @@ func newGardenFinishCmd(a *app) *cobra.Command {
 	cmd.Flags().StringVar(&opt.Title, "title", "", "PR title (default: garden: <stamp>)")
 	cmd.Flags().StringVar(&bodyFile, "body-file", "", "the digest (docs/spec/07-gardener.md §6) used as the PR body")
 	cmd.Flags().BoolVar(&opt.NoReady, "no-ready", false, "leave the PR as a draft")
+	cmd.Flags().IntVar(&opt.Fence, "fence", 0, "the fence from `garden start`; refused (exit 7) when the run was taken over")
 	return cmd
 }
 
