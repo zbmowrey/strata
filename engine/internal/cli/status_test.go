@@ -14,7 +14,8 @@ func TestStatusCommand(t *testing.T) {
 	t.Parallel()
 	dir := testutil.CopyFixture(t, "instance-basic")
 	out, _, code := run(t, "--root", dir, "status")
-	if code != 0 || out != "⛬ 40 · inbox 2 · ? 1\n" {
+	// The fixture's inbox items are days old, so garden debt is due.
+	if code != 0 || out != "⛬ 40 · inbox 2 · ? 1 · garden due\n" {
 		t.Fatalf("status: %d %q", code, out)
 	}
 	testutil.WriteFile(t, dir, ".strata/session/s1.json", `{"last_blocking":3}`)
@@ -28,10 +29,16 @@ func TestStatusCommand(t *testing.T) {
 		Counts struct {
 			Shards int `json:"shards"`
 		} `json:"counts"`
+		Debt struct {
+			Reasons []string `json:"reasons"`
+			Inbox   int      `json:"inbox"`
+			Due     bool     `json:"due"`
+		} `json:"garden_debt"`
 		Gates string `json:"gates"`
 		V     int    `json:"v"`
 	}
-	if code != 0 || json.Unmarshal([]byte(out), &rep) != nil || rep.V != 1 || rep.Gates != "ok" || rep.Counts.Shards != 40 {
+	if code != 0 || json.Unmarshal([]byte(out), &rep) != nil || rep.V != 1 || rep.Gates != "ok" || rep.Counts.Shards != 40 ||
+		!rep.Debt.Due || rep.Debt.Inbox != 2 || len(rep.Debt.Reasons) != 1 {
 		t.Fatalf("status json: %d %q", code, out)
 	}
 }

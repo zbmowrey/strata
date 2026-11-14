@@ -100,6 +100,13 @@ func (h *handler) sessionStart() (outcome, error) {
 		tail = append(tail, fmt.Sprintf("Stale %d", c.Stale))
 	}
 	lines = append(lines, strings.Join(tail, " · "))
+	if h.env.GardenDebt != nil {
+		if line, err := h.env.GardenDebt(h.inst, h.env.Now()); err != nil {
+			lines = append(lines, "⚠ garden debt: "+err.Error())
+		} else if line != "" {
+			lines = append(lines, line)
+		}
+	}
 	if len(lines) > 25 {
 		lines = lines[:25]
 	}

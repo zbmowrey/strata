@@ -171,6 +171,8 @@ Debt is **due** when any of:
 | actionable plan tasks (excluding `escalate`/question tasks) ≥ `[garden] debt_tasks` | 10 |
 | last finished run older than `[garden] debt_days`, and inbox or actionable tasks > 0 | 7 days |
 
+A plan generated before the last finished run is spent and contributes no tasks. An instance with no finished run is judged on the first two signals only, so a single fresh capture never triggers a garden.
+
 `strata status --format json` reports `garden_debt: {due, reasons[], inbox, inbox_oldest_days, tasks, last_run_days}`. The session-start line and the status line show it (08 §4.1, §5.3).
 
 ### 9.2 The run lease

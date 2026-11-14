@@ -20,6 +20,7 @@ const cmdStatus = "status"
 // statusReport is the cheap snapshot behind the plugin status line.
 type statusReport struct {
 	Garden   *garden.Session `json:"garden_run,omitempty"`
+	Debt     *garden.Debt    `json:"garden_debt,omitempty"`
 	Counts   hooks.Counts    `json:"counts"`
 	Session  string          `json:"session,omitempty"`
 	Gates    string          `json:"gates"` // "ok" | "blocked" | "unknown"
@@ -61,6 +62,9 @@ func newStatusCmd(a *app) *cobra.Command {
 			if s, err := garden.LoadSession(inst); err == nil {
 				rep.Garden = s
 			}
+			if d, err := garden.ComputeDebt(inst, a.now()); err == nil {
+				rep.Debt = &d
+			}
 			if format == fmtJSON {
 				return render.JSON(a.io.Out, rep)
 			}
@@ -92,8 +96,11 @@ func statusLine(r statusReport) string {
 	case "blocked":
 		line += " · gates ✗" + strconv.Itoa(r.Blocking)
 	}
-	if r.Garden != nil {
+	switch {
+	case r.Garden != nil:
 		line += " · garden running since " + shortTime(r.Garden.Started)
+	case r.Debt != nil && r.Debt.Due:
+		line += " · garden due"
 	}
 	return line
 }

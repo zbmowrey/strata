@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -16,6 +18,16 @@ import (
 func init() {
 	register(newGardenCmd)
 	hookGardenAuto = gardenAuto
+	hookGardenDebt = gardenDebtLine
+}
+
+// gardenDebtLine is the session-start garden line: empty unless debt is due.
+func gardenDebtLine(inst *config.Instance, now time.Time) (string, error) {
+	d, err := garden.ComputeDebt(inst, now)
+	if err != nil || !d.Due {
+		return "", err
+	}
+	return "garden ▸ debt due (" + strings.Join(d.Reasons, ", ") + ") — run /garden", nil
 }
 
 // gardenAuto is the session-start safe subset: mechanical fixes only.

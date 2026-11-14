@@ -33,6 +33,9 @@ type Gates func(ctx context.Context, inst *config.Instance, stage string, paths 
 // for the paths the index refresh found changed.
 type GardenAuto func(ctx context.Context, inst *config.Instance, changed []string) (string, error)
 
+// GardenDebt reports the session-start garden line ("" when nothing is due).
+type GardenDebt func(inst *config.Instance, now time.Time) (string, error)
+
 // Env is everything a hook needs besides its payload.
 type Env struct {
 	Now        func() time.Time
@@ -40,6 +43,7 @@ type Env struct {
 	Err        io.Writer
 	Gates      Gates
 	GardenAuto GardenAuto
+	GardenDebt GardenDebt
 	Root       string // instance root override (--root); else discovered from the payload cwd
 	Subagent   bool
 }
