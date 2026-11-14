@@ -6,6 +6,15 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-13
+
+### Fixed
+
+- **Capture filenames no longer split words:** `Slugify` cut slugs at exactly 40 characters, so a
+  capture filename could end mid-word ("checker" lost its last letter), and spell-check gates then flagged the
+  name. It now cuts at the word break nearest the limit, before or after it, and still cuts at the limit
+  when the text has no break. Question ids get the same fix. A slug can now run a few characters past 40.
+
 ## [0.1.1] - 2026-11-08
 
 Fixes found by installing 0.1.0 into a fresh repository through the public path.
@@ -82,6 +91,7 @@ First release: the full v1 design in `docs/spec/` (Phases 0–12 of the build pl
 - Retrieval bench (engine repo, 34 queries): MRR 0.944, recall@5 0.956, nDCG@10 0.947.
 - Protocol suite (claude-opus-5-5, 3 runs each): 12/12 scenarios pass (11 at 3/3).
 
-[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/zbmowrey/strata/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/zbmowrey/strata/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/zbmowrey/strata/releases/tag/v0.1.0

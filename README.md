@@ -8,14 +8,14 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://github.com/zbmowrey/strata/actions/workflows/ci.yml/badge.svg)](https://github.com/zbmowrey/strata/actions/workflows/ci.yml)
-![Version](https://img.shields.io/badge/version-0.1.1-blue)
+![Version](https://img.shields.io/badge/version-0.1.2-blue)
 ![Go](https://img.shields.io/badge/engine-Go-00ADD8?logo=go&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-D97757)
 
 </div>
 
 > [!NOTE]
-> **Strata 0.1.1** implements the full v1 design in [`docs/spec/`](docs/spec/). The output below is real,
+> **Strata 0.1.2** implements the full v1 design in [`docs/spec/`](docs/spec/). The output below is real,
 > captured from the release build; numbers are from the release benchmarks.
 
 ---
@@ -109,9 +109,9 @@ ci-flake — Eliminate CI flakiness in the integration suite (active, last activ
 
 ```bash
 # 1. Install the engine (Go 1.26+; the module pins its toolchain)
-go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.1
+go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.2
 #    …or download a binary for macOS / Linux / Windows from the GitHub release
-#    (gh release download v0.1.1 -R zbmowrey/strata -p 'strata_*_darwin_arm64.tar.gz').
+#    (gh release download v0.1.2 -R zbmowrey/strata -p 'strata_*_darwin_arm64.tar.gz').
 #    The binaries are not notarized: if you download one with a browser on macOS, clear the
 #    quarantine flag before running it: xattr -d com.apple.quarantine ./strata
 
