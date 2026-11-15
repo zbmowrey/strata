@@ -277,6 +277,15 @@ stages = ["stop", "ci"]
 	if err != nil || len(b.Entries) != 1 {
 		t.Fatalf("baseline not shrunk: %+v %v", b, err)
 	}
+	// A degraded run (the baselined finding vanishes but a new one appears) must not shrink it.
+	testutil.WriteFile(t, dir, "a.go", "package a\n\nfunc F() {\n\tBAD import unresolved\n}\n")
+	if rep := run(); len(rep.Blocking) != 1 || rep.Baselined != 0 {
+		t.Fatalf("degraded run: %+v", rep)
+	}
+	if b, err = LoadBaseline(filepath.Join(dir, ".strata", "baselines", "bad.json"), "bad"); err != nil || len(b.Entries) != 1 {
+		t.Fatalf("degraded run shrank the baseline: %+v %v", b, err)
+	}
+	testutil.WriteFile(t, dir, "a.go", "package a\n\nfunc F() {\n\tBAD one\n}\n")
 	// The edit hook path (Ratchet false) never rewrites baselines.
 	if n, _ := AcceptBaseline(ctx, inst, cfg, "bad", false); n != 0 {
 		t.Fatalf("nothing new expected, got %d", n)

@@ -133,7 +133,7 @@ Dropping Strata into an existing repo must not produce a wall of errors that blo
 
 - `strata gates baseline <gate>` records current findings as `{rule, file, fingerprint}` (fingerprint = hash of rule + normalized source line + enclosing symbol, stable under unrelated line shifts).
 - With a baseline, a gate **blocks only on findings not in the baseline**. Baselined findings are reported as a count (`+ 212 baselined`).
-- **Ratchet:** the baseline may only shrink. `strata check` rewrites the baseline file when findings disappear (fixed findings are removed, only for files the run covered; `--no-ratchet` disables this); hooks never rewrite baselines. Adding entries requires `strata gates baseline <gate> --accept` (a human/gardener-PR act, never done by the edit hook); without `--accept` the command reports what would be added.
+- **Ratchet:** the baseline may only shrink. `strata check` rewrites the baseline file when findings disappear (fixed findings are removed, only for files the run covered, and only when that gate's run produced no new findings: baselined findings that vanish while new ones appear usually mean the tool's environment degraded, e.g. a missing virtualenv turning type errors into import errors; `--no-ratchet` disables this); hooks never rewrite baselines. Adding entries requires `strata gates baseline <gate> --accept` (a human/gardener-PR act, never done by the edit hook); without `--accept` the command reports what would be added.
 - A gate with an empty baseline for 14 days has its baseline file deleted by the gardener.
 - New gates proposed by the gardener start as `blocking = false` (advisory) or with a baseline, then are flipped to blocking only when the current codebase passes ([07](07-gardener.md) §5.2).
 

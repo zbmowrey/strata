@@ -21,6 +21,8 @@ const HistoryFile = ".strata/garden/history.jsonl"
 const (
 	OutcomePR   = "pr"
 	OutcomeTidy = "tidy"
+	// OutcomeLocal: finished in a repository without a remote; the branch is kept for local review.
+	OutcomeLocal = "local"
 )
 
 // HistoryEntry is one attempt of one garden run.
@@ -63,11 +65,11 @@ func ReadHistory(inst *config.Instance) ([]HistoryEntry, error) {
 }
 
 // lastFinished is the end time of the latest run that finished (a PR or a
-// tidy garden); ok is false when no run ever finished.
+// tidy garden, or a local finish); ok is false when no run ever finished.
 func lastFinished(h []HistoryEntry) (time.Time, bool) {
 	var last time.Time
 	for _, e := range h {
-		if e.Outcome != OutcomePR && e.Outcome != OutcomeTidy {
+		if e.Outcome != OutcomePR && e.Outcome != OutcomeTidy && e.Outcome != OutcomeLocal {
 			continue
 		}
 		if t, err := time.Parse(time.RFC3339, e.Ended); err == nil && t.After(last) {

@@ -104,6 +104,65 @@ func TestGardenStartFinish(t *testing.T) { //nolint:paralleltest // sets PATH an
 	}
 }
 
+func TestGardenFinishWithoutRemote(t *testing.T) { //nolint:paralleltest // sets PATH and git identity
+	inst, log := gardenRepo(t)
+	sh(t, inst.Root, "git", "remote", "remove", "origin") // a local-only repository
+	ctx := context.Background()
+	res, err := Start(ctx, inst, now, Owner{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.Base != "main" {
+		t.Fatalf("base without a remote: %+v", res)
+	}
+	testutil.WriteFile(t, res.Worktree, "knowledge/_inbox/20261101-120000-retry-budget.md", "")
+	if err := os.Remove(filepath.Join(res.Worktree, "knowledge", "_inbox", "20261101-120000-retry-budget.md")); err != nil {
+		t.Fatal(err)
+	}
+	sh(t, res.Worktree, "git", "commit", "--quiet", "-am", "garden(knowledge): file 1 inbox item")
+	// finish is run from inside the worktree, where the gardener works.
+	wt, err := config.Open(res.Worktree, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	main, err := MainInstance(wt)
+	if err != nil || main.Root != inst.Root {
+		t.Fatalf("main instance from the worktree: %v %v", main, err)
+	}
+	if same, _ := MainInstance(inst); same != inst {
+		t.Fatal("MainInstance changed a main instance")
+	}
+	fin, err := Finish(ctx, main, FinishOptions{Body: "## Garden digest"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fin.PR != nil || fin.Branch != res.Branch || !strings.Contains(fin.Message, "no origin remote") {
+		t.Fatalf("local finish: %+v", fin)
+	}
+	if b, err := os.ReadFile(fin.Digest); err != nil || string(b) != "## Garden digest" {
+		t.Fatalf("digest: %q %v", b, err)
+	}
+	if out := sh(t, inst.Root, "git", "branch", "--list", res.Branch); out == "" {
+		t.Fatal("branch dropped; a local finish must keep it for review")
+	}
+	if _, err := os.Stat(res.Worktree); !os.IsNotExist(err) {
+		t.Error("worktree not removed")
+	}
+	if _, err := LoadSession(inst); fail.CodeOf(err) != fail.Usage {
+		t.Errorf("marker not removed: %v", err)
+	}
+	if calls, _ := os.ReadFile(log); len(calls) != 0 {
+		t.Errorf("forge called without a remote:\n%s", calls)
+	}
+	h, err := ReadHistory(inst)
+	if err != nil || len(h) == 0 || h[len(h)-1].Outcome != OutcomeLocal {
+		t.Fatalf("history: %+v %v", h, err)
+	}
+	if _, ok := lastFinished(h); !ok {
+		t.Error("a local finish must count as finished for garden debt")
+	}
+}
+
 func TestGardenAbortAndNothingToPropose(t *testing.T) { //nolint:paralleltest // sets PATH and git identity
 	inst, _ := gardenRepo(t)
 	ctx := context.Background()
