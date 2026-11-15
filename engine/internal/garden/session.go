@@ -236,8 +236,12 @@ func planInWorktree(ctx context.Context, inst *config.Instance, s *Session, now 
 	return res, nil
 }
 
-// OpenGardenPRs lists open PRs on garden branches (none without a forge CLI).
+// OpenGardenPRs lists open PRs on garden branches (none without an origin
+// remote or a forge CLI).
 func OpenGardenPRs(ctx context.Context, inst *config.Instance) []forge.PR {
+	if _, err := git(ctx, inst.Root, "remote", "get-url", "origin"); err != nil {
+		return []forge.PR{}
+	}
 	f, err := forge.Open(ctx, inst.Root, inst.Config.Garden.Forge)
 	if err != nil {
 		return []forge.PR{}
@@ -319,6 +323,8 @@ type FinishOptions struct {
 type FinishResult struct {
 	PR         *forge.PR `json:"pr,omitempty"`
 	CompareURL string    `json:"compare_url,omitempty"`
+	Branch     string    `json:"branch,omitempty"` // set when the branch is kept locally (no origin remote)
+	Digest     string    `json:"digest,omitempty"` // where a local finish saved the digest
 	Message    string    `json:"message,omitempty"`
 	V          int       `json:"v"`
 	Ready      bool      `json:"ready"`
@@ -344,6 +350,9 @@ func Finish(ctx context.Context, inst *config.Instance, opt FinishOptions) (*Fin
 	if opt.Body == "" {
 		opt.Body = RenderDigest(inst.Root, s)
 	}
+	if _, err := git(ctx, inst.Root, "remote", "get-url", "origin"); err != nil {
+		return finishLocal(ctx, inst, s, opt.Body)
+	}
 	if _, err := git(ctx, inst.Root, "push", "--quiet", "-u", "origin", s.Branch); err != nil {
 		return nil, fail.Wrap(fail.Runtime, "the branch and worktree are kept; fix the remote and rerun `strata garden finish`", err)
 	}
@@ -356,6 +365,21 @@ func Finish(ctx context.Context, inst *config.Instance, opt FinishOptions) (*Fin
 			e.PR = res.PR.Number
 		}
 	})
+	return res, cleanup(ctx, inst, s, false)
+}
+
+// finishLocal ends a run in a repository without an origin remote: there is
+// nothing to push a PR to, so the branch is kept for local review, the digest
+// is saved beside the run's plan, and the worktree and lease are released.
+func finishLocal(ctx context.Context, inst *config.Instance, s *Session, body string) (*FinishResult, error) {
+	digest := filepath.Join(RunDir(inst.Root, s.Run), "digest.md")
+	if err := os.WriteFile(digest, []byte(body), 0o600); err != nil {
+		return nil, fmt.Errorf("garden digest: %w", err)
+	}
+	record(inst.Root, s, OutcomeLocal, time.Now(), nil)
+	res := &FinishResult{V: 1, Branch: s.Branch, Digest: digest, Message: fmt.Sprintf(
+		"no origin remote: branch %s kept for review (digest: %s); review with `git log -p %s..%s`, merge it yourself",
+		s.Branch, digest, s.Base, s.Branch)}
 	return res, cleanup(ctx, inst, s, false)
 }
 

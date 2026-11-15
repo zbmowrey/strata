@@ -135,6 +135,9 @@ func newGardenFinishCmd(a *app) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if inst, err = garden.MainInstance(inst); err != nil {
+				return err //nolint:wrapcheck // already wrapped
+			}
 			if bodyFile != "" {
 				b, err := os.ReadFile(bodyFile) //nolint:gosec // G304: the digest file the caller names
 				if err != nil {
@@ -174,6 +177,9 @@ func newGardenAbortCmd(a *app) *cobra.Command {
 			inst, err := a.instance()
 			if err != nil {
 				return err
+			}
+			if inst, err = garden.MainInstance(inst); err != nil {
+				return err //nolint:wrapcheck // already wrapped
 			}
 			return garden.Abort(cmd.Context(), inst)
 		},

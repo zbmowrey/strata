@@ -6,6 +6,34 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+### Added
+
+- **`compatible_with` shard key.** A `resolve-conflict` false positive can now stay resolved: list
+  each shard in the other's `compatible_with` and the gardener stops raising the pair. Before, skipping
+  the task did not persist, so the same pairs came back on every plan.
+
+### Fixed
+
+- **The ratchet no longer shrinks a baseline on a degraded run.** A gate run that produced new
+  findings leaves its baseline alone. Before, running `strata check` where pyright could not see the
+  project's virtualenv turned 711 baselined type errors into import errors, and the ratchet deleted
+  the 711 entries as "fixed".
+- **`strata garden finish` works in repositories without a remote.** It keeps the branch for local
+  review, saves the digest beside the run's plan and records the new outcome `local`. Before, it
+  failed at the push and left the lease held. `garden start` no longer queries the forge without a
+  remote.
+- **`garden finish` and `garden abort` work from inside the garden worktree.** Before, they reported
+  "no /garden run is active".
+- **The typos gate skips `.strata/baselines/`**, whose hex fingerprints read as misspellings.
+- **`[scripts] default_runtime` is honored.** The runtime-justification lint and the CLAUDE.md
+  protocol block used to hardcode Go; both now follow the configured default, so a Python
+  repository can set `default_runtime = "python"` without every script needing a "why not Go".
+- **Garden supervisor tests pass under the pre-commit gate.** Their git helper now drops the
+  `GIT_*` variables a hook exports, as `garden` already does.
+- **The plugin no longer contradicts the engine's hint.** On a not-an-instance error it suggested
+  `strata init` even when the engine's hint named the actual fix (for example, committing
+  `.strata/config.toml` on the default branch before `/garden`).
+
 ## [0.1.4] - 2026-11-14
 
 ### Added

@@ -358,7 +358,10 @@ func (r *Runner) baseline(g *Gate, files []string, fs []finding.Finding) ([]find
 	}
 	covered := coverage(g, files)
 	fresh, n, stale := b.apply(fs, NewFingerprinter(r.Inst.Root), covered)
-	if r.Ratchet && b.shrink(stale) {
+	// Shrink only on an otherwise clean run. Baselined findings that vanish while new
+	// ones appear usually mean the tool's environment degraded (a missing virtualenv
+	// turns pyright's type errors into import errors), not that the debt was paid.
+	if r.Ratchet && len(fresh) == 0 && b.shrink(stale) {
 		if err := b.Save(bpath); err != nil {
 			fresh = append(fresh, finding.Finding{Gate: g.ID, Rule: "baseline", Severity: finding.Warning, File: g.Baseline, Message: err.Error()})
 		}

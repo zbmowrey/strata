@@ -236,6 +236,21 @@ func writeFence(worktree, mainRoot string, s *Session) error {
 	return fsutil.WriteAtomic(filepath.Join(gitdir, fenceFileName), append(b, '\n'), 0o600)
 }
 
+// MainInstance returns the main instance when inst is a garden worktree, so
+// run-level commands (finish, abort) work from inside the worktree the gardener
+// is working in; otherwise it returns inst unchanged.
+func MainInstance(inst *config.Instance) (*config.Instance, error) {
+	f, ok := worktreeFence(inst.Root)
+	if !ok || f.Main == "" {
+		return inst, nil
+	}
+	main, err := config.Open(f.Main, "")
+	if err != nil {
+		return nil, fmt.Errorf("garden main instance: %w", err)
+	}
+	return main, nil
+}
+
 // Heartbeat records progress for the garden run that owns the worktree at
 // inst.Root. It is a no-op outside garden worktrees. A stale fence returns a
 // fail.Fenced error; read-only callers may ignore it, writers must stop.

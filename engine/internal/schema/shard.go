@@ -23,7 +23,7 @@ var (
 var ShardKeys = []string{
 	"id", "title", "summary", "type", KeyTags, KeyAliases, "status", "trust", "created", "updated",
 	"sources", "verified_at", "review_after", "verify", "applies_to", "scripts", "gates",
-	"supersedes", "superseded_by", "occurrences", "sensitive",
+	"supersedes", "superseded_by", "compatible_with", "occurrences", "sensitive",
 }
 
 var shardKnown = set(ShardKeys...)
@@ -58,7 +58,7 @@ func Shard(in ShardInput, k config.Knowledge) []finding.Finding {
 		c.date(key)
 	}
 	c.duration("review_after")
-	for _, key := range []string{KeyTags, KeyAliases, "scripts", "gates", "supersedes"} {
+	for _, key := range []string{KeyTags, KeyAliases, "scripts", "gates", "supersedes", "compatible_with"} {
 		c.list(key)
 	}
 	if v, ok := c.meta.Get(KeyTags); ok && isList(v) && len(c.meta.Strings(KeyTags)) == 0 {

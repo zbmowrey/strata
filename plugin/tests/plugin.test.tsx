@@ -181,8 +181,29 @@ test('engine errors surface with hints', async ($, on) => {
   await $.session.start(start)
   const out = await $.command.run(cmd('capture', 'x'))
   expect(out.text).toBe(
-    'strata: not a strata instance (hint: run `strata init` here, or pass --root) — run `strata init` in this repository',
+    'strata: not a strata instance (hint: run `strata init` here, or pass --root)',
   )
+})
+
+test('not-an-instance without a hint falls back to suggesting init', async ($, on) => {
+  engine(on, { capture: { exitCode: 5, stdout: '', stderr: 'strata: not a strata instance\n' } })
+  await $.session.start(start)
+  const out = await $.command.run(cmd('capture', 'x'))
+  expect(out.text).toBe('strata: not a strata instance — run `strata init` in this repository')
+})
+
+test('a hint that names a different remedy is not contradicted', async ($, on) => {
+  engine(on, {
+    capture: {
+      exitCode: 5,
+      stdout: '',
+      stderr:
+        'strata: not a strata instance: .strata/config.toml missing in /r/.strata/worktrees/garden-x (hint: commit .strata/config.toml on the default branch first)\n',
+    },
+  })
+  await $.session.start(start)
+  const out = await $.command.run(cmd('capture', 'x'))
+  expect(out.text).not.toContain('run `strata init`')
 })
 
 test('model tools: strata_search and strata_show', async ($, on) => {

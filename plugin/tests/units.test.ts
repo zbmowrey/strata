@@ -184,7 +184,13 @@ test('JSON and exit-code error handling', () => {
     hint: 'run `strata init` here, or pass --root',
   })
   if (!notInstance.ok) {
-    expect(describeFail(notInstance)).toContain('run `strata init` in this repository')
+    // The engine's hint already names the remedy, so no second suggestion is appended.
+    expect(describeFail(notInstance)).toBe(
+      'strata: not a strata instance (no .strata/config.toml found above /x) (hint: run `strata init` here, or pass --root)',
+    )
+    expect(describeFail({ ...notInstance, hint: '' })).toContain(
+      'run `strata init` in this repository',
+    )
   }
   const locked = decode(
     run(6, '{"v":1,"error":{"message":"garden lock held","hint":"wait","code":6}}\n'),

@@ -172,7 +172,7 @@ func (r *run) conflicts() error {
 	}
 	for i, a := range claims {
 		for _, b := range claims[i+1:] {
-			if !related(a, b) || negated(a) == negated(b) || sharedWords(a.Title, b.Title) < 2 {
+			if !related(a, b) || negated(a) == negated(b) || sharedWords(a.Title, b.Title) < 2 || compatible(a, b) {
 				continue
 			}
 			r.add(newTask(ResolveConflict, High, "confirm the contradiction from code or sources; correct the weaker claim or raise a question",
@@ -180,6 +180,23 @@ func (r *run) conflicts() error {
 		}
 	}
 	return nil
+}
+
+// compatible reports whether either shard records, in compatible_with, that it
+// was reviewed against the other and does not contradict it. This is how a
+// resolved false positive stays resolved instead of returning on every plan.
+func compatible(a, b *index.Record) bool {
+	return listsID(a, b.ID) || listsID(b, a.ID)
+}
+
+func listsID(r *index.Record, id string) bool {
+	list, _ := r.Meta["compatible_with"].([]any)
+	for _, v := range list {
+		if s, ok := v.(string); ok && s == id {
+			return true
+		}
+	}
+	return false
 }
 
 func related(a, b *index.Record) bool {

@@ -10,6 +10,7 @@ import (
 
 	"github.com/zbmowrey/strata/engine/internal/config"
 	"github.com/zbmowrey/strata/engine/internal/fsutil"
+	"github.com/zbmowrey/strata/engine/internal/schema"
 )
 
 //go:embed all:templates/instance
@@ -47,11 +48,12 @@ type Vars struct {
 	Projects   string
 	MinVersion string
 	Version    string
+	Runtime    string // [scripts] default_runtime, shown in the protocol block
 }
 
 // VarsFor derives template values from a configuration.
 func VarsFor(cfg config.Config, engineVersion string) Vars {
-	return Vars{Knowledge: cfg.Paths.Knowledge, Scripts: cfg.Paths.Scripts, Projects: cfg.Paths.Projects, MinVersion: cfg.Engine.MinVersion, Version: engineVersion}
+	return Vars{Knowledge: cfg.Paths.Knowledge, Scripts: cfg.Paths.Scripts, Projects: cfg.Paths.Projects, MinVersion: cfg.Engine.MinVersion, Version: engineVersion, Runtime: schema.RuntimeTitle(cfg.Scripts.DefaultRuntime)}
 }
 
 // Render executes the named instance template.

@@ -34,6 +34,7 @@ applies_to: ["tests/**/conftest.py"]   # optional; globs of code this shard is a
 scripts: [find-leaked-fixtures]        # optional; scripts that implement/enforce this
 gates: [semgrep:fixture-teardown]      # optional; gates that enforce this
 supersedes: [old-fixture-advice]       # optional
+compatible_with: [fixture-scope-advice] # optional; shards reviewed side by side with this one and found not to contradict it (suppresses resolve-conflict for the pair)
 superseded_by: null                    # set when status=superseded
 occurrences: 2                         # optional; gotcha/correction recurrence count — promotion signal
 sensitive: false                       # optional; true only valid under knowledge/_private/

@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/zbmowrey/strata/engine/internal/doc"
@@ -30,8 +31,9 @@ const (
 // Placeholder marks scaffolded manifest values that must be filled in.
 const Placeholder = "TODO"
 
-// Manifest validates a script.yaml. file is the instance-relative path.
-func Manifest(file string, meta *doc.Meta, parseErr error, maxSummary int) []finding.Finding {
+// Manifest validates a script.yaml. file is the instance-relative path;
+// defaultRuntime is the instance's [scripts] default_runtime ("" means go).
+func Manifest(file string, meta *doc.Meta, parseErr error, maxSummary int, defaultRuntime string) []finding.Finding {
 	c := newChecker(file, nil, meta)
 	if parseErr != nil {
 		frontmatter(c, parseErr, true)
@@ -56,16 +58,21 @@ func Manifest(file string, meta *doc.Meta, parseErr error, maxSummary int) []fin
 	}
 	c.globs("applies_to")
 	c.globs("writes")
-	manifestPolicy(c, rt, side, status)
+	manifestPolicy(c, rt, side, status, defaultRuntime)
 	placeholders(c)
 	c.unknown(scriptKnown)
 	return c.out
 }
 
 // manifestPolicy checks runtime justification and side-effect declarations.
-func manifestPolicy(c *checker, rt, side, status string) {
-	if rt != "" && rt != "go" && len([]rune(c.str("runtime_justification"))) < minJustifyLen {
-		c.at(finding.Error, RuleJustify, "runtime", "explain why Go is not suitable (≥ 40 chars)", "runtime %q requires runtime_justification of at least %d chars", rt, minJustifyLen)
+// A script in the instance's default runtime needs no justification; any
+// other runtime explains why the default does not suit it.
+func manifestPolicy(c *checker, rt, side, status, defaultRuntime string) {
+	if defaultRuntime == "" {
+		defaultRuntime = "go"
+	}
+	if rt != "" && rt != defaultRuntime && len([]rune(c.str("runtime_justification"))) < minJustifyLen {
+		c.at(finding.Error, RuleJustify, "runtime", fmt.Sprintf("explain why %s is not suitable (≥ 40 chars)", RuntimeTitle(defaultRuntime)), "runtime %q requires runtime_justification of at least %d chars", rt, minJustifyLen)
 	}
 	if side != "" && side != "read-only" && len(c.meta.Strings("writes")) == 0 && side != SideNetwork {
 		c.at(finding.Error, RuleWrites, "side_effect", "list the globs it may write in writes:", "side_effect %q requires writes globs", side)
@@ -106,4 +113,12 @@ func containsPlaceholder(v any) bool {
 		}
 	}
 	return false
+}
+
+// RuntimeTitle is how hints and the protocol block name a runtime ("" is go).
+func RuntimeTitle(rt string) string {
+	if t, ok := map[string]string{"": "Go", "go": "Go", "python": "Python", "rust": "Rust", "typescript": "TypeScript", "bash": "Bash"}[rt]; ok {
+		return t
+	}
+	return rt
 }

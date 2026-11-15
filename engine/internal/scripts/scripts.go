@@ -125,7 +125,7 @@ func Find(inst *config.Instance, id string) (*Script, error) {
 
 // Validate lints one script's manifest with the compiled schema.
 func Validate(inst *config.Instance, s *Script) []finding.Finding {
-	return schema.Manifest(s.Dir+"/script.yaml", s.Meta, nil, inst.Config.Knowledge.MaxSummary)
+	return schema.Manifest(s.Dir+"/script.yaml", s.Meta, nil, inst.Config.Knowledge.MaxSummary, inst.Config.Scripts.DefaultRuntime)
 }
 
 // AllowListable returns the ids of active scripts whose side effect may be

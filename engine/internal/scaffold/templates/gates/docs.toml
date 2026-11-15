@@ -10,7 +10,7 @@ scope = "file"
 [[gate]]
 id = "typos"
 desc = "spelling in all text"
-exclude = ["**/*.golden", "**/testdata/**", "**/*.lock", "**/go.sum"]
+exclude = ["**/*.golden", "**/testdata/**", "**/*.lock", "**/go.sum", ".strata/baselines/**"]
 stages = ["edit", "stop", "commit", "ci"]
 scope = "file"
 cmd = ["typos", "--force-exclude", "--format", "brief", "{targets}"]

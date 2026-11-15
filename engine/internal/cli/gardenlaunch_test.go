@@ -23,6 +23,13 @@ func shell(t *testing.T, dir string, args ...string) {
 	t.Helper()
 	cmd := exec.CommandContext(context.Background(), args[0], args[1:]...)
 	cmd.Dir = dir
+	// Drop what a git hook exports (GIT_INDEX_FILE, …) so the suite also passes
+	// when it runs as the pre-commit gate.
+	for _, kv := range os.Environ() {
+		if k, _, _ := strings.Cut(kv, "="); !strings.HasPrefix(k, "GIT_") || k == "GIT_AUTHOR_NAME" || k == "GIT_AUTHOR_EMAIL" || k == "GIT_COMMITTER_NAME" || k == "GIT_COMMITTER_EMAIL" {
+			cmd.Env = append(cmd.Env, kv)
+		}
+	}
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("%v: %v\n%s", args, err, out)
 	}

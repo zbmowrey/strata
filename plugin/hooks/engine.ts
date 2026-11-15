@@ -151,7 +151,12 @@ function errorObject(stdout: string): { message: string; hint: string } | undefi
 
 /** One line for the person: `strata: <message> (hint: …)`. */
 export function describe(f: EngineFail): string {
-  const where = f.exitCode === EXIT.notInstance ? ' — run `strata init` in this repository' : ''
+  // The engine's hint names the remedy when it knows a better one (e.g. a garden worktree
+  // cut from a default branch without Strata); fall back to init only without one.
+  const where =
+    f.exitCode === EXIT.notInstance && f.hint === ''
+      ? ' — run `strata init` in this repository'
+      : ''
   return `strata: ${f.message}${f.hint === '' ? '' : ` (hint: ${f.hint})`}${where}`
 }
 
