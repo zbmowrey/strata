@@ -6,6 +6,8 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-11-15
+
 ### Added
 
 - **`compatible_with` shard key.** A `resolve-conflict` false positive can now stay resolved: list
@@ -163,7 +165,8 @@ First release: the full v1 design in `docs/spec/` (Phases 0–12 of the build pl
 - Retrieval bench (engine repo, 34 queries): MRR 0.944, recall@5 0.956, nDCG@10 0.947.
 - Protocol suite (claude-opus-5-5, 3 runs each): 12/12 scenarios pass (11 at 3/3).
 
-[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/zbmowrey/strata/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/zbmowrey/strata/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/zbmowrey/strata/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/zbmowrey/strata/compare/v0.1.1...v0.1.2
