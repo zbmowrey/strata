@@ -6,6 +6,12 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+### Added
+
+- **`compatible_with` shard key.** A `resolve-conflict` false positive can now stay resolved: list
+  each shard in the other's `compatible_with` and the gardener stops raising the pair. Before, skipping
+  the task did not persist, so the same pairs came back on every plan.
+
 ### Fixed
 
 - **The ratchet no longer shrinks a baseline on a degraded run.** A gate run that produced new

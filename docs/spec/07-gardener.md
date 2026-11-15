@@ -44,7 +44,7 @@ Sessions the gardener starts set `STRATA_GARDEN=1`; the `pre-edit` hook then ref
 | `promote` | see §4 | varies |
 | `scriptify` | `bash` telemetry: same normalized command hash ≥ 3× across ≥ 2 sessions | low |
 | `fix-broken-link` | ambiguous broken links | medium |
-| `resolve-conflict` | two active shards with contradicting claims (detected heuristically: same `applies_to`/tags + negation/antonym patterns; and confirmed by the agent) | high |
+| `resolve-conflict` | two active shards with contradicting claims (detected heuristically: same `applies_to`/tags + negation/antonym patterns; and confirmed by the agent). A pair is not raised when either shard lists the other in `compatible_with`; resolving a false positive adds each id to the other's list, so the review persists across runs and clones | high |
 | `apply-answer` | `_questions/` items newly `answered` | low |
 | `stale-project` | active project, no log activity in 30 days | → question |
 | `deprecated-script-removal` | deprecated script, 0 runs in 90 days | low |

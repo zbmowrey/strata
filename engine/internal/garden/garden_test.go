@@ -274,3 +274,30 @@ func TestOrphanMinAge(t *testing.T) {
 		}
 	}
 }
+
+func TestConflictCompatibleWith(t *testing.T) {
+	t.Parallel()
+	inst := seeded(t)
+	conflicts := func() int {
+		t.Helper()
+		p, err := Run(context.Background(), inst, Options{Now: now, Plan: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p.Counts[ResolveConflict]
+	}
+	if conflicts() == 0 {
+		t.Fatal("seeded contradiction not detected")
+	}
+	// Recording the review on either side resolves the pair for good.
+	f := filepath.Join(inst.Root, "knowledge", "database", "postgres", "pg-pool-per-worker.md")
+	raw, err := os.ReadFile(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testutil.WriteFile(t, inst.Root, "knowledge/database/postgres/pg-pool-per-worker.md",
+		strings.Replace(string(raw), "applies_to:", "compatible_with: [pg-pool-reuse]\napplies_to:", 1))
+	if n := conflicts(); n != 0 {
+		t.Fatalf("compatible_with did not resolve the pair: %d conflict tasks", n)
+	}
+}
