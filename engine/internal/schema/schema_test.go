@@ -164,7 +164,7 @@ func TestManifestRules(t *testing.T) {
 	t.Parallel()
 	check := func(src string) []string {
 		m, err := doc.ParseYAML([]byte(src))
-		return rules(Manifest("scripts/d/tool-x/script.yaml", m, err, 160))
+		return rules(Manifest("scripts/d/tool-x/script.yaml", m, err, 160, ""))
 	}
 	if got := check(manifest); len(got) != 0 {
 		t.Fatalf("good manifest: %v", got)
@@ -181,6 +181,19 @@ func TestManifestRules(t *testing.T) {
 		if got := check(strings.Replace(manifest, tc.from, tc.to, 1)); !slices.Contains(got, tc.rule) {
 			t.Errorf("%s: want %s, got %v", name, tc.rule, got)
 		}
+	}
+	// The justification rule follows the instance's default runtime.
+	py := strings.Replace(strings.Replace(manifest, "runtime: go", "runtime: python", 1), "main.go", "main.py", 1)
+	if got := check(py); !slices.Contains(got, RuleJustify) {
+		t.Errorf("python under a go default needs a justification: %v", got)
+	}
+	m, err := doc.ParseYAML([]byte(py))
+	if got := rules(Manifest("scripts/d/tool-x/script.yaml", m, err, 160, "python")); slices.Contains(got, RuleJustify) {
+		t.Errorf("python under a python default needs none: %v", got)
+	}
+	m, _ = doc.ParseYAML([]byte(manifest))
+	if got := rules(Manifest("scripts/d/tool-x/script.yaml", m, nil, 160, "python")); !slices.Contains(got, RuleJustify) {
+		t.Errorf("go under a python default needs a justification: %v", got)
 	}
 	if !containsPlaceholder(map[string]any{"a": []any{"TODO x"}}) || containsPlaceholder(3) {
 		t.Error("containsPlaceholder")

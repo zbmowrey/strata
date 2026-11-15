@@ -19,6 +19,9 @@ Claude Code plugin are versioned together.
 - **`garden finish` and `garden abort` work from inside the garden worktree.** Before, they reported
   "no /garden run is active".
 - **The typos gate skips `.strata/baselines/`**, whose hex fingerprints read as misspellings.
+- **`[scripts] default_runtime` is honored.** The runtime-justification lint and the CLAUDE.md
+  protocol block used to hardcode Go; both now follow the configured default, so a Python
+  repository can set `default_runtime = "python"` without every script needing a "why not Go".
 - **Garden supervisor tests pass under the pre-commit gate.** Their git helper now drops the
   `GIT_*` variables a hook exports, as `garden` already does.
 - **The plugin no longer contradicts the engine's hint.** On a not-an-instance error it suggested

@@ -43,7 +43,7 @@ description: |
 status: active               # draft|active|deprecated
 replaced_by: null            # set when deprecated
 runtime: python              # go|python|rust|typescript|bash
-runtime_justification: >     # REQUIRED when runtime != go (see §5)
+runtime_justification: >     # REQUIRED when runtime != [scripts] default_runtime (see §5)
   Needs the Python `ast` module to parse Python sources faithfully; no Go equivalent.
 entry: main.py
 usage: find-leaked-fixtures [--path DIR] [--format text|json]
@@ -87,6 +87,8 @@ A script's class is the **maximum** effect of any code path. Changing a script's
 ## 5. Runtimes
 
 Default: **Go**. Strictly typed, compiler-checked, fast to start once built, single toolchain shared with the engine (D-002).
+
+An instance may set `[scripts] default_runtime` (for example `python` in a Python repository, where its scripts can reuse the project's own environment and libraries). The justification rule follows that setting: a script in the default runtime needs none, and any other runtime, Go included, needs one. The protocol block in CLAUDE.md names the configured default.
 
 Other runtimes require `runtime_justification` (lint-enforced, non-empty, ≥ 40 chars):
 

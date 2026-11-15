@@ -206,7 +206,7 @@ func validate(it *item, cfg config.Config, layout corpus.Layout) []finding.Findi
 	case corpus.Project:
 		return schema.Project(f.Rel, f.Role, it.doc, it.err)
 	case corpus.Script:
-		return schema.Manifest(f.Rel, it.meta, it.err, cfg.Knowledge.MaxSummary)
+		return schema.Manifest(f.Rel, it.meta, it.err, cfg.Knowledge.MaxSummary, cfg.Scripts.DefaultRuntime)
 	}
 	return nil
 }

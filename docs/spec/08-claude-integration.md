@@ -42,7 +42,7 @@ If an operation is repeatable and can be deterministic, find a script first:
 - Fits → run it. Nearly fits and the change is additive → extend it with tests.
 - Nearly fits but changing it is risky (semantics, interface, side effects) → write a new
   script that reuses scripts/lib/. Nothing fits and it will recur → `strata new script`.
-- Default runtime is Go; any other runtime needs a written justification in script.yaml.
+- Default runtime is {{.Runtime}} (`[scripts] default_runtime`, Go unless configured); any other runtime needs a written justification in script.yaml.
 
 ### 3. Capture as you go
 When you learn something non-obvious and reusable — a gotcha, a decision and its reason,
