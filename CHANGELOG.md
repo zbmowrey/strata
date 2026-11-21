@@ -6,6 +6,17 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The `deps` gate works inside a garden worktree.** It now passes the lockfiles to osv-scanner by
+  name. Before, it walked the repository, and osv-scanner obeyed the main checkout's ignore rule
+  over `.strata/worktrees/`, found no packages and failed the gate, so a headless garden run ended
+  as `failed-verify` with nothing wrong. Existing instances: in `.strata/gates.toml`, drop
+  `scope = "repo"` and `"-r"` from the `deps` gate.
+- **`strata garden finish` reads the pull request's address from tea's output.** tea wraps it in a
+  terminal hyperlink; before, `finish` created the PR, then failed with "no pull request URL" and
+  left the run's lease and worktree behind.
+
 ## [0.1.5] - 2026-11-15
 
 ### Added

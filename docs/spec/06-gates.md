@@ -122,7 +122,7 @@ Fix these, then continue. Explain a gate: strata gates explain go-lint/gocognit
 |---|---|---|
 | `secrets` | `gitleaks protect --staged` / `gitleaks detect` | edit (file), commit, ci |
 | `sast` | `semgrep` with `p/default` + language packs + `.strata/semgrep/*.yml` custom rules (taint-mode rules for command injection, path traversal, SQL injection, SSRF) | stop (changed files), commit, ci |
-| `deps` | `osv-scanner` across lockfiles | commit, ci |
+| `deps` | `osv-scanner` on each lockfile, passed by name (a walk of the repository obeys git's ignore rules and finds nothing in a garden worktree) | commit, ci |
 | `suppressions` | built-in | edit, commit — see §7 |
 
 Custom semgrep rules shipped by Strata include: no `shell=True` / `sh -c` with interpolation; no `curl … | sh` in scripts; no reading files under `knowledge/_private/` from scripts; no network calls from scripts declared `read-only` (heuristic, by import/call patterns).

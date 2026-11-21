@@ -27,17 +27,18 @@ func (g *gh) CreateDraft(ctx context.Context, branch, base, title, body string) 
 	return prFromOutput(string(out), branch)
 }
 
+// rePRURL matches a pull-request URL. It stops at whitespace and at control
+// characters, so a URL wrapped in a terminal hyperlink (OSC 8, which tea
+// prints) is found without its escape sequences.
+var rePRURL = regexp.MustCompile(`https?://[^ \x00-\x1f\x7f]+/pulls?/\d+`)
+
 // prFromOutput finds the PR URL (the last pull-request URL) in CLI output.
 func prFromOutput(out, branch string) (PR, error) {
-	var u string
-	for f := range strings.FieldsSeq(out) {
-		if (strings.HasPrefix(f, "http://") || strings.HasPrefix(f, "https://")) && rePRNumber.MatchString(f) {
-			u = f
-		}
-	}
-	if u == "" {
+	all := rePRURL.FindAllString(out, -1)
+	if len(all) == 0 {
 		return PR{}, fmt.Errorf("no pull request URL in output %q", strings.TrimSpace(out))
 	}
+	u := all[len(all)-1]
 	n, err := strconv.Atoi(rePRNumber.FindStringSubmatch(u)[1])
 	if err != nil {
 		return PR{}, fmt.Errorf("pull request number in %q: %w", u, err)

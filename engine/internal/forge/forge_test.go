@@ -163,6 +163,15 @@ func TestParsing(t *testing.T) {
 	if _, err := prFromOutput("created, no url", "b"); err == nil {
 		t.Fatal("no URL accepted")
 	}
+	// tea wraps the URL in a terminal hyperlink (OSC 8) with no space around it.
+	linked := "# #7 WIP: garden (open)\n  \x1b]8;id=1;https://code.example.org/o/r/pulls/7\ahttps://code.example.org/o/r/pulls/7\x1b]8;;\a"
+	pr, err := prFromOutput(linked, "b")
+	if err != nil || pr.Number != 7 || pr.URL != "https://code.example.org/o/r/pulls/7" {
+		t.Fatalf("hyperlinked URL: %+v, %v", pr, err)
+	}
+	if pr, err := prFromOutput("see https://github.com/o/r/pull/3 then https://github.com/o/r/pull/12\n", "b"); err != nil || pr.Number != 12 {
+		t.Fatalf("last URL: %+v, %v", pr, err)
+	}
 	g := &gh{run: func(context.Context, string, string, ...string) ([]byte, error) { return []byte("not json"), nil }}
 	if _, err := g.FindOpen(context.Background(), ""); err == nil {
 		t.Fatal("bad gh json accepted")
