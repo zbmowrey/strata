@@ -33,7 +33,9 @@ id = "deps"
 desc = "osv-scanner across lockfiles"
 applies_to = ["**/go.sum", "**/uv.lock", "**/pnpm-lock.yaml", "**/package-lock.json", "**/Cargo.lock"]
 stages = ["commit", "ci"]
-scope = "repo"
-cmd = ["osv-scanner", "scan", "source", "--format", "sarif", "-r", "{targets}"]
+# The lockfiles by name, not a walk of the repository: a walk obeys git's ignore rules, and a
+# garden worktree sits under a path the main checkout ignores, so it would find nothing there.
+scope = "file"
+cmd = ["osv-scanner", "scan", "source", "--format", "sarif", "{targets}"]
 parser = "sarif"
 timeout = "300s"
