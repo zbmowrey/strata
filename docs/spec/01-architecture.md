@@ -207,7 +207,7 @@ members = [
 | `just fmt` | apply all formatters |
 | `just bench` | perf benchmarks vs. baseline + retrieval bench |
 | `just plugin-check` | `claude plugin validate plugin/` + `tsc` + `claude plugin test plugin/` |
-| `just release VERSION` | tag, goreleaser (darwin/linux × arm64/amd64), checksums, GitHub release |
+| `just release VERSION` | check versions and CHANGELOG, push the `vX.Y.Z` + `engine/vX.Y.Z` tags; `release.yml` then runs goreleaser (darwin/linux/windows × arm64/amd64), signs `checksums.txt` with cosign (keyless) and attaches build provenance to a draft GitHub release |
 | `just doctor` | run `strata doctor` against this repo |
 
 End users install with `go install github.com/zbmowrey/strata/engine/cmd/strata@latest` (or a release binary / Homebrew tap later) and add the plugin with `/plugin marketplace add zbmowrey/strata` then `/plugin install strata@strata`.

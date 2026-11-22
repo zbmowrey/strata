@@ -98,9 +98,10 @@ doctor: build
 hooks:
     printf '#!/bin/sh\nexec just check-staged\n' > .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit && echo .git/hooks/pre-commit
 
-# Tag and publish a release (asks nothing — run only with the owner's go-ahead).
-# Tags vX.Y.Z (release + plugin) and engine/vX.Y.Z (Go module in engine/), then
-# goreleaser builds binaries into a DRAFT GitHub release. Run on main after merging.
+# Tag a release (asks nothing — run only with the owner's go-ahead).
+# Tags vX.Y.Z (release + plugin) and engine/vX.Y.Z (Go module in engine/) and pushes them;
+# .github/workflows/release.yml then builds, signs and attests into a DRAFT GitHub release.
+# Run on main after merging.
 release VERSION:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -114,8 +115,8 @@ release VERSION:
     git tag -a "$v" -m "Strata $v"
     git tag -a "engine/$v" -m "Strata engine $v (Go module)"
     git push origin "$v" "engine/$v"
-    GORELEASER_CURRENT_TAG="$v" goreleaser release --clean
+    echo "release: tags pushed; watch the build with: gh run watch \$(gh run list --workflow release.yml --limit 1 --json databaseId --jq '.[0].databaseId')"
 
 # Local release dry run: cross-compiled archives in dist/, nothing published.
 release-snapshot:
-    goreleaser release --snapshot --clean --skip=before,publish
+    GORELEASER_CURRENT_TAG="$(git describe --tags --abbrev=0 --match 'v*')" goreleaser release --snapshot --clean --skip=before,publish,sign
