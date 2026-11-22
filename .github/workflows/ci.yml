@@ -9,25 +9,25 @@ jobs:
   gates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: "1.27.3" # = the toolchain line in engine/go.mod (tools must be built with it)
           cache-dependency-path: engine/go.sum
-      - uses: extractions/setup-just@v2
-      - uses: pnpm/action-setup@v4
+      - uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6 # v2.0.0
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           version: 11
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: lts/*
       - name: Install gate tools
         run: |
           go install mvdan.cc/gofumpt@v0.12.0
           go install golang.org/x/tools/cmd/goimports@v0.52.0
-          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@v1.10.0
           go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
           go install github.com/zricethezav/gitleaks/v8@v8.30.1
           go install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1
@@ -40,12 +40,12 @@ jobs:
   bench:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: "1.27.3" # = the toolchain line in engine/go.mod (tools must be built with it)
           cache-dependency-path: engine/go.sum
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@dd310ad5a97d8e7b41793f8ef055398d51ad4de6 # v2.0.0
       - run: just bench
         env:
           STRATA_BUDGETS: report  # CI hardware differs from the baseline machine; budgets are enforced locally (01 §7)

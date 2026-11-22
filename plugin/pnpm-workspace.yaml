@@ -1,0 +1,4 @@
+# minimatch 7.x–11.0.0 carries ReDoS advisories (GHSA-g3hv-75wg-m249 and others);
+# eslint-plugin-sonarjs and typescript-estree pin vulnerable 10.x versions.
+overrides:
+  'minimatch@>=7.0.0 <11.0.1': ^11.0.9
