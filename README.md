@@ -7,6 +7,7 @@
 *Knowledge settles in layers — and hardens into code.*
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/zbmowrey/strata/badge)](https://scorecard.dev/viewer/?uri=github.com/zbmowrey/strata)
 [![CI](https://github.com/zbmowrey/strata/actions/workflows/ci.yml/badge.svg)](https://github.com/zbmowrey/strata/actions/workflows/ci.yml)
 ![Version](https://img.shields.io/badge/version-0.1.6-blue)
 ![Go](https://img.shields.io/badge/engine-Go-00ADD8?logo=go&logoColor=white)
