@@ -12,7 +12,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/spf13/cobra v1.10.2
 	github.com/zeebo/xxh3 v1.1.0
-	golang.org/x/sys v0.49.0
+	golang.org/x/sys v0.50.0
 	modernc.org/sqlite v1.62.0
 )
 
