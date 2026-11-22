@@ -120,3 +120,16 @@ release VERSION:
 # Local release dry run: cross-compiled archives in dist/, nothing published.
 release-snapshot:
     GORELEASER_CURRENT_TAG="$(git describe --tags --abbrev=0 --match 'v*')" goreleaser release --snapshot --clean --skip=before,publish,sign
+
+# `--admin` bypasses only the main-review ruleset (reviews, code owners); main-baseline (CI,
+# up-to-date branch, linear history) has no bypass. Run only with the owner's go-ahead.
+# Merge a PR as the owner: update the branch, wait for required checks, squash-merge.
+merge PR:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    before="$(gh pr view {{PR}} --json headRefOid --jq .headRefOid)"
+    gh pr update-branch {{PR}} --rebase >/dev/null 2>&1 || true
+    after="$(gh pr view {{PR}} --json headRefOid --jq .headRefOid)"
+    if [[ "$before" != "$after" ]]; then echo "merge: rebased onto main; waiting for checks to start"; sleep 20; fi
+    gh pr checks {{PR}} --required --watch --fail-fast --interval 30
+    gh pr merge {{PR}} --squash --admin
