@@ -40,9 +40,15 @@ Strata is a drop-in, per-repository operating layer for [Claude Code](https://cl
 | 🌱 **Gardener** | Autonomous upkeep: files the inbox, merges duplicates, re-verifies stale facts, distills finished projects, and promotes knowledge into scripts and gates. It delivers everything as a PR for you to review. |
 | 🔌 **Plugin** | `/garden`, `/capture`, `/bench`, `/strata resume`, a status line, a side pane, and specialist subagents (gardener, scout, scribe, scriptsmith, verifier). |
 
-## The big idea: the hardening ladder
+## Why "Strata": knowledge settles in layers
 
-Most memory systems only store what the agent learns. Strata keeps pushing it toward determinism, one rung at a time.
+Most agent memory is a single pile. Everything the agent learns goes into one store, at one level of
+trust, and it helps only if the agent happens to look. Strata treats knowledge as **sediment**
+instead. Knowledge is captured in distinct layers, and each layer has its own intent, its own
+properties, and its own way of reaching the agent. Over time, what proves itself sinks: each layer is
+more solid, more deterministic, and cheaper to apply than the one above it.
+
+### The hardening ladder
 
 ```
   1. observation   "tests hung — DB fixture never torn down"          _inbox/ · project log
@@ -56,7 +62,33 @@ Most memory systems only store what the agent learns. Strata keeps pushing it to
   5. gate          semgrep rule — blocks the bug from ever landing     .strata/gates.toml
 ```
 
-Recurrence, telemetry, and gate-failure patterns drive each promotion. A mistake made three times becomes a check that runs on every edit.
+| Layer | Intent | Cost to write | Cost to apply | Reaches the agent by |
+|---|---|---|---|---|
+| **Observation** | Don't lose it | One command | High: find it, read it, judge it | Search (ranked low) |
+| **Shard** | Say it once, correctly | Edited, sourced, trust-rated | One batched `show` | Search, `strata context <path>` |
+| **Playbook** | Carry judgment | A Claude Code skill | Moderate | Loaded when the task matches |
+| **Script** | Remove judgment | Code, tests, manifest | One command | `strata run`, preferred over improvising |
+| **Gate** | Make it impossible to forget | Rule, baseline, link to *why* | Zero | Every edit, commit, and CI run |
+
+Further down the ladder, four things change at once:
+
+- **Determinism rises.** A hunch becomes a check that gives the same answer every time.
+- **Cost per use falls.** Reading a note spends context and judgment on every use. A gate spends neither.
+- **Enforcement shifts from pull to push.** The upper layers help only when someone looks them up. The lower layers act whether or not anyone remembers them. This is why Strata blocks on code but only nudges on knowledge.
+- **Cost of writing rises, on purpose.** Capturing a note is free. Writing a gate takes real work, so only proven knowledge gets that far.
+
+**The layers stay separate on purpose.** Not everything should harden. A judgment call belongs in a
+playbook, not a script, and a nuanced "usually, unless…" stays a shard. Promotion is driven by
+evidence (recurrence, telemetry, gate-failure patterns), the gardener proposes each step as a PR, and
+**no rung is skipped silently**. A gate links back to the shard that explains why it exists, and the
+shard links forward to whatever now enforces it. A mistake made three times becomes a check that runs on
+every edit, and the check still carries the reason it exists.
+
+### The same idea, on other axes
+
+- **Trust strata:** `user-stated > verified > observed > inferred`. Trust shapes ranking and decides what is binding: only user-stated or verified decisions and standards are rules.
+- **Kinds of memory:** projects are *episodic* (what happened on this piece of work), shards are *semantic* (what's true here), and playbooks and scripts are *procedural* (how to do it). When a project finishes, the gardener distills its chronicle into shards, so episodes settle into facts.
+- **Truth vs. derived:** markdown in git is the bedrock. The search index, hubs, and catalogs sit on top of it as views that can be rebuilt at any time.
 
 ## The loop
 
