@@ -6,6 +6,8 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-22
+
 ### Security
 
 - **Releases are built, signed and attested in CI.** `just release` now only checks and pushes the
@@ -17,6 +19,12 @@ Claude Code plugin are versioned together.
   and TypeScript, a Scorecard workflow and badge, and a branch ruleset on `main` (PR, review and
   green checks required). `minimatch` in the plugin's dev dependencies is lifted past its ReDoS
   advisories.
+
+### Changed
+
+- Dependencies: `golang.org/x/sys` 0.50.0; plugin dev tooling on TypeScript 6 and
+  eslint-plugin-sonarjs 4; GitHub Actions on their current major versions.
+- `just release-snapshot` works again (it picked up the `engine/v*` tag and failed).
 
 ## [0.1.6] - 2026-11-21
 
@@ -190,7 +198,8 @@ First release: the full v1 design in `docs/spec/` (Phases 0–12 of the build pl
 - Retrieval bench (engine repo, 34 queries): MRR 0.944, recall@5 0.956, nDCG@10 0.947.
 - Protocol suite (claude-opus-5-5, 3 runs each): 12/12 scenarios pass (11 at 3/3).
 
-[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/zbmowrey/strata/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/zbmowrey/strata/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/zbmowrey/strata/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/zbmowrey/strata/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/zbmowrey/strata/compare/v0.1.3...v0.1.4
