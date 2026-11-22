@@ -3,3 +3,5 @@ extend-exclude = ["engine/go.sum", "*.svg", "**/testdata/fuzz/**", "**/testdata/
 [default.extend-words]
 # Domain vocabulary
 strat = "strat"
+# in-toto attestation files are named *.intoto.jsonl (SLSA provenance; OpenSSF Scorecard looks for this suffix)
+intoto = "intoto"

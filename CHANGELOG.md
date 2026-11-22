@@ -6,6 +6,18 @@ Claude Code plugin are versioned together.
 
 ## [Unreleased]
 
+### Security
+
+- **Releases are built, signed and attested in CI.** `just release` now only checks and pushes the
+  tags; `.github/workflows/release.yml` runs goreleaser, signs `checksums.txt` with cosign
+  (keyless, GitHub OIDC) and attaches SLSA build provenance to a draft release. Verify downloads
+  with `gh attestation verify` or `cosign verify-blob` (see the README).
+- **Repository hardening for OpenSSF Scorecard.** `SECURITY.md` with private vulnerability
+  reporting, Dependabot for Go, npm and Actions, every Action pinned to a commit SHA, CodeQL for Go
+  and TypeScript, a Scorecard workflow and badge, and a branch ruleset on `main` (PR, review and
+  green checks required). `minimatch` in the plugin's dev dependencies is lifted past its ReDoS
+  advisories.
+
 ## [0.1.6] - 2026-11-21
 
 ### Fixed

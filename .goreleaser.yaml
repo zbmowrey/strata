@@ -1,4 +1,5 @@
-# goreleaser v2 — `just release VERSION` (run only with the owner's go-ahead).
+# goreleaser v2 — run by .github/workflows/release.yml on the tag `just release VERSION` pushes.
+# Locally: `just release-snapshot` (no publish, no signing).
 version: 2
 project_name: strata
 before:
@@ -29,6 +30,12 @@ archives:
     files: [LICENSE, README.md, CHANGELOG.md]
 checksum:
   name_template: checksums.txt
+signs:
+  # Keyless cosign signature over checksums.txt (covers every archive), via GitHub OIDC in CI.
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args: ["sign-blob", "--bundle=${signature}", "--yes", "${artifact}"]
 changelog:
   disable: true # CHANGELOG.md is the source of release notes
 release:

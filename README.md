@@ -147,6 +147,12 @@ go install github.com/zbmowrey/strata/engine/cmd/strata@v0.1.6
 #    (gh release download v0.1.6 -R zbmowrey/strata -p 'strata_*_darwin_arm64.tar.gz').
 #    The binaries are not notarized: if you download one with a browser on macOS, clear the
 #    quarantine flag before running it: xattr -d com.apple.quarantine ./strata
+#    Releases from v0.1.7 on are signed and carry build provenance. To verify a download:
+#      gh attestation verify strata_*_darwin_arm64.tar.gz -R zbmowrey/strata
+#      cosign verify-blob checksums.txt --bundle checksums.txt.sigstore.json \
+#        --certificate-identity-regexp '^https://github.com/zbmowrey/strata/' \
+#        --certificate-oidc-issuer https://token.actions.githubusercontent.com
+#      shasum -a 256 -c checksums.txt --ignore-missing
 
 # 2. Drop Strata into a repository
 cd your-repo
